@@ -1,6 +1,5 @@
 # RabbitMQ 란
 
-## 용어 설명
 ### *Producer*
 - 메세지를 보내는 Application
 - Message Queue 에 넣어주는(쏴주는) 사람
