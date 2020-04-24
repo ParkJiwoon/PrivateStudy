@@ -2,6 +2,8 @@
 
 `Key`, `Value` 형태로 데이터를 저장하는 자료구조
 
+- [HashMap](https://github.com/ParkJiwoon/PrivateStudy/blob/master/Java/Map.md#hashmap)
+
 <br>
 
 ## HashMap
