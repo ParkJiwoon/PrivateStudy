@@ -3,7 +3,18 @@
 `Key`, `Value` 형태로 데이터를 저장하는 자료구조
 
 - [HashMap](https://github.com/ParkJiwoon/PrivateStudy/blob/master/Java/Map.md#hashmap)
+    - [선언](https://github.com/ParkJiwoon/PrivateStudy/blob/master/Java/Map.md#%EC%84%A0%EC%96%B8)
+    - [삽입](https://github.com/ParkJiwoon/PrivateStudy/blob/master/Java/Map.md#%EC%84%A0%EC%96%B8)
+    - [가져오기](https://github.com/ParkJiwoon/PrivateStudy/blob/master/Java/Map.md#%EC%84%A0%EC%96%B8)
+    - [삭제](https://github.com/ParkJiwoon/PrivateStudy/blob/master/Java/Map.md#%EC%84%A0%EC%96%B8)
+    - [존재 확인](https://github.com/ParkJiwoon/PrivateStudy/blob/master/Java/Map.md#%EC%84%A0%EC%96%B8)
+    - [크기](https://github.com/ParkJiwoon/PrivateStudy/blob/master/Java/Map.md#%EC%84%A0%EC%96%B8)
+    - [Key / Value 묶음](https://github.com/ParkJiwoon/PrivateStudy/blob/master/Java/Map.md#%EC%84%A0%EC%96%B8)
+    - [순회](https://github.com/ParkJiwoon/PrivateStudy/blob/master/Java/Map.md#%EC%84%A0%EC%96%B8)
+    - [compute](https://github.com/ParkJiwoon/PrivateStudy/blob/master/Java/Map.md#%EC%84%A0%EC%96%B8)
 - [LinkedHashMap](https://github.com/ParkJiwoon/PrivateStudy/blob/master/Java/Map.md#linkedhashmap)
+    - [순서 유지](https://github.com/ParkJiwoon/PrivateStudy/blob/master/Java/Map.md#%EC%88%9C%EC%84%9C-%EC%9C%A0%EC%A7%80)
+    - [접근 빈도에 따른 순서 변경](https://github.com/ParkJiwoon/PrivateStudy/blob/master/Java/Map.md#%EC%A0%91%EA%B7%BC-%EB%B9%88%EB%8F%84%EC%97%90-%EB%94%B0%EB%A5%B8-%EC%88%9C%EC%84%9C-%EB%B3%80%EA%B2%BD)
 
 <br>
 
