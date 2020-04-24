@@ -6,9 +6,9 @@
 
 <br>
 
-## HashMap
+# HashMap
 
-### 선언
+## 선언
 
 일반적으로 변수 부분은 인터페이스로 선언하는게 확장에 유리하다.
 
@@ -18,7 +18,7 @@ Map<String, String> map = new HashMap<>();
 
 <br>
 
-### 데이터 삽입
+## 데이터 삽입
 
 `V put(K key, V value)` 로 값을 넣을 수 있다.
 
@@ -38,7 +38,7 @@ map.putIfAbsent("animal2", "dog");  // {animal=cat, animal2=dog, food=pizza}
 
 <br>
 
-### 데이터 가져오기
+## 데이터 가져오기
 
 `V get(Object key)` 로 `value` 값을 가져올 수 있다.
 
@@ -53,7 +53,7 @@ map.getOrDefault("food2", "chicken");    // "chicken"
 
 <br>
 
-### 데이터 삭제
+## 데이터 삭제
 
 `V remove(Object key)` 로 데이터를 삭제 할 수 있다.
 
@@ -63,7 +63,7 @@ map.remove("animal2");
 
 <br>
 
-### 데이터 확인
+## 데이터 확인
 
 `boolean containsKey(Object key)` 또는 `boolean containsValue(Object value)` 로 `key` 나 `value` 값이 존재하는 지 확인할 수 있다.
 
@@ -74,7 +74,7 @@ map.containsValue("dog");   // false
 
 <br>
 
-### Key, Value 묶음 가져오기
+## Key, Value 묶음 가져오기
 
 `Set<K> keySet()` 은 `Key`들로 이루어진 `Set` 자료구조를 리턴한다.
 
@@ -89,7 +89,7 @@ map.values();   // [cat, pizza]
 
 <br>
 
-### Map 순회
+## Map 순회
 
 `forEach` 를 사용해서 `Map` 을 순회할 수 있다.
 
@@ -114,7 +114,7 @@ for (Map.Entry entry : map.entrySet()) {
 
 <br>
 
-### Compute
+## Compute
 
 `compute` 를 사용해 원하는 로직을 실행하고 데이터를 넣을 수 있다.
 
@@ -155,7 +155,9 @@ map.computeIfPresent("animal", (k, v) -> {
 // map: {fruit=apple, animal=tiger, food=pizza}
 ```
 
-## LinkedHashMap
+<br><br>
+
+# LinkedHashMap
 
 
 
