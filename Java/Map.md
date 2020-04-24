@@ -74,6 +74,14 @@ map.containsValue("dog");   // false
 
 <br>
 
+## 크기(길이) 확인
+
+```java
+map.size();
+```
+
+<br>
+
 ## Key, Value 묶음 가져오기
 
 `Set<K> keySet()` 은 `Key`들로 이루어진 `Set` 자료구조를 리턴한다.
@@ -159,5 +167,81 @@ map.computeIfPresent("animal", (k, v) -> {
 
 # LinkedHashMap
 
+`HashMap` 은 `hashcode` 를 사용하기 때문에 순서가 일정하지 않다.
 
+`LinkedHashMap` 은 내부를 `Double-Linked List` 로 구성하여 `HashMap` 의 순서를 유지한다.
 
+`HashMap` 에서 상속받기 때문에 `HashMap` 의 모든 메소드를 사용할 수 있다.
+
+<br>
+
+## 순서 유지
+
+데이터는 먼저 들어간 데이터가 무조건 앞에 위치하게 된다.
+
+`forEach` 문에서도 동일하다.
+
+```java
+Map<String, String> map = new LinkedHashMap<>();
+
+map.put("animal", "cat");
+map.put("fruit", "apple");
+
+System.out.println(map);        // {animal=cat, fruit=apple}
+
+map.put("animal", "dog");       
+System.out.println(map);        // {animal=dog, fruit=apple}
+
+map.forEach((k, v) -> System.out.print(k + ": " + v + ", "));       // animal: dog, fruit: apple, 
+```
+
+<br>
+
+## 접근 빈도에 따른 순서 변경
+
+`LinkedHashMap` 은 생성자 파라미터로 `accessOrder` 라는 값을 받는다.
+
+`accessOrder` 는 기본값이 `false` 인데, 만약 `true` 로 설정한다면 `LinkedHashMap` 의 접근 빈도에 따라서 순서가 바뀌게 된다.
+
+```java
+public LinkedHashMap(int initialCapacity, float loadFactor, boolean accessOrder) {
+    super(initialCapacity, loadFactor);
+    this.accessOrder = accessOrder;
+}
+```
+
+<br>
+
+아래 코드는 위와 완전히 동일하지만 `accessOrder` 만 `true` 로 생성한 `LinkedHashMap` 이다.
+
+`"animal"` 키를 먼저 넣었지만 중간에 `put` 메소드로 `"animal"` 키에 접근을 했기 때문에 순서가 바뀌었다.
+
+`put` 뿐만 아니라 `get` 이나 `compute` 에도 동일하게 동작한다 (`containsKey` 는 바뀌지 않음)
+
+```java
+Map<String, String> map = new LinkedHashMap<>(16, 0.75f, true);
+new HashMap<>();
+map.put("animal", "cat");
+map.put("fruit", "apple");
+
+System.out.println(map);        // {animal=cat, fruit=apple}
+
+map.put("animal", "dog");       
+System.out.println(map);        // {fruit=apple, animal=dog}
+
+map.forEach((k, v) -> System.out.print(k + ": " + v + ", "));       // fruit: apple, animal: dog, 
+```
+
+<br>
+
+`accessOrder` 를 이용하면 가장 첫번째에 존재하는, 즉 가장 사용되지 않은 `Entry` 를 알 수 있다.
+
+```java
+int leastUsedEntry = map.entrySet().iterator().next();
+int leastUsedKey = map.keySet().iterator().next();
+int leastUsedValue = map.values().iterator().next();
+
+// 아래처럼 구할 수도 있다.
+leastUsedKey = leastUsedEntry.getKey();
+leastUsedValue = leastUsedEntry.getValue();
+```
