@@ -20,3 +20,6 @@
 
 ## MessageQueue
 - [RabbitMQ](./MessageQueue/RabbitMQ.md)
+
+## Git
+- [디렉토리 이름 변경](./Git/git-mv.md)
