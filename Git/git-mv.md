@@ -41,5 +41,5 @@ $ git commit -m "Rename boj to BOJ"
  .
  .
  .
- rename {boj => BOJ}/image/5397_4.PNG (100%
+ rename {boj => BOJ}/image/5397_4.PNG (100%)
 ```
