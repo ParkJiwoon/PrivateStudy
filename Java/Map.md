@@ -249,7 +249,7 @@ map.forEach((k, v) -> System.out.print(k + ": " + v + ", "));       // fruit: ap
 `accessOrder` 를 이용하면 가장 첫번째에 존재하는, 즉 가장 사용되지 않은 `Entry` 를 알 수 있다.
 
 ```java
-int leastUsedEntry = map.entrySet().iterator().next();
+Map.Entry leastUsedEntry = map.entrySet().iterator().next();
 int leastUsedKey = map.keySet().iterator().next();
 int leastUsedValue = map.values().iterator().next();
 
