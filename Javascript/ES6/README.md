@@ -1,10 +1,10 @@
 # ES6
 
-- [변수 정의: const, let]()
+- [변수 정의: const, let](./const-let.md)
   - var 문제점
   - const, let 특징
   
-- [객체와 배열의 사용성 개선(spread, 비구조화)]()
+- [객체와 배열의 사용성 개선](./improved-array-and-object.md)
   - 단축 속성명 (shorthand property names)
   - 계산된 속성명 (computed property names)
   - 전개 연산자(spread operator)
