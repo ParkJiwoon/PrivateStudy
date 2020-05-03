@@ -8,6 +8,9 @@
 - [Map](./Java/Map.md)
 - [Future](./Java/Future.md)
 
+## Javascript
+- [ES6](./Javascript/ES6.md)
+
 ## Ruby
 - [when](./Ruby/when.md)
 - [sort](./Ruby/sort.md)
