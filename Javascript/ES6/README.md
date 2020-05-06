@@ -10,3 +10,14 @@
   - 전개 연산자(spread operator)
   - 배열 비구조화(array destructuring)
   - 객체 비구조화(object destructuring)
+
+- [강력해진 함수의 기능](./function.md)
+  - 매개변수에 추가된 기능
+    - 매개변수 기본값 (default parameter)
+    - 나머지 매개변수 (rest parameter)
+    - 명명된 매개변수 (named parameter)
+    - 선택적 매개변수 (optional parameter)
+  - 화살표 함수 (arrow function)
+    - 한줄 사용
+    - 여러줄 사용
+    - this 바인딩 차이점
