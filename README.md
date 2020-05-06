@@ -9,7 +9,7 @@
 - [Future](./Java/Future.md)
 
 ## Javascript
-- [ES6](./Javascript/ES6.md)
+- [ES6](./Javascript/ES6)
 
 ## Ruby
 - [when](./Ruby/when.md)
