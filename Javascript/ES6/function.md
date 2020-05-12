@@ -44,7 +44,7 @@ ex();       // { a: 1 }
 
 ```js
 function ex(a, ...rest) {
-    console.log({ a, rest 1});
+    console.log({ a, rest });
 }
 
 ex(1, 2, 3);        // { a: 1, rest: [2, 3] }
