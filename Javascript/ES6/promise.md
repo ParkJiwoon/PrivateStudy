@@ -15,10 +15,8 @@
 하지만 콜백 패턴은 조금만 중첩되어도 코드가 복잡해지는 콜백 지옥(Callback Hell)을 만들어낸다.
 
 ```js
-function getData(callback) {
-  data = "This is new Data";
-  console.log(data);
-  callback(data, display);
+function display(data) {
+  console.log("result: " + data);
 }
 
 function conactData(data) {
@@ -27,8 +25,10 @@ function conactData(data) {
   display(parsedData);
 }
 
-function display(data) {
-  console.log("result: " + data);
+function getData(callback) {
+  data = "This is new Data";
+  console.log(data);
+  callback(data, display);
 }
 
 getData(parsing);
@@ -36,6 +36,34 @@ getData(parsing);
 // This is new Data parsing
 // result: This is new Data parsing
 ```
+<br>
+
+위 코드는 프로미스를 사용하면 아래와 같이 좀더 보기 쉽게 바꿀 수 있다.
+
+```js
+const getData = new Promise((resolve, reject) => {
+  data = "This is new Data";
+  console.log(data);
+  resolve(data);
+})
+
+getData
+  .then(data => {
+    // concatData
+    parsedData = data.concat(" parsing");
+    console.log(parsedData);
+    return parsedData;
+  })
+  .then(data => {
+    // display
+    console.log("result: " + data);
+    return data;
+  })
+// This is new Data
+// This is new Data parsing
+// result: This is new Data parsing
+```
+
 <br>
 
 ## 2. 프로미스의 세가지 상태
@@ -84,6 +112,8 @@ const promise = new Promise((resolve, reject) => {
 
 <br>
 
+### 3.2. Promise.reject 생성
+
 ```js
 // Promise.reject 로 생성
 const promise = Promise.reject('error');
@@ -93,9 +123,32 @@ const promise = Promise.reject('error');
 
 <br>
 
+### 3.3. Promise.resolve 생성
+
 ```js
 // Promise.resolve 로 생성
 const promise = Promise.resolve(params);
+
+const p1 = Promise.resolve(123);
+const p2 = Promise.resolve(p1);   // return p1
+console.log(p2 === p1);           // true
 ```
 
 입력값이 프로미스라면 그 객체가 그대로 반환되고, 프로미스가 아니라면 이행됨 상태인 프로미스가 반환된다.
+
+<br>
+
+## 4. 프로미스 사용
+
+### 4.1. then
+
+```js
+getData().then(onResolve, onReject);
+```
+
+`then` 은 처리됨 상태가 된 프로미스를 처리할 때 사용되는 메소드다.
+
+프로미스가 처리됨 상태가 되면 `then` 메소드의 파라미터로 전달된 함수가 호출된다.
+
+`then` 메소드는 항상 프로미스를 반환하기 때문에 하나의 프로미스에서 연속적으로 `then` 메소드를 호출할 수 있다.
+
