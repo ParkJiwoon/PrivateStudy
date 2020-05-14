@@ -295,8 +295,3 @@ Promise
     console.log(data);
   });
 ```
-
-<br>
-
-### 5.3. 데이터 캐싱
-
