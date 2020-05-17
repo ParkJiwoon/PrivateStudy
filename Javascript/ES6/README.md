@@ -26,4 +26,4 @@
 
 - [비동기 프로그래밍 2: async await](./async-await.md)
 
-- [문자열 템플릿(./template-literals.md)
+- [문자열 템플릿](./template-literals.md)
