@@ -37,8 +37,6 @@ function create1(key, value) {
   return obj;
 }
 
-create2 = (key, value) {}
-
 function create2(key, value) {
   return { [key]: value };
 }
