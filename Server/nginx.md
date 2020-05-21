@@ -58,6 +58,85 @@ Event-Driven 방식에선 작업을 하다 I/O, socket read/write 등 CPU가 관
 
 <br>
 
+# Config
+
+## Nginx 블록
+
+```nginx
+server {
+    root /home/a;
+
+    location / {
+        root /home/b;
+        index main.html;
+    }
+}
+```
+
+server 블록에 root 정의해두면 하위 블록에 전부 적용된다.
+
+location 블록에 root 를 재정의하면 location 블록에 있는게 우선시된다.
+
+위 nginx 서버에 접근하면 `/home/b/main.html` 파일을 연다.
+
+<br>
+
+## error_page 설정
+
+```nginx
+server {
+    location / {
+        error_page 404 main.html;
+        ..
+    }
+}
+```
+
+`www.a.com` 에 접속했을 때 파일을 찾지 못해 404 에러가 발생하면 `www.a.com/main.html` 로 URL 을 이동시켜준다.
+
+<br>
+
+## error_page 커스터마이징
+
+```nginx
+server {
+    location / {
+        error_page 404 main.html;
+    }
+
+    location /main.html {
+        root /home/c;
+    }
+}
+```
+
+error_page 로 이동시킬 때 location 블록으로 다시 root 경로를 설정해 줄 수 있다.
+
+`www.a.com/main.html` URL 로 이동할 때 띄우는 html 경로를 강제로 지정할 수 있다.
+
+위 예시에서는 `/home/c/main.html` 페이지를 띄워준다. (URL 에 맞는 html 파일로 이동)
+
+<br>
+
+## Reverse Proxy 설정
+
+```nginx
+server {
+    server_name aa.bb.com;
+
+    location / {
+        proxy_pass http://127.0.0.1:8080;
+        error_page 404 502 main.html;
+    }
+}
+```
+
+`aa.bb.com` 도메인에 접근하면 `http://127.0.0.1:8080` 로 연결해준다.
+
+404 나 502 에러가 발생하면 `aa.bb.com/main.html` URL 로 이동시킨다.
+
+<br>
+
 # 명령어
 
 nginx 디렉토리로 가서 명령어 타이핑 (권한이 필요하면 `sudo`)
