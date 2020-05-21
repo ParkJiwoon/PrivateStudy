@@ -8,23 +8,33 @@ Nginx 란 러시아의 이고르 시쇼브란 개발자가 Apache 의 C10K Probl
 
 ## Apache
 
-Client가 HTTP 요청을 보낼 때, Apache는 MPM (Multi Processing Module) 을 사용하여 처리한다. MPM 에는 크게 두 가지 방식이 있다.
+Client가 HTTP 요청을 보낼 때, Apache는 MPM (Multi Processing Module) 을 사용하여 처리한다. 
 
 <br>
 
 ### 1. Prefork 방식 (멀티 프로세스 방식)
 
-Client 요청에 대해 default 개수만큼 apache 자식 프로세스를 생성하여 처리하고, 그 이상으로 요청이 많을 경우 Process 를 생성하여 처리하는 방식이다. 
+자식 프로세스를 미리 생성해두고 클라이언트 요청에 하나에 대해 한 프로세스가 담당한다.
 
-Apache 설치 시, default 로 설정되어 있다.
+따라서 한 자식 프로세스가 알 수 없는 원인으로 정지하더라도 다른 자식 프로세스에 영향을 주지 않는다.
+
+자식 프로세스의 수는 최대 1024 개다.
+
+프로세스 당 한 개의 스레드만 존재하기 때문에 스레드간 메모리 공유를 하지 않아서 안정적인 대신에 메모리 사용량이 많다.
+
+시작 시 생성한 프로세스의 수보다 요청이 많아지면 실행 중인 프로세스를 복제하여 실행한다. 이 때, 메모리 영역까지 같이 복제된다.
 
 <br>
 
 ### 2. Worker 방식 (멀티 프로세스 & 멀티 스레드 방식)
 
-Prefork 와 같이 Default Apache 자식 프로세스를 생성하고 요청이 많아지면 각 프로세스의 스레드를 생성해 처리하는 구조이다.
+자식 프로세스마다 멀티 스레드로 실행하며 각 클라이언트의 요청을 스레드가 처리한다.
 
-두 방식의 특징은 우리가 흔히 알고 있는 프로세스와 쓰레드 사용의 장/단점과 동일하다.
+하나의 프로세스가 여러 요청을 담당하며 Prefork 와 비교해서 시작 프로세스 수를 줄일 수 있다.
+
+스레드 간 메모리를 공유하기 때문에 메모리 사용량이 적다.
+
+한 프로세스 당 최대 64 개의 스레드 처리가 가능하다.
 
 <br>
 
@@ -38,7 +48,7 @@ Apache는 접속마다 Process 또는 Thread를 생성하는 구조이다.
 
 # Nginx
 
-NGINX는 Event-Driven 방식으로 동작한다. 
+Nginx 는 Event-Driven 방식으로 동작한다. 
 
 한 개 또는 고정된 프로세스만 생성 하고, 그 프로세스 내부에서 비 동기 방식으로 효율적으로 작업들을 처리한다.
 
@@ -68,3 +78,4 @@ $ ./nginx -s reload
 # Reference
 
 - [넌 뭐니 NGINX? - 서정국님 Medium](https://medium.com/sjk5766/%EB%84%8C-%EB%AD%90%EB%8B%88-nginx-9a8cae25e964)
+- [opentutorials](https://opentutorials.org/module/384/4526)
