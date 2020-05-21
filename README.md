@@ -18,6 +18,10 @@
 ## CSS
 - [word-break](./CSS/word-break.md)
 
+## Server
+- [Proxy](./Server/proxy.md)
+- [Nginx](./Server/nginx.md)
+
 ## Linux
 - [ln](./Linux/ln.md)
 
@@ -26,3 +30,6 @@
 
 ## Git
 - [디렉토리 이름 변경](./Git/git-mv.md)
+
+## Tip
+- [티스토리에 Github Markdown 형식으로 포스팅](./Tip/posting-tistory-in-github-md-style.md)
