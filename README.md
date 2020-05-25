@@ -12,6 +12,7 @@
 - [ES6](./Javascript/ES6)
 
 ## Ruby
+- [rbenv](./Ruby/rbenv.md)
 - [when](./Ruby/when.md)
 - [sort](./Ruby/sort.md)
 
