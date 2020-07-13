@@ -15,6 +15,7 @@
 - [rbenv](./Ruby/rbenv.md)
 - [when](./Ruby/when.md)
 - [sort](./Ruby/sort.md)
+- [regex](./Ruby/regex.md)
 
 ## CSS
 - [word-break](./CSS/word-break.md)
