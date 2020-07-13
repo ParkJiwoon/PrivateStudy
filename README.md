@@ -16,7 +16,7 @@
 - [when](./Ruby/when.md)
 - [sort](./Ruby/sort.md)
 - [regex](./Ruby/regex.md)
-- [Different between #nil? #empty? #blank? #present?](./Ruby/nil?_empty?_blank?_present?.md)
+- [Different between #nil? #empty? #blank? #present?](./Ruby/nil?-empty?-blank?-present?.md)
 
 ## CSS
 - [word-break](./CSS/word-break.md)
