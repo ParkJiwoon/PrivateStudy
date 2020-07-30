@@ -12,6 +12,8 @@
 
 `useState` 함수를 사용하면 함수형 컴포넌트에서 상태값을 사용할 수 있습니다.
 
+<br>
+
 #### 기본 사용
 
 ```js
@@ -48,6 +50,8 @@ export default App;
 
 따라서 `const [count, setCount] = useState(0)` 라인은 `count` 라는 상태값을 가지며 `setCount` 로 상태값을 변화시킬 수 있고 `count` 의 기본값은 0 을 나타냅니다.
 
+<br>
+
 #### 상태값 변경은 batch 로 처리
 
 ```js
@@ -60,6 +64,8 @@ function increment() {
 리액트는 상태값 변경을 배치로 처리하기 때문에 위와 같이 `setCount` 를 여러번 사용하여도 한개만 동작합니다.
 
 상태값이 변경될 때마다 렌더링을 하면 비효율적이므로 `increment` 함수를 호출했을 때 실제로 렌더링 되는 횟수는 한 번입니다.
+
+<br>
 
 #### 함수를 파라미터로
 
@@ -78,3 +84,81 @@ function increment() {
 
 최종적으로 2 가 증가합니다.
 
+
+<br>
+
+## useEffect
+
+`useEffect` 함수는 컴포넌트가 **실제 돔에 렌더링 되었을 때**와 **렌더링이 끝난 직후**에 호출됩니다.
+
+아래와 같이 컴포넌트를 만들면 Increment 버튼을 누를 때마다 `count` 값이 1 증가하여 새로 렌더링 되고 그때마다 `count is ${count}` 가 콘솔에 출력됩니다.
+
+```js
+import React, { useState, useEffect } from 'react';
+
+function App() {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    console.log(`count is ${count}`);
+  })
+
+  function increment() {
+    setCount(count + 1);
+  }
+
+  return (
+    <div>
+      <h1>count: {count}</h1>
+      <button onClick={increment}>Increment</button>
+    </div>
+  );
+}
+
+export default App;
+```
+
+<br>
+
+#### 특정 값의 변경에만 반응
+
+컴포넌트에 여러 개의 값이 있을 때, 아무런 상관이 없는 값이 변경 되었을 때에도 매번 렌더링이 새로 된다면 비효율적입니다.
+
+`useEffect` 함수는 특정 값들에 대해서만 반응하게 설정할 수 있습니다.
+
+```js
+useEffect(() => {
+  console.log(`count is ${count}`);
+}, [count])
+```
+
+`useEffect` 의 두번째 파라미터로 배열을 넘기면 배열 안의 값들이 변경될 때만 함수가 동작합니다.
+
+만약 빈 배열 `[ ]` 을 입력한다면 최초 렌더링 시에만 동작합니다.
+
+<br>
+
+#### 렌더링이 사라질 때 반응
+
+위에서 설명한 `useEffect` 함수가 렌더링이 되는 순간 동작합니다.
+
+그리고 렌더링이 사라지는 순간에도 동작하게 설정할 수 있습니다.
+
+```js
+useEffect(() => {
+  console.log(`count is ${count}`);
+
+  return () => console.log(`count is ${count} when disagree`);
+}, [count])
+```
+
+`return` 으로 넘기는 함수는 렌더링이 사라지는 순간에 동작합니다.
+
+배열에 `count` 가 있기 때문에 `count` 값이 변할 때마다 기존의 렌더링은 끝나고 새롭게 렌더링 됩니다.
+
+그래서 렌더링이 사라지는 순간에 한번, 다시 렌더링 되는 순간에 한번 이렇게 총 두개의 로그가 찍힙니다.
+
+```html
+count is 0 when agree
+count is 1
+```
