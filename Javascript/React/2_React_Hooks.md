@@ -177,9 +177,10 @@ count is 1
 
 <br>
 
-#### Context API 를 사용하지 않는 코드
+#### Context API 란?
 
 ```js
+// Context API 미사용
 function App() {
   return (
     <div>
@@ -205,3 +206,110 @@ function GrandChild({ comment }) {
 위 코드는 `App => Child => GrandChild` 순으로 `comment` 값을 전달합니다.
 
 사실 `Child` 컴포넌트에서는 `comment` 를 사용하지 않지만 불필요하게 받아서 하위 컴포넌트에 넘겨주어야 합니다.
+
+아래 코드처럼 Context API 를 사용한다면 불필요한 `props` 전달 없이 하위 컴포넌트에서 상위 컴포넌트의 값을 사용할 수 있습니다.
+
+```js
+// Context API 사용
+const CommentContext = createContext('');
+
+function App() {
+  return (
+    <div>
+      <CommentContext.Provider value="hello react">
+        <h1> React </h1>
+        <Child />
+      </CommentContext.Provider>
+    </div>
+  )
+}
+
+function Child() {
+  return (
+    <div>
+      <GrandChild />
+    </div>
+  )
+}
+
+function GrandChild() {
+  return (
+    <CommentContext.Consumer>
+      {comment => <p>{ `${comment}, hello world`}</p>}
+    </CommentContext.Consumer>
+  )
+}
+```
+
+<br>
+
+#### Context API 알아보기
+
+Context API 의 기본값 형태는 다음과 같습니다.
+
+```js
+createContext(defaultValue) => {Provider, Consumer}
+
+
+<Provider value={}>
+  ...
+</Provider>
+
+
+<Consumer>
+  {data => (
+    ...
+  )}
+</Consumer>
+```
+
+상위 컴포넌트에서는 `Provider` 를 사용하여 데이터를 전달하고 하위 컴포넌트에서는 `Consumer` 를 사용하여 전달한 데이터를 받습니다.
+
+`Consumer` 를 사용한 컴포넌트에서는 데이터를 찾기 위해 상위 컴포넌트로 올라가며 가장 가까운 `Provider` 컴포넌트를 찾습니다.
+
+만약 `Provider` 를 찾지 못하면 기본값인 `defaultValue` 가 사용됩니다.
+
+`Provider` 의 값이 변경되면 하위의 모든 `Consumer` 는 다시 렌더링 됩니다.
+
+<br>
+
+#### Consumer 에서 데이터 수정하기
+
+`Context API` 로 변수를 수정하는 함수를 같이 보내면 하위 컴포넌트에서 데이터를 수정할 수 있습니다.
+
+`count` 와 `setCount` 를 하위 컴포넌트로 보내서 직접 수정하는 코드입니다.
+
+```js
+const CountContext = createContext(0);
+const SetCountContext = createContext(() => {});
+
+function App() {
+  const [count, setCount] = useState(0);
+  return (
+    <div>
+      <h1>{ count }</h1>
+      <SetCountContext.Provider value={setCount}>
+        <CountContext.Provider value={count}>
+          <Increment />
+        </CountContext.Provider>
+      </SetCountContext.Provider>
+    </div>
+  )
+}
+
+function Increment() {
+  return (
+    <div>
+      <SetCountContext.Consumer>
+        {setCount => (
+          <CountContext.Consumer>
+            {count => (
+              <button onClick={() => setCount(count + 1)}>+1</button>
+            )}
+          </CountContext.Consumer>
+        )}
+      </SetCountContext.Consumer>
+    </div>
+  )
+}
+```
