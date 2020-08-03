@@ -162,3 +162,46 @@ useEffect(() => {
 count is 0 when agree
 count is 1
 ```
+
+<br>
+
+## Context API
+
+상위 컴포넌트에서 하위 컴포넌트로 데이터를 전달할 때 보통 `props` 를 사용합니다.
+
+전달할 컴포넌트 간의 거리가 가깝다면 충분히 전달-전달을 할 수 있지만 굉장히 멀리 떨어져있거나 많은 하위 컴포넌트들에게 전달할 때는 `props` 를 반복적으로 내려주어야 합니다.
+
+또, 사용되지 않는 중간 컴포넌트들이 의미 없이 `props` 를 계속 받아야 합니다.
+
+이럴 때 **Context API** 를 사용하면 상위 컴포넌트에서 하위에 있는 모든 컴포넌트에 직접 데이터를 전달 할 수 있습니다.
+
+<br>
+
+#### Context API 를 사용하지 않는 코드
+
+```js
+function App() {
+  return (
+    <div>
+      <h1> React </h1>
+      <Child comment="hello react" />
+    </div>
+  )
+}
+
+function Child({ comment }) {
+  return (
+    <div>
+      <GrandChild comment={comment} />
+    </div>
+  )
+}
+
+function GrandChild({ comment }) {
+  return <p>{ `${comment}, hello world`}</p>
+}
+```
+
+위 코드는 `App => Child => GrandChild` 순으로 `comment` 값을 전달합니다.
+
+사실 `Child` 컴포넌트에서는 `comment` 를 사용하지 않지만 불필요하게 받아서 하위 컴포넌트에 넘겨주어야 합니다.
