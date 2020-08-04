@@ -313,3 +313,131 @@ function Increment() {
   )
 }
 ```
+
+<br>
+
+## useRef
+
+`ref` 속성값을 사용하면 자식 요소 (컴포넌트 or 돔 요소) 에 직접 접근할 수 있습니다.
+
+<br>
+
+#### useRef 기본 사용
+
+`useRef` 로 변수를 생성하고 원하는 요소에 `ref={}` 으로 매칭시키면 해당 요소를 제어할 수 있습니다.
+
+아래 코드는 버튼을 눌렀을 때 두번 째 텍스트 필드에 focus 하는 코드입니다.
+
+```js
+import React, { useRef } from 'react';
+
+function App() {
+  const inputRef = useRef();
+
+  return (
+    <div>
+      <input type="text" value="first" />
+      <input type="text" value="second" ref={inputRef} />
+      <button onClick={() => inputRef.current.focus()}>focus</button>
+    </div>
+  )
+}
+
+export default App;
+```
+
+<br>
+
+## 리액트 내장 훅
+
+리액트에서는 `useState`, `useEffect` 외에도 다양한 훅을 제공합니다.
+
+<br>
+
+#### useContext
+
+`useContext` 를 사용하면 `Consumer` 컴포넌트 없이 `Provider` 가 전달한 데이터를 사용할 수 있습니다.
+
+위에서 만든 `CountContext` 와 `SetCountContext` 를 `Consumer` 없이 구현한다면 아래 코드처럼 편하게 사용할 수 있습니다.
+
+```js
+function Increment() {
+  const count = useContext(CountContext);
+  const setCount = useContext(SetCountContext);
+
+  function increment() {
+    setCount(count + 1);
+  }
+
+  return (
+    <div>
+      <button onClick={increment}>+1</button>
+    </div>
+  )
+}
+```
+
+<br>
+
+#### useMemo
+
+`useMemo` 는 한번 계산한 값을 기억해두는 메모이제이션 기법을 사용하여 성능을 최적화 해줍니다.
+
+```js
+function App() {
+  const [x, setX] = useState(0);
+  const [y, setY] = useState(0);
+
+  const value = useMemo(() => {
+    console.log("useMemo call");
+    return x + y;
+  }, [x])
+
+  return (
+    <div>
+      <h1>{ x }</h1>
+      <h1>{ y }</h1>
+      <h1>{ value }</h1>
+      <button onClick={() => setX(x + 1)}>x + 1</button>
+      <button onClick={() => setY(y + 1)}>y + 1</button>
+    </div>
+  )
+}
+```
+
+`useMemo(function, array)` 의 형태로 사용할 수 있으며, `array` 에 속한 값들이 바뀔 때만 `function` 을 실행시킵니다.
+
+그래서 위 코드는 `x` 값이 바뀌는 경우에만 `value` 값이 갱신됩니다.
+
+<br>
+
+#### useCallback
+
+`useCallback` 은 `useMemo` 와 상당히 비슷합니다.
+
+컴포넌트가 렌더링 되면 컴포넌트 내부의 함수들도 새로 생성됩니다.
+
+렌더링이 자주 일어나면 불필요하게 함수를 계속 생성하게 됩니다.
+
+`useCallback` 을 사용하면 함수의 재생성을 막을 수 있습니다.
+
+```js
+function App() {
+  const [x, setX] = useState(0);
+  const [y, setY] = useState(0);
+
+  const plusX = useCallback(() => setX(x + 1), [x])
+  const plusY = useCallback(() => setY(y + 1), [y])
+
+  return (
+    <div>
+      <h1>{ x }</h1>
+      <h1>{ y }</h1>
+      <button onClick={plusX}>x + 1</button>
+      <button onClick={plusY}>y + 1</button>
+    </div>
+  )
+}
+```
+
+위 코드처럼 `useCallback` 을 사용해주면 `plusX` 는 `x` 값이 변해서 리렌더링 될 때마다 생성되고 `y` 값의 변화로 인한 리렌더링 때는 기존의 함수를 그대로 사용합니다.
