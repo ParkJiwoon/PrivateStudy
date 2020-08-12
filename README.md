@@ -10,6 +10,7 @@
 
 ## Javascript
 - [ES6](./Javascript/ES6)
+- [React](./Javascript/React)
 
 ## Ruby
 - [rbenv](./Ruby/rbenv.md)
