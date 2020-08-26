@@ -20,6 +20,9 @@
 - [Different between #nil? #empty? #blank? #present?](./Ruby/nil-empty-blank-present.md)
 - [RSpec](./Ruby/rspec.md)
 
+## HTTP
+- [URI](./HTTP/URI.md)
+
 ## CSS
 - [word-break](./CSS/word-break.md)
 
