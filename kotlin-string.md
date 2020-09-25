@@ -4,9 +4,12 @@
 
 내부적으로는 `substring` 으로 구현되어 있다.
 
+
 - `drop` : 앞에서부터 n 개의 문자를 제거한 String 을 반환
 - `dropLast`:  뒤에서부터 n 개의 문자를 제거
 - `dropWhile, dropLastWhile`: 조건을 만족하지 않는 문자가 나올때까지 제거
+
+<br>
 
 ```kotlin
 /* definition */
@@ -31,6 +34,8 @@ println(string.dropLast(6)) // <<<First Gr
 println(string.dropWhile { !it.isLetter() }) // First Grade>>>
 println(string.dropLastWhile { !it.isLetter() }) // <<<First Grade
 ```
+
+<br>
 
 # Reference
 
