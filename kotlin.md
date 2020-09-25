@@ -1,4 +1,4 @@
-[Kotlin == 비교 연산자](#Kotlin-==-비교-연산자)
+[Kotlin == 비교 연산자](#kotlin-비교-연산자)
 
 <br>
 
