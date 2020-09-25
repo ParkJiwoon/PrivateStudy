@@ -22,6 +22,7 @@ fun String.dropLastWhile(
   predicate: (Char) -> Boolean
 ): String
 
+
 /* exmaple */
 val string = "<<<First Grade>>>"
 
