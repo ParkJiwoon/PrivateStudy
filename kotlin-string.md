@@ -1,6 +1,6 @@
 # drop, dropLast, dropWhile, dropLastWhile
 
-`drop` 은 문자열을 제거할 때 사용된다.
+`drop` 은 문자열의 앞이나 뒷부분을 자를 때 사용된다.
 
 내부적으로는 `substring` 으로 구현되어 있다.
 
