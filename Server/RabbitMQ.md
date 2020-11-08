@@ -7,7 +7,7 @@ RabbitMQ 는 AMQP 프로토콜을 구현한 Message Broker 입니다.
 3. 메세지는 소비될 때까지 Queue 에 대기하고 있다가 Consumer 에 의해 소비된다.
 
 ```html
-Producer -> Exchange -> Queue -> consumer
+Producer -> Exchange -> Queue -> onsumer
 ```
 
 <br>
