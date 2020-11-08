@@ -38,12 +38,10 @@ Producer -> Exchange -> Queue -> onsumer
 - 메세지는 Queue 에 직접 전달되지 않고 Exchange Type 정의대로 동작
 
 #### *Exchange Type*
-Type | 설명 | 특징
-:---: | :--- | :---: |
-`fanout` | 알려진 모든 Queue 에 메세지를 전달 (Routing Key 를 무시하고 모든 Exchange 에 바인딩 된 모든 Queue 에 전달한다) | `Broadcast`
-`direct` | Exchange 에 바인딩 된 Queue 중에서 지정된 Routing Key 를 가진 Queue 에만 메세지를 전달 | `unicast`
-`topic` | 지정된 패턴 바인딩 형태에 일치하는 Queue 에 모두 전달. #(여러단어), *(한단어)를 통한 문자열 패턴 매칭<br>Routing Key 로 '#'를 지정한다면 __fanout__ 과 동일하게 동작하고 #, * 없이 단어 하나만 입력하면 __direct__ 와 동일하게 동작 | `multicast`
-`header` | 헤더에 포함된 key=value 의 일치조건에 따라서 메세지 전달 | `multicast`
+- fanout (Broadcast) : 알려진 모든 Queue 에 메세지를 전달 (Routing Key 를 무시하고 모든 Exchange 에 바인딩 된 모든 Queue 에 전달한다)
+- direct (unicast) : Exchange 에 바인딩 된 Queue 중에서 지정된 Routing Key 를 가진 Queue 에만 메세지를 전달
+- topic (multicast) : 지정된 패턴 바인딩 형태에 일치하는 Queue 에 모두 전달. #(여러단어), *(한단어)를 통한 문자열 패턴 매칭<br>Routing Key 로 '#'를 지정한다면 __fanout__ 과 동일하게 동작하고 #, * 없이 단어 하나만 입력하면 __direct__ 와 동일하게 동작
+- header (multicast) : 헤더에 포함된 key=value 의 일치조건에 따라서 메세지 전달
 
 #### *Bindings*
 - Exchange 와 Queue 를 연결해주는 것
