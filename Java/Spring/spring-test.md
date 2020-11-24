@@ -1,6 +1,4 @@
-# Spring Test
-
-## @Before @BeforeClass @BeforeEach @BeforeAll
+# @Before @BeforeClass @BeforeEach @BeforeAll
 
 Spring 에서 테스트 코드를 작성할 때, 모든 테스트 코드 전에 반복적으로 해 주어야 하는 작업이 필요할 때가 있습니다.
 
@@ -34,20 +32,20 @@ JUnit 에서는 이런 반복적인 코드를 없애기 위해 `@Before` 어노�
 
 <br>
 
-### @Before (JUnit 4), @BeforeEach (JUnit 5)
+## @Before (JUnit 4), @BeforeEach (JUnit 5)
 
 - 클래스 내에 존재하는 각각의 @Test 를 실행하기 전에 매번 실행
 
 <br>
 
-### @BeforeClass (JUnit 4), @BeforeAll (JUnit 5)
+## @BeforeClass (JUnit 4), @BeforeAll (JUnit 5)
 
 - 모든 테스트를 실행하기 전 딱 한번만 실행
 - `static` 으로 선언해야 함
 
 <br>
 
-### Example
+## Example
 
 ```java
 public class Test {
@@ -86,7 +84,7 @@ public class Test {
 
 <br>
 
-### 전체 플로우
+## 전체 플로우
 
 ```html
 @BeforeAll
