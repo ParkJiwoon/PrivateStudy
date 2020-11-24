@@ -47,17 +47,56 @@ JUnit 에서는 이런 반복적인 코드를 없애기 위해 `@Before` 어노�
 
 <br>
 
+### Example
+
+```java
+public class Test {
+
+    @BeforeAll
+    public static void beforeAll() {
+        System.out.println("@BeforeAll");
+    }
+
+    @BeforeEach
+    public void beforeEach() {
+        System.out.println("@BeforeEach");
+    }
+
+    @Test
+    public void test1(){
+        System.out.println("@Test 1");
+    }
+
+    @Test
+    public void test2(){
+        System.out.println("@Test 2");
+    }
+
+    @AfterEach
+    public void afterEach() {
+        System.out.println("@AfterEach");
+    }
+
+    @AfterAll
+    public static void afterAll() {
+        System.out.println("@AfterAll");
+    }
+}
+```
+
+<br>
+
 ### 전체 플로우
 
 ```html
 @BeforeAll
 
 @BeforeEach
-@Test
+@Test 1
 @AfterEach
 
 @BeforeEach
-@Test
+@Test 2
 @AfterEach
 
 @AfterAll
