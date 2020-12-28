@@ -10,8 +10,6 @@ RabbitMQ 는 AMQP 프로토콜을 구현한 Message Broker 입니다.
 Producer -> Exchange -> Queue -> onsumer
 ```
 
-<br>
-
 # 용어
 
 #### *Producer*
