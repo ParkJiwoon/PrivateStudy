@@ -5,9 +5,11 @@
 - [Swap](#swap)
 - [drop, dropLast, dropWhile, dropLastWhile](#drop-dropLast-dropWhile-dropLastWhile)
 
-<br>
+<br><br>
 
 # For
+
+- [Control Flow: if, when, for, while](https://kotlinlang.org/docs/reference/control-flow.html#control-flow-if-when-for-while)
 
 Kotlin 에서의 for 문은 자바와 마찬가지로 iterator 를 사용합니다.
 
@@ -84,21 +86,11 @@ listOf(4, 5, 6).forEachIndexed { index, value ->
 }
 ```
 
-<br>
-
-## Reference
-
-- [Control Flow: if, when, for, while](https://kotlinlang.org/docs/reference/control-flow.html#control-flow-if-when-for-while)
-
-<br>
+<br><br>
 
 # Kotlin 비교 연산자
 
-- [Kotlin == 비교 연산자](#kotlin--비교-연산자)
-
-<br>
-
-## Java 에서 두 값이 같은 지 알고싶다면?
+### Java 에서 두 값이 같은 지 알고싶다면?
 
 원시 타입 (Primitive Type) `int, char, ...` 인 경우 `==` 을 사용해서 값 비교할 수 있다.
 
@@ -108,7 +100,7 @@ listOf(4, 5, 6).forEachIndexed { index, value ->
 
 <br>
 
-## Kotlin 에서는?
+### Kotlin 에서는?
 
 타입에 관계없이 `==` 을 사용하면 된다.
 
@@ -116,7 +108,7 @@ listOf(4, 5, 6).forEachIndexed { index, value ->
 
 만약 주소 값을 비교하고 싶다면 `===` 을 사용하면 된다.
 
-<br>
+<br><br>
 
 # Swap
 
@@ -132,9 +124,11 @@ println(a) // print 2
 println(b) // print 1
 ```
 
-<br>
+<br><br>
 
 # drop, dropLast, dropWhile, dropLastWhile
+
+- [String](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/)
 
 `drop` 은 문자열의 앞이나 뒷부분을 자를 때 사용된다.
 
@@ -172,7 +166,3 @@ println(string.dropLastWhile { !it.isLetter() }) // <<<First Grade
 ```
 
 <br>
-
-# Reference
-
-[String](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/)
