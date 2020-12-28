@@ -16,7 +16,7 @@ Spring Boot 프로젝트가 커지면 공통으로 사용되는 글로벌 값을
 
 <br>
 
-## 1. `@Value("")` 사용
+## 1. @Value("") 사용
 
 `greetingMessage` 변수에 `"Hello World"` 를 주입해서 사용할 수 있다.
 
@@ -54,7 +54,7 @@ private long longValue;
 
 <br>
 
-## 2. `@Value("${...}")` 사용
+## 2. @Value("${...}") 사용
 
 `application.properties` 에 정의한 내용을 가져와서 사용할 수 있다.
 
@@ -121,7 +121,7 @@ private long longValue; // 런타임에 300 주입
 
 <br>
 
-## 3. `@Value("${...}")` 로 List 주입
+## 3. @Value("${...}") 로 List 주입
 
 ```yaml
 # application.properties
@@ -139,7 +139,7 @@ private List<String> strList2; // injects [Sat, Sun, Fri]
 
 <br>
 
-## 4. `@Value("#{${...}}")` 로 Map 주입
+## 4. @Value("#{${...}}") 로 Map 주입
 
 ```yaml
 # application.properties
@@ -162,7 +162,7 @@ public class ValueController {
 
 <br>
 
-## 5. `@Value("${...}")` 생성자 파라미터에 주입
+## 5. @Value("${...}") 생성자 파라미터에 주입
 
 생성자에 파라미터로 넘기면서 값을 주입할 수도 있다.
 
