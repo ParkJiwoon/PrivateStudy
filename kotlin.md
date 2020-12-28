@@ -3,7 +3,7 @@
 - [For](#for)
 - [Kotlin 비교 연산자](#kotlin-비교-연산자)
 - [Swap](#swap)
-- [drop, dropLast, dropWhile, dropLastWhile](#drop,-dropLast,-dropWhile,-dropLastWhile)
+- [drop, dropLast, dropWhile, dropLastWhile](#drop-dropLast-dropWhile-dropLastWhile)
 
 <br>
 
