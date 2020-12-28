@@ -1,4 +1,12 @@
+# Content
+
+- [Property 값 주입](#property-값-주입)
+
+<br>
+
 # Property 값 주입
+
+- [Spring @Value annotation tricks](https://dev.to/habeebcycle/spring-value-annotation-tricks-1a80)
 
 Spring Boot 프로젝트가 커지면 공통으로 사용되는 글로벌 값을 별도로 관리할 필요가 생긴다.
 
@@ -180,9 +188,3 @@ public class CompanyService {
    }
 }
 ```
-
-<br>
-
-## Reference
-
-- [Spring @Value annotation tricks](https://dev.to/habeebcycle/spring-value-annotation-tricks-1a80)
