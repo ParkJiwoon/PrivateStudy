@@ -16,7 +16,7 @@
 
 프록시 서버는 Cache 를 사용하여 자주 사용하는 데이터라면 요청을 보내지 않고 캐시에서 가져올 수 있기 때문에 성능 향상이 가능하다.
 
-![](../images/forward-proxy.png)
+![](https://github.com/ParkJiwoon/PrivateStudy/blob/master/images/forward-proxy.png?raw=true)
 
 <br>
 
@@ -30,7 +30,7 @@
 
 또한 내부 서버에 대한 설정으로 로드 밸런싱(Load Balancing) 이나 서버 확장 등에 유리하다.
 
-![](../images/reverse-proxy.png)
+![](https://github.com/ParkJiwoon/PrivateStudy/blob/master/images/reverse-proxy.png?raw=true)
 
 <br>
 
