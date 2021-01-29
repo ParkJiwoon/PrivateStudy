@@ -6,7 +6,7 @@
 
 # 4. 자바와 스프링의 비동기 기술
 
-- Yotube 링크: [https://www.youtube.com/watch?v=aSTuQiPB4Ns](https://www.youtube.com/watch?v=aSTuQiPB4Ns)
+- Yotube: [https://www.youtube.com/watch?v=aSTuQiPB4Ns](https://www.youtube.com/watch?v=aSTuQiPB4Ns)
 
 <br>
 
