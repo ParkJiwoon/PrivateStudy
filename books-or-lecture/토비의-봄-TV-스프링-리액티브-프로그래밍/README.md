@@ -1,12 +1,16 @@
 토비님의 스프링 리액티브 프로그래밍 유튜브 라이브를 보고 간단히 내용을 기록합니다.
 
-16년 12월 영상으로 글 작성 시점에서도 4년이나 지났지만 리액티브와 웹플럭스의 기초를 이해하는데 큰 도움이 됩니다.
+16년 12월 영상으로 글 작성일 기준으로 4년 전 영상이지만 리액티브와 웹플럭스의 기초를 이해하는데 큰 도움이 됩니다.
 
 <br>
 
 # 4. 자바와 스프링의 비동기 기술
 
-- Yotube: [https://www.youtube.com/watch?v=aSTuQiPB4Ns](https://www.youtube.com/watch?v=aSTuQiPB4Ns)
+- [Yotube 링크](https://www.youtube.com/watch?v=aSTuQiPB4Ns)
+
+<br>
+
+이 장에서는 과거의 Java 와 Spring 이 어떤 방식으로 비동기 처리를 했는지 간단하게 내부 로직과 변화를 알아봅니다.
 
 <br>
 
@@ -47,11 +51,11 @@ log.info("Exit");
 <br>
 
 ```java
-// 같은 main 쓰레드에 찍힘
-
 22:05:30.087 [main] INFO FutureEx - Hello
 22:05:30.090 [main] INFO FutureEx - Exit
 ```
+
+로그가 같은 main 쓰레드에 찍히는 것을 확인할 수 있습니다.
 
 <br>
 
@@ -77,11 +81,11 @@ log.info("Exit");
 <br>
 
 ```java
-// Exit 가 먼저 찍히고 2초 뒤 다른 쓰레드에 Hello 가 찍힘
-
 22:07:34.640 [main] INFO FutureEx - Exit
 22:07:36.640 [pool-1-thread-1] INFO FutureEx - Hello
 ```
+
+Exit 가 먼저 찍히고 2초 뒤 다른 쓰레드에 Hello 가 찍힙니다.
 
 <br>
 
@@ -106,20 +110,18 @@ log.info("Exit");
 
 위 코드를 실행하면 어떻게 될까요?
 
-`Future.get()` 메소드는 비동기 작업의 결과가 완료될 때까지 쓰레드를 블록시킵니다.
-
-따라서 쓰레드가 블록 되기 전의 로그인 Running 은 바로 찍히지만, Exit 는 비동기 작업이 완료될 때까지 기다려야 하기 때문에 가장 마지막에 찍힙니다.
-
 <br>
 
 ```java
-// Future.get 메소드가 비동기 처리가 완료될 때까지 쓰레드를 블록시킴
-
 22:39:21.076 [main] INFO FutureEx - Running
 22:39:23.075 [pool-1-thread-1] FutureEx - Hello
 22:39:23.075 [main] INFO FutureEx - Result
 22:39:23.075 [main] INFO FutureEx - Exit
 ```
+
+`Future.get()` 메소드는 비동기 작업의 결과가 완료될 때까지 쓰레드를 블록시킵니다.
+
+따라서 쓰레드가 블록 되기 전의 로그인 Running 은 바로 찍히지만, Exit 는 비동기 작업이 완료될 때까지 기다려야 하기 때문에 가장 마지막에 찍힙니다.
 
 <br>
 
@@ -168,7 +170,7 @@ public class PracticeWebfluxApplication {
 
 <br>
 
-아무런 설정없이 `@Async` 를 사용하면 `SimpleAsyncTaskExecutor` 를 사용하는데 별로 좋지 않습니다.
+아무런 설정없이 `@Async` 를 사용하면 `SimpleAsyncTaskExecutor` 를 사용하는 건 실제 업무에서는 절대 하지 말아야 합니다.
 
 비동기 요청이 들어온 만큼 쓰레드를 생성하는데 캐싱하지도 않고 따로 관리하지도 않아 메모리 낭비가 극심합니다.
 
@@ -190,11 +192,11 @@ public Future<String> hello() throws InterruptedException {
 @Bean
 ThreadPoolTaskExecutor tp() {
 	ThreadPoolTaskExecutor te = new ThreadPoolTaskExecutor();
-	te.setCorePoolSize(10);		  // 기본적으로 만들어 두는 쓰레드 갯수. 무조건 만드는 건 아니고 첫번째 쓰레드 요청이 오면 만듬
-	te.setQueueCapacity(200); 	// CorePoolSize 가 꽉 찼을 때 요청이 들어오면 큐에 넣어둠
-	te.setMaxPoolSize(100);		  // QueueCapacity 사이즈가 꽉 차면 쓰레드 MaxPoolSize 만큼 늘려줌
+	te.setCorePoolSize(10);		// 기본적으로 만들어 두는 쓰레드 갯수. 무조건 만드는 건 아니고 첫번째 쓰레드 요청이 오면 만듬
+	te.setQueueCapacity(200);	// CorePoolSize 가 꽉 찼을 때 요청이 들어오면 큐에 넣어둠
+	te.setMaxPoolSize(100);		// QueueCapacity 사이즈가 꽉 차면 쓰레드 MaxPoolSize 만큼 늘려줌
 	te.setKeepAliveSeconds(60);	// CorePoolSize 를 초과해서 만들어졌다가 쓰레드 반환 후에 일정시간 이상 재할당이 안되면 제거하기 시작함. 불필요한 메모리 점유를 막음
-	te.setTaskDecorator();		  // 쓰레드를 새로 만들거나 반환하는 시점 앞뒤에 콜백을 걸 수 있음 (로그용으로 사용 가능)
+	te.setTaskDecorator();		// 쓰레드를 새로 만들거나 반환하는 시점 앞뒤에 콜백을 걸 수 있음 (로그용으로 사용 가능)
 	te.setThreadNamePrefix("mythread");
 	te.initialize();
 
@@ -235,7 +237,29 @@ Servlet 3.1 : 논블로킹 IO
 
 <br>
 
-## 비동기 서블릿을 활용한 요청/응답 처리
+## 비동기 서블릿을 활용한 요청/응답 처리 - Callable
+
+```java
+@RestController
+public static class MyController {
+
+   @GetMapping("/callable")
+   public Callable<String> callable() {
+      return () -> {
+         Thread.sleep(2000);
+         return "hello";
+      };
+   }
+}
+```
+
+일반적인 HTTP 응답 대신 `Callable` 을 사용하면 서블릿 쓰레드에서 직접 작업하지 않고 워커 쓰레드에게 넘깁니다.
+
+그리고 `Callable` 이라는 작업 완료 신호를 받을 때 서블릿 쓰레드가 다시 할당되어 응답을 보내줍니다.
+
+이 과정을 그림으로 표현해보면 아래와 같습니다.
+
+<br>
 
 ![](https://github.com/ParkJiwoon/PrivateStudy/blob/master/books-or-lecture/%ED%86%A0%EB%B9%84%EC%9D%98-%EB%B4%84-TV-%EC%8A%A4%ED%94%84%EB%A7%81-%EB%A6%AC%EC%95%A1%ED%8B%B0%EB%B8%8C-%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%98%EB%B0%8D/images/toby-reactive-1.png?raw=true)
 
@@ -244,3 +268,52 @@ Servlet 3.1 : 논블로킹 IO
 이 구조는 서블릿 쓰레드를 오랫동안 점유하지 않기 때문에 적은 쓰레드로도 많은 요청을 처리할 수 있지만, 사실 함정이 있습니다.
 
 결국 실제 로직을 처리하는 작업 쓰레드는 요청수만큼 할당 받아야 하기 때문에 메모리가 효율적이라고 할 수 없습니다.
+
+<br>
+
+## 비동기 서블릿을 활용한 요청/응답 처리 - DeferredResult
+
+```java
+@RestController
+public static class MyController {
+
+	Queue<DeferredResult<String>> queue = new ConcurrentLinkedQueue<>();
+
+	@GetMapping("/dr")
+	public DeferredResult<String> callable() {
+		DeferredResult<String> dr = new DeferredResult<>(6000L);
+		queue.add(dr);
+		return dr;
+	}
+
+	@GetMapping("/dr/count")
+	public String drCount() {
+		return String.valueOf(queue.size());
+	}
+
+	@GetMapping("/dr/event")
+	public String drEvent(String msg) {
+		for (DeferredResult<String> dr : queue) {
+			dr.setResult("Hello " + msg);
+			queue.remove(dr);
+		}
+		return "OK";
+	}
+}
+```
+
+`/dr` 로 API 를 요청하면 클라이언트 (브라우저) 는 대기 상태가 되고 `queue` 에는 `DeferredResult<String>` 값이 들어갑니다.
+
+`/dr/event` 로 외부 이벤트를 발생시켜서 `dr.setResult()` 메소드를 호출하면 `/dr` 을 호출했던 브라우저에 결과값이 전달되고 커넥션은 종료됩니다.
+
+<br>
+
+Long Polling 과 비슷한 개념입니다.
+
+Client 에서 요청이 오면 `DeferredResult` 에 담아두고 서블릿은 바로 반납하되 Connection 을 유지하며 응답 대기하고 있습니다.
+
+그러다가 다른 이벤트가 발생해서 `DeferredResult.setResult()` 메소드가 호출되면 대기 중이던 `DeferredResult` 에 값이 쓰여지고 바로 응답을 합니다.
+
+가장 큰 특징은 워커 쓰레드가 따로 만들어지지 않고 메모리에 값이 저장되어 있기 때문에 이벤트 기반에서 서블릿 자원을 최소화 할 수 있습니다.
+
+![](https://github.com/ParkJiwoon/PrivateStudy/blob/master/books-or-lecture/%ED%86%A0%EB%B9%84%EC%9D%98-%EB%B4%84-TV-%EC%8A%A4%ED%94%84%EB%A7%81-%EB%A6%AC%EC%95%A1%ED%8B%B0%EB%B8%8C-%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%98%EB%B0%8D/images/toby-reactive-2.png?raw=true)
