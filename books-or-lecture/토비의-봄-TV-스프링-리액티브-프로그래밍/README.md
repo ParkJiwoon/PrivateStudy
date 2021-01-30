@@ -46,7 +46,7 @@ log.info("Hello");
 log.info("Exit");
 ```
 
-읿반적인 단일 블로킹 쓰레드에서 위 코드를 실행하면 2 초 뒤 Hello, Exit 가 순차적으로 찍힙니다.
+일반적인 단일 블로킹 쓰레드에서 위 코드를 실행하면 2 초 뒤 Hello, Exit 가 순차적으로 찍힙니다.
 
 <br>
 
@@ -106,7 +106,9 @@ log.info(f.get());
 log.info("Exit");
 ```
 
-`ExecutorService.submit` 은 파라미터로 `Callable` 을 받기 때문에 내부에 Exception 처리를 빼도 됩니다.
+비동기 작업의 실행 결과를 받으려면 `ExecutorService.submit` 을 사용하고 `Future` 로 받으면 됩니다.
+
+`ExecutorService.submit` 은 파라미터로 `Callable` 을 받기 때문에 내부의 Exception 처리를 빼도 됩니다.
 
 위 코드를 실행하면 어떻게 될까요?
 
@@ -127,12 +129,12 @@ log.info("Exit");
 
 # Spring 의 비동기 처리
 
-## @Async 사용
+## (1) @Async 사용
 
 ```java
 public String hello() throws InterruptedException {
-	Thread.sleep(2000);
-	return "Hello";
+    Thread.sleep(2000);
+    return "Hello";
 }
 ```
 
@@ -151,8 +153,8 @@ public String hello() throws InterruptedException {
 ```java
 @Async
 public Future<String> hello() throws InterruptedException {
-	Thread.sleep(2000);
-	return new AsyncResult<>("hello");
+    Thread.sleep(2000);
+    return new AsyncResult<>("hello");
 }
 
 ...
@@ -160,9 +162,9 @@ public Future<String> hello() throws InterruptedException {
 @SpringBootApplication
 @EnableAsync // 이 어노테이션을 추가해야 @Async 가 제대로 동작함
 public class PracticeWebfluxApplication {
-	public static void main(String[] args) {
-		SpringApplication.run(PracticeWebfluxApplication.class, args);
-	}
+    public static void main(String[] args) {
+         SpringApplication.run(PracticeWebfluxApplication.class, args);
+    }
 }
 ```
 
@@ -170,47 +172,49 @@ public class PracticeWebfluxApplication {
 
 <br>
 
-아무런 설정없이 `@Async` 를 사용하면 `SimpleAsyncTaskExecutor` 를 사용하는 건 실제 업무에서는 절대 하지 말아야 합니다.
+아무런 설정없이 `@Async` 를 사용하면 `SimpleAsyncTaskExecutor` 를 사용하게 되기 때문에 실제 업무에서는 절대 하지 말아야 합니다.
 
 비동기 요청이 들어온 만큼 쓰레드를 생성하는데 캐싱하지도 않고 따로 관리하지도 않아 메모리 낭비가 극심합니다.
 
 <br>
 
-따라서 ThreadPool 에 관한 설정을 추가해서 사용하는 것이 좋습니다.
+따라서 항상 ThreadPool 에 관한 설정을 추가해서 사용하는 것이 좋습니다.
 
 아무런 설정이 없다면 위에 언급한 `SimpleAsyncTaskExecutor` 을 사용하고, `ExecutorService` 또는 `ThreadPoolTaskExecutor` 를 구현한 Bean 이 존재하면 해당 Executor 을 쓰게 되어있습니다.
 
 만약 비동기 작업이 여러개고 쓰레드 풀을 분리해서 사용하고 싶다면 어노테이션 뒤에 명시적으로 지정할 수 있습니다.
 
 ```java
-@Async("tp")
+@Async("tp")  // 명시적으로 tp Executor 를 사용
 public Future<String> hello() throws InterruptedException {
-	Thread.sleep(2000);
-	return new AsyncResult<>("hello");
+    Thread.sleep(2000);
+    return new AsyncResult<>("hello");
 }
 
 @Bean
 ThreadPoolTaskExecutor tp() {
-	ThreadPoolTaskExecutor te = new ThreadPoolTaskExecutor();
-	te.setCorePoolSize(10);		// 기본적으로 만들어 두는 쓰레드 갯수. 무조건 만드는 건 아니고 첫번째 쓰레드 요청이 오면 만듬
-	te.setQueueCapacity(200);	// CorePoolSize 가 꽉 찼을 때 요청이 들어오면 큐에 넣어둠
-	te.setMaxPoolSize(100);		// QueueCapacity 사이즈가 꽉 차면 쓰레드 MaxPoolSize 만큼 늘려줌
-	te.setKeepAliveSeconds(60);	// CorePoolSize 를 초과해서 만들어졌다가 쓰레드 반환 후에 일정시간 이상 재할당이 안되면 제거하기 시작함. 불필요한 메모리 점유를 막음
-	te.setTaskDecorator();		// 쓰레드를 새로 만들거나 반환하는 시점 앞뒤에 콜백을 걸 수 있음 (로그용으로 사용 가능)
-	te.setThreadNamePrefix("mythread");
-	te.initialize();
+    ThreadPoolTaskExecutor te = new ThreadPoolTaskExecutor();
+    te.setCorePoolSize(10);        // 기본적으로 만들어 두는 쓰레드 갯수. 무조건 만드는 건 아니고 첫번째 쓰레드 요청이 오면 만듬
+    te.setQueueCapacity(200);      // CorePoolSize 가 꽉 찼을 때 요청이 들어오면 큐에 넣어둠
+    te.setMaxPoolSize(100);        // QueueCapacity 사이즈가 꽉 차면 쓰레드 MaxPoolSize 만큼 늘려줌
+    te.setKeepAliveSeconds(60);    // CorePoolSize 를 초과해서 만들어졌다가 쓰레드 반환 후에 일정시간 이상 재할당이 안되면 제거하기 시작함. 불필요한 메모리 점유를 막음
+    te.setTaskDecorator();         // 쓰레드를 새로 만들거나 반환하는 시점 앞뒤에 콜백을 걸 수 있음 (로그용으로 사용 가능)
+    te.setThreadNamePrefix("mythread");
+    te.initialize();
 
-	return te;
+    return te;
 }
 ```
 
 <br>
 
-## Future 로 받아서 Callback 등록
+## (2) Future 로 받아서 Callback 등록
 
 Spring 4.0 부터는 `ListenableFuture` 을 지원합니다.
 
 이 클래스는 `addCallback()` 메소드에 onSuccess 와 onError 를 넘겨줄 수 있습니다.
+
+`ListenableFuture` 사용법에 대해서는 5 장에서 다룰 예정입니다.
 
 <br>
 
@@ -267,7 +271,7 @@ public static class MyController {
 
 이 구조는 서블릿 쓰레드를 오랫동안 점유하지 않기 때문에 적은 쓰레드로도 많은 요청을 처리할 수 있지만, 사실 함정이 있습니다.
 
-결국 실제 로직을 처리하는 작업 쓰레드는 요청수만큼 할당 받아야 하기 때문에 메모리가 효율적이라고 할 수 없습니다.
+결국 실제 로직을 처리하는 작업 쓰레드를 요청수만큼 생성해야 하기 때문에 효율적인 메모리 활용이라고 할 수 없습니다.
 
 <br>
 
@@ -277,28 +281,28 @@ public static class MyController {
 @RestController
 public static class MyController {
 
-	Queue<DeferredResult<String>> queue = new ConcurrentLinkedQueue<>();
+    Queue<DeferredResult<String>> queue = new ConcurrentLinkedQueue<>();
 
-	@GetMapping("/dr")
-	public DeferredResult<String> callable() {
-		DeferredResult<String> dr = new DeferredResult<>(6000L);
-		queue.add(dr);
-		return dr;
-	}
+    @GetMapping("/dr")
+    public DeferredResult<String> callable() {
+        DeferredResult<String> dr = new DeferredResult<>(6000L);
+        queue.add(dr);
+        return dr;
+    }
 
-	@GetMapping("/dr/count")
-	public String drCount() {
-		return String.valueOf(queue.size());
-	}
+    @GetMapping("/dr/count")
+    public String drCount() {
+        return String.valueOf(queue.size());
+    }
 
-	@GetMapping("/dr/event")
-	public String drEvent(String msg) {
-		for (DeferredResult<String> dr : queue) {
-			dr.setResult("Hello " + msg);
-			queue.remove(dr);
-		}
-		return "OK";
-	}
+    @GetMapping("/dr/event")
+    public String drEvent(String msg) {
+        for (DeferredResult<String> dr : queue) {
+            dr.setResult("Hello " + msg);
+                queue.remove(dr);
+        }
+        return "OK";
+    }
 }
 ```
 
@@ -317,3 +321,4 @@ Client 에서 요청이 오면 `DeferredResult` 에 담아두고 서블릿은 �
 가장 큰 특징은 워커 쓰레드가 따로 만들어지지 않고 메모리에 값이 저장되어 있기 때문에 이벤트 기반에서 서블릿 자원을 최소화 할 수 있습니다.
 
 ![](https://github.com/ParkJiwoon/PrivateStudy/blob/master/books-or-lecture/%ED%86%A0%EB%B9%84%EC%9D%98-%EB%B4%84-TV-%EC%8A%A4%ED%94%84%EB%A7%81-%EB%A6%AC%EC%95%A1%ED%8B%B0%EB%B8%8C-%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%98%EB%B0%8D/images/toby-reactive-2.png?raw=true)
+
