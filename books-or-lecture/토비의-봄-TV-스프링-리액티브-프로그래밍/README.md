@@ -905,21 +905,21 @@ ForkJoinPool.commonPool().awaitTermination(10, TimeUnit.SECONDS);
 ListenableFuture<ResponseEntity<String>> f1 = rt.getForEntity(URL_1, String.class, "hello" + idx);
 
 f1.addCallback(s -> {
-	ListenableFuture<ResponseEntity<String>> f2 = rt.getForEntity(URL_2, String.class, s.getBody());
+    ListenableFuture<ResponseEntity<String>> f2 = rt.getForEntity(URL_2, String.class, s.getBody());
 
-	f2.addCallback(s2 -> {
-		ListenableFuture<String> f3 = asyncWork(s2.getBody());
+    f2.addCallback(s2 -> {
+        ListenableFuture<String> f3 = asyncWork(s2.getBody());
 
-		f3.addCallback(s3 -> {
-			dr.setResult(s3 + "/work");
-		}, e -> {
-			dr.setErrorResult(e.getMessage());
-		});
-	}, e -> {
-		dr.setErrorResult(e.getMessage());
-	});
+        f3.addCallback(s3 -> {
+            dr.setResult(s3 + "/work");
+        }, e -> {
+            dr.setErrorResult(e.getMessage());
+        });
+    }, e -> {
+        dr.setErrorResult(e.getMessage());
+    });
 }, e -> {
-	dr.setErrorResult(e.getMessage());
+    dr.setErrorResult(e.getMessage());
 });
 ```
 
@@ -935,9 +935,9 @@ f1.addCallback(s -> {
 
 ```java
 <T> CompletableFuture<T> toCF(ListenableFuture<T> lf) {
-	CompletableFuture<T> cf = new CompletableFuture<>();
-	lf.addCallback(cf::complete, cf::completeExceptionally);
-	return cf;
+    CompletableFuture<T> cf = new CompletableFuture<>();
+    lf.addCallback(cf::complete, cf::completeExceptionally);
+    return cf;
 }
 ```
 
@@ -947,13 +947,13 @@ f1.addCallback(s -> {
 
 ```java
 toCF(rt.getForEntity(URL_1, String.class, "hello" + idx))
-	.thenCompose(s -> toCF(rt.getForEntity(URL_2, String.class, s.getBody())))
-	.thenCompose(s -> toCF(asyncWork(s.getBody())))
-	.thenAccept(s -> dr.setResult(s + "/work"))
-	.exceptionally(e -> {
-		dr.setErrorResult(e.getMessage());
-		return null;
-	});
+    .thenCompose(s -> toCF(rt.getForEntity(URL_2, String.class, s.getBody())))
+    .thenCompose(s -> toCF(asyncWork(s.getBody())))
+    .thenAccept(s -> dr.setResult(s + "/work"))
+    .exceptionally(e -> {
+        dr.setErrorResult(e.getMessage());
+        return null;
+    });
 ```
 
 `CompletableFuture` 로 바꾸는 것만 알고있으면 지금까지 학습한 내용들로 간단히 바꿀 수 있습니다.
