@@ -884,3 +884,76 @@ ForkJoinPool.commonPool().awaitTermination(10, TimeUnit.SECONDS);
 그리고 `thenApplyAsync` 와 `thenAcceptAsync` 는 다른 쓰레드에서 실행되는 것을 확인할 수 있습니다.
 
 쓰레드 설정이나 갯수에 따라서 조금씩 동작이 다른데 여기서는 자세히 다루지 않습니다.
+
+<br>
+
+# ListenableFuture 를 CompletableFuture 로 개선
+
+5 장 마지막 부분에서 보았던 콜백헬을 기억하실 겁니다.
+
+`CompletableFuture` 을 사용해서 가독성 있고 깔끔한 코드로 바꿔봅니다.
+
+로직은 간단하게 첫번째 API 호출하고 결과로 두번쨰 API 호출 후 결과로 비동기 작업 수행 후 응답을 주는겁니다.
+
+비동기 작업이 총 세번 이루어지는데 코드를 직접 보면 어떻게 바뀌었는지 차이점이 확 드러날겁니다.
+
+<br>
+
+## 기존 코드
+
+```java
+ListenableFuture<ResponseEntity<String>> f1 = rt.getForEntity(URL_1, String.class, "hello" + idx);
+
+f1.addCallback(s -> {
+	ListenableFuture<ResponseEntity<String>> f2 = rt.getForEntity(URL_2, String.class, s.getBody());
+
+	f2.addCallback(s2 -> {
+		ListenableFuture<String> f3 = asyncWork(s2.getBody());
+
+		f3.addCallback(s3 -> {
+			dr.setResult(s3 + "/work");
+		}, e -> {
+			dr.setErrorResult(e.getMessage());
+		});
+	}, e -> {
+		dr.setErrorResult(e.getMessage());
+	});
+}, e -> {
+	dr.setErrorResult(e.getMessage());
+});
+```
+
+<br>
+
+## Refactoring
+
+가장 먼저 해야할 일은 `ListenableFuture` 을 `CompletableFuture` 로 바꾸는 일입니다.
+
+공통적으로 사용할 메소드를 하나 추가합니다.
+
+<br>
+
+```java
+<T> CompletableFuture<T> toCF(ListenableFuture<T> lf) {
+	CompletableFuture<T> cf = new CompletableFuture<>();
+	lf.addCallback(cf::complete, cf::completeExceptionally);
+	return cf;
+}
+```
+
+`ListenableFuture` 을 받아서 `addCallback` 으로 성공, 실패 함수를 등록해줍니다.
+
+<br>
+
+```java
+toCF(rt.getForEntity(URL_1, String.class, "hello" + idx))
+	.thenCompose(s -> toCF(rt.getForEntity(URL_2, String.class, s.getBody())))
+	.thenCompose(s -> toCF(asyncWork(s.getBody())))
+	.thenAccept(s -> dr.setResult(s + "/work"))
+	.exceptionally(e -> {
+		dr.setErrorResult(e.getMessage());
+		return null;
+	});
+```
+
+`CompletableFuture` 로 바꾸는 것만 알고있으면 지금까지 학습한 내용들로 간단히 바꿀 수 있습니다.
