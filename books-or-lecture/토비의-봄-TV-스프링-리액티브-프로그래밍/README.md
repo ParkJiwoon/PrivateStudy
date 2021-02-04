@@ -957,3 +957,21 @@ toCF(rt.getForEntity(URL_1, String.class, "hello" + idx))
 ```
 
 `CompletableFuture` 로 바꾸는 것만 알고있으면 지금까지 학습한 내용들로 간단히 바꿀 수 있습니다.
+
+<br>
+
+# 8. WebFlux
+
+- [Youtube 링크](https://www.youtube.com/watch?v=ScH7NZU_zvk)
+
+<br>
+
+Spring 5 부터는 기존의 서블릿 API 기반과 다르게 리액티브 프로그래밍을 활용할 수 있는 WebFlux 라는 환경을 지원합니다.
+
+WebFlux 는 Tomcat 과 같은 서블릿 컨테이너에 의존적이지 않습니다.
+
+물론 Tomcat 에서도 띄울수 있긴 합니다.
+
+Spring 에는 디폴트 컨테이너가 세팅이 안되어 있어서 명시적으로 설정해줘야 하지만 Spring Boot 에서는 별다른 설정이 없다면 내장 컨테이너로 Netty 가 들어갑니다.
+
+WebFlux 의 모든 응답은 Mono 또는 Flux 로 감싼걸 기본으로 합니다.
