@@ -132,8 +132,6 @@ val ascComparator = naturalOrder<Long>()
 
 만약 먼저 나온 규칙에서 원소의 우열이 가려져 정렬 처리가 되었다면 뒤의 규칙들은 확인하지 않습니다.
 
-<br>
-
 ```kotlin
 val complexComparator = compareBy<Pair<Int, String?>>({it.first}, {it.second})
 ```
@@ -181,8 +179,6 @@ list.sortWith(nullsLast(compareBy { it }))  // [-2, 1, 3, 4, null]
 `kotlin.comparable` 패키지에 있는 `then` 키워드를 활용하면 됩니다.
 
 첫 번째 비교의 결과가 동일할 때만 두번째 비교가 이루어집니다.
-
-<br>
 
 ```kotlin
 val students = mutableListOf(21 to "Helen", 21 to "Tom", 20 to "Jim")
