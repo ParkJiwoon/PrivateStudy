@@ -142,7 +142,19 @@ val complexComparator = compareBy<Pair<Int, String?>>({it.first}, {it.second})
 
 <br>
 
-## 3.2. Handling of null Values
+### 2.1.3. Comparator
+
+간단하게 `new Comparator` 를 선언해서 만들 수도 있습니다.
+
+자바와 마찬가지로 두 원소에 대한 비교 조건을 넣어줘야 합니다.
+
+```kotlin
+val caomparator = Comparator<Int> { a, b -> a.compareTo(b) }
+```
+
+<br>
+
+## 2.2. Handling of null Values
 
 정렬하려는 Collection 이 `null` 값을 갖고 있을 수도 있습니다.
 
@@ -162,7 +174,7 @@ list.sortWith(nullsLast(compareBy { it }))  // [-2, 1, 3, 4, null]
 
 <br>
 
-## 3.3. Comparator Rules Extension
+## 2.3. Comparator Rules Extension
 
 `Comparator` 오브젝트는 추가적인 정렬 규칙과 혼합되거나 확장할 수 있습니다.
 
