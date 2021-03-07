@@ -98,13 +98,13 @@ JWT 역시 탈취되면 누구나 API 를 호출할 수 있다는 단점이 존�
 
 그래서 탈취되어도 피해가 최소화 되도록 유효시간을 짧게 가져갑니다.
 
-만료 시간을 30분으로 설정하면 일반 사용자는 30 분마다 새로 로그인 하여 토큰을 발급받아야 합니다.
+하지만 만료 시간을 30분으로 설정하면 일반 사용자는 30 분마다 새로 로그인 하여 토큰을 발급받아야 합니다.
 
 사용자가 매번 로그인 하는 과정을 생략하기 위해 필요한 게 Refresh Token 입니다.
 
 <br>
 
-Refresh Token 은 로그인 토큰 (Access Token) 보다 긴 유효기간을 가지며, Access Token 이 만료된 사용자가 재발급을 원할 경우 Refresh Token 을 함께 전달합니다.
+Refresh Token 은 로그인 토큰 (Access Token) 보다 긴 유효 시간을 가지며, Access Token 이 만료된 사용자가 재발급을 원할 경우 Refresh Token 을 함께 전달합니다.
 
 서버는 Access Token 에 담긴 사용자의 정보를 확인하고 Refresh Token 이 아직 만료되지 않았다면 새로운 토큰을 발급해줍니다.
 
@@ -123,7 +123,7 @@ Access Toekn 과 달리 매 요청마다 주고 받지 않기 때문에 탈취 �
 Refresh Token 은 서버에서 별도의 저장소에 보관하는 것이 좋습니다.
 
 - Refresh Token 은 사용자 정보가 없기 때문에 저장소에 값이 있으면 검증 시 어떤 사용자의 토큰인지 판단하기 용이
-- 탈취당했을 때도 저장소에서 Refresh Token 정보를 지우면 Access Token 만료 후에 재발급이 안되는 강제 로그아웃 처리 가능
+- 탈취당했을 때 저장소에서 Refresh Token 정보를 삭제하면 Access Token 만료 후에 재발급이 안되게 강제 로그아웃 처리 가능
 - 일반적으로 Redis 많이 사용
 
 <br>
