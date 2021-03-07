@@ -71,7 +71,7 @@ Header, Payload, Signature 3 개의 부분으로 구성되어 있으며 쿠키�
 
 ## 1.3. 토큰 인증 타입
 
-`Authorization: <type> <credentials>` 형태에서 <type> 부분에 들어갈만한 값입니다.
+`Authorization: <type> <credentials>` 형태에서 `<type>` 부분에 들어갈 값입니다.
 
 엄격한 규칙이 있는건 아니고 일반적으로 많이 사용되는 형태라고 생각하면 됩니다.
 
