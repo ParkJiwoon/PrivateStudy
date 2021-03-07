@@ -1092,6 +1092,8 @@ Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIyIiwiYXV0aCI6IlJPTEVfVVNFU
 }
 ```
 
+- 사용자 요청 -> JwtFiletr (SecurityContext 세팅) -> Controller -> Service
+
 <br>
 
 ## 4.4. 재발급
