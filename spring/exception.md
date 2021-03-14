@@ -6,11 +6,13 @@ Java 에는 `Checked Exception` 과 `Unchecked Exception` 이 존재합니다.
 
 <br>
 
-## 1.1. Checked 는 예외 처리 필요 / Unchecked 는 불필요
+## 1.1. 예외 처리 필수
 
 checked 와 unchecked 를 나누는 가장 큰 기준입니다.
 
-`Chechekd Exception` 은 직접 예외 처리를 하던지 상위 메소드로 넘기던지 반드시 예외를 처리해줘야 합니다.
+`Checked Exception` 은 직접 예외 처리를 하던지 상위 메소드로 넘기던지 **반드시 예외를 처리**해줘야 합니다.
+
+`Checked Exception` 의 한 종류인 `IOException` 를 예로 들어보겠습니다.
 
 ```java
 public void needTryCatch() {
@@ -36,39 +38,31 @@ public void needThrow() throws IOException {
 
 <br>
 
-## 1.2. Checked 는 Transaction Rollback 불가능 / Unchecked 는 가능
+## 1.2. Transaction Rollback
 
-DB 처리 도중 `RuntimeException` 이 발생하면 롤백이 진행되지만 `Checked Exception` 은 발생해도 데이터가 롤백되지 않고 커밋까지 완료됩니다.
+DB 처리 도중 `RuntimeException` 이 발생하면 **롤백이 진행**되지만 `Checked Exception` 은 발생해도 데이터가 **롤백되지 않고 커밋까지 완료**됩니다.
 
-만약 예외 발생 시 롤백을 진행하고 싶다면 `try catch` 로 잡아서 다른 처리를 해주던지 `Uncheked Exception` 으로 보내줘야 합니다.
-
-<br>
-
-## 1.3. Checked 는 컴파일 단계 / Unchecked 는 런타임 단계에서 검증
-
-checked 는 컴파일 단계에서 Exception 체크가 가능합니다.
-
-unchecked 는 `RuntimeException` 이라는 이름에서도 알 수 있듯이 런타임 단계에서 발견되며, 어떤 예외가 발생할지 개발자가 미리 예측하기 힘듭니다.
+만약 예외 발생 시 롤백을 진행하고 싶다면 `try catch` 로 잡아서 `Uncheked Exception` 을 던져줘야 합니다.
 
 <br>
 
-## 1.4. Unchecked 는 RuntimeException 을 상속
+## 1.3. 검증 단계
 
-`Unchechekd Exception` 은 `RuntimeException` 을 상속합니다.
+checked 는 **컴파일 단계**에서 Exception 체크가 가능합니다.
 
-사실 첫번째 그림만 보면 알 수 있는 사실입니다.
+모든 unchecked exception 은 `RuntimeException` 을 상속받습니다.
 
-`RuntimeException` 은 평소에도 많이 사용하지만 `thorws` 처리하거나 `try-catch` 로 필수 처리할 필요가 없습니다.
+unchecked 는 `RuntimeException` 이라는 이름에서도 알 수 있듯이 **런타임 단계**에서 발견되며, 어떤 예외가 발생할지 개발자가 미리 예측하기 힘듭니다.
 
 <br>
 
 # 2. Spring Exception 의 HTTP Status
 
-Spring 에는 HTTP Status 응답을 위한 여러가지 방법이 있습니다.
+Spring 에는 HTTP Status 응답 처리를 위한 여러가지 방법이 있습니다.
 
 <br>
 
-## 2.1. ResponseStatus
+## 2.1. @ResponseStatus
 
 ```java
 @ResponseStatus(code = HttpStatus.NOT_FOUND, reason = "Data Not Found")
@@ -157,7 +151,7 @@ public ResponseStatusException(HttpStatus status, @Nullable String reason, @Null
 
 # 3. Spring 전역으로 공통 Exception 처리하기
 
-2 번에서 Exception 에 따라 여러 가지 HTTP Status 제공하는 방법을 알아봤는데, 토이 프로젝트를 하면서 만들어보니 위 설정대로 쓸 일이 없었습니다.
+2 번에서 Exception 에 따라 HTTP Status 제공하는 여러 가지 방법을 알아봤는데, 토이 프로젝트를 하면서 만들어보니 위 설정대로 쓸 일이 없었습니다.
 
 <br>
 
