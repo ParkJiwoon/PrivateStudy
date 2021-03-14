@@ -54,7 +54,7 @@ checked 는 **컴파일 단계**에서 Exception 체크가 가능합니다.
 
 unchecked 는 `RuntimeException` 이라는 이름에서도 알 수 있듯이 **런타임 단계**에서 발견되며, 어떤 예외가 발생할지 개발자가 미리 예측하기 힘듭니다.
 
-<br>
+<br><br>
 
 # 2. Spring Exception 의 HTTP Status
 
@@ -147,7 +147,7 @@ public ResponseStatusException(HttpStatus status, @Nullable String reason, @Null
 - 불필요한 Exception 클래스 생성을 피할 수 있습니다.
 - Exception 처리를 추가적인 어노테이션 없이 코드 단에서 자연스럽게 처리할 수 있습니다.
 
-<br>
+<br><br>
 
 # 3. Spring 전역으로 공통 Exception 처리하기
 
