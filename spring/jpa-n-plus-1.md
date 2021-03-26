@@ -133,8 +133,6 @@ public class Post {
 @Service
 @RequiredArgsConstructor
 public class PostService {
-    private static final Long pageSize = 3L;
-
     public List<Post> getFeeds(Long lastPostId) {
         List<Post> posts = new ArrayList<>();
 
@@ -146,7 +144,7 @@ public class PostService {
         return posts.stream()
                 .filter(post -> post.getId() < lastPostId)
                 .sorted((a, b) -> (int) (b.getId() - a.getId()))
-                .limit(pageSize)
+                .limit(5L)
                 .collect(Collectors.toList());
     }
 }
@@ -214,17 +212,16 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 @Service
 @RequiredArgsConstructor
 public class PostService {
-    private static final Long pageSize = 3L;
     private final PostRepository postRepository;
 
     public List<Post> getFeeds(Long lastPostId) {
         Member member = getCurrentMember();
-        return postRepository.findByFetchJoin(member.getId(), lastPostId, PageRequest.of(0, pageSize.intValue()));
+        return postRepository.findByFetchJoin(member.getId(), lastPostId, PageRequest.of(0, 5));
     }
 }
 ```
 
-- `PageRequest.of(0, pageSize.intValue())` 을 사용해서 일정한 사이즈 만큼의 데이터를 가져옵니다.
+- `PageRequest.of(0, 5)` 을 사용해서 일정한 사이즈 만큼의 데이터를 가져옵니다.
 - 무한 스크롤은 `lastPostId` 를 사용해서 데이터를 필터링 하기 때문에 무조건 0 번째 페이지를 가져옵니다.
 
 <br>
@@ -285,11 +282,9 @@ public class PostService {
     private final PostRepository postRepository;
 
     public List<Post> getFeeds(Long lastPostId) {
-        // Security 로 현재 로그한 사용자를 구하는 메서드입니다.
-        Member currentMember = getCurrentMember();  
-
-        // 로그인한 사용자가 팔로잉 중인 사람들 리스트를 구합니다.
-        List<Member> followings = currentMember.getFollowings()
+        // 로그인 한 사용자가 팔로잉 중인 사람들 리스트를 구합니다.
+        List<Member> followings = getCurrentMember()
+                .getFollowings()
                 .stream()
                 .map(Follow::getToMember)
                 .collect(Collectors.toList());
@@ -331,6 +326,60 @@ LIMIT ?
 `IN` 쿼리는 분명 효율적이긴 하지만 갯수가 1000 이 넘어가면 역시 성능적인 문제를 피할 수 없습니다.
 
 그렇기 때문에 1000 개 이상의 데이터가 존재한다면 나누어서 `IN` 쿼리를 날리는게 더 효율적입니다.
+
+<br>
+
+## 2.4. Inner Join
+
+위 코드에서 말했던 것처럼 `IN` 쿼리를 사용하기 위해 구한 `followings` 값 역시 엄청나게 큰 값이 될 수 있습니다.
+
+그래서 `Post` 를 Inner Join 과 Limit 를 사용해서 한번에 구하는 쿼리를 사용해봤습니다.
+
+<br>
+
+```java
+@Repository
+public interface PostRepository extends JpaRepository<Post, Long> {
+    @Query(value = "SELECT p" +
+            " FROM Post p" +
+            " INNER JOIN Follow f" +
+            " ON p.member.id = f.toMember.id" +
+            " WHERE p.id < :lastPostId AND f.fromMember.id = :memberId")
+    List<Post> findByJoinFollow(@Param("memberId") Long memberId, @Param("lastPostId") Long lastPostId, Pageable pageable);
+}
+```
+
+- JPQL 로 직접 짰는데 QueryDSL 을 적용하면 좀더 이쁘게 나올 것 같네요.
+
+<br>
+
+```java
+@RequiredArgsConstructor
+@Service
+public class PostService {
+    private final PostRepository postRepository;
+
+    public List<Post> getFeeds(Long lastPostId) {
+        PageRequest pageRequest = PageRequest.of(0, 5, Sort.by("id").descending());
+        return postRepository.findByJoinFollow(getCurrentMember().getId(), lastPostId, pageRequest);
+    }
+}
+```
+
+- 쿼리는 다 짜놓았기 때문에 호출만 하면 됩니다.
+
+<br>
+
+```sql
+SELECT *
+FROM post
+INNER JOIN follow ON post.member_id = follow.to_member_id
+WHERE post.post_id < ? AND follow.from_member_id = ?
+ORDER BY post.post_id DESC
+LIMIT ?
+```
+
+- 단 하나의 쿼리로 원하는 조건의 데이터를 가져옵니다!
 
 <br>
 
