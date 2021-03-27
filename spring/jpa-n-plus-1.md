@@ -4,7 +4,7 @@
 
 토이 프로젝트로 인스타그램 클론 코딩을 진행 중인데 여기서 1 + N 문제를 만났습니다.
 
-인스타그램에 접속했을 때 사용자에게 보여주는 첫 화면은 내가 팔로우 중인 사람들의 게시글입니다.
+인스타그램에 접속했을 때 사용자에게 보여주는 첫 화면은 **내가 팔로우 중인 사람들의 최신 게시글 목록**입니다.
 
 내가 팔로우 중인 사람은 여러명이고 또 그 여러명이 여러개의 게시글을 작성할 수 있으므로 1 + N 문제가 발생합니다.
 
@@ -121,22 +121,25 @@ public class Post {
 
 클라이언트에게 데이터를 내려주는 것은 물론이고 DB 에서 조회하는 것부터 오래걸릴 겁니다.
 
-인스타를 보면 한 화면에 모든 데이터를 보여주는 게 아니라 일부만 보여줍니다.
+따라서 모든 데이터를 한번에 내려주지 말고 당장 필요한 데이터만 짤라서 전달해주는 페이지네이션 기법이 필요합니다.
 
-페이지 형식이 아니라 무한 스크롤 형식이므로 JPA 의 `Pageable` 을 사용하지 않고 `lastPostId` 를 받아와서 필터링 해주는 방식으로 구현합니다.
+인스타는 페이지 형식이 아니라 무한 스크롤 형식이므로 `lastPostId` 를 받아와서 offset 으로 사용하고 `Post` 데이터는 최대 5 개만 내려주도록 구현하려고 합니다.
 
 <br>
 
-## 2.1. 단순 조회
+## 2.1. 단순하게 Entity Collection 호출
 
 ```java
 @Service
 @RequiredArgsConstructor
 public class PostService {
     public List<Post> getFeeds(Long lastPostId) {
+        Member currentMember = getCurrentMember();
+
         List<Post> posts = new ArrayList<>();
 
-        getCurrentMember().getFollowings()
+        // 내가 팔로우 하는 "모든" 대상들이 작성한 "모든" 게시글을 가져옴
+        currentMember.getFollowings()
                 .stream()
                 .map(Follow::getToMember)
                 .forEach(member -> posts.addAll(member.getPosts()));
@@ -151,10 +154,10 @@ public class PostService {
 ```
 
 - 가장 심플하게 조회하는 방법입니다.
-- `currentMember()` 는 로그인된 내 정보를 가져옵니다.
+- `currentMember()` 는 로그인 된 내 정보를 가져옵니다.
 - 내가 팔로우 하고 있는 대상들을 `getFollowings()` 메서드로 구합니다.
 - 멤버 정보를 조회하여 `getPosts()` 메서드로 게시글들을 가져옵니다.
-- 구한 모든 게시글들을 필터링 하고 최신순으로 `pageSize` 만큼만 잘라서 리턴합니다.
+- 구한 모든 게시글들을 필터링 하고 최신순으로 만큼만 잘라서 리턴합니다.
 
 <br>
 
@@ -171,15 +174,16 @@ SELECT * FROM member WHERE member.member_id = ?
 SELECT * FROM post WHERE post.member_id = ?
 
 -- 팔로우 대상들 만큼 반복..
+-- ...
 ```
 
-- 내가 팔로우 하는 멤버의 수 * 2 만큼 추가 쿼리가 나갑니다.
+- 내가 팔로우 중인 대상의 수 * 2 만큼 추가 쿼리가 나갑니다.
 
 <br>
 
 ## 2.2. Fetch Join
 
-1 + N 문제를 해결하기 위한 방법입니다.
+1 + N 문제를 해결하기 위한 가장 일반적인 방법입니다.
 
 여러 개의 쿼리를 날리지 않고 쿼리 한번에 데이터를 가져옵니다.
 
@@ -190,21 +194,19 @@ SELECT * FROM post WHERE post.member_id = ?
 ```java
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
-    @Query(value = "SELECT p " +
-                   "FROM Post p " +
-                   "JOIN FETCH p.member m " +
-                   "JOIN FETCH m.followers f " +
-                   "WHERE f.fromMember.id = :memberId AND p.id < :lastPostId " +
-                   "ORDER BY p.id DESC")
-    List<Post> findByFetchJoin(@Param("memberId") Long memberId,
-                               @Param("lastPostId") Long lastPostId,
-                               Pageable pageable);
+
+    @Query(value = "SELECT p" +
+            " FROM Post p" +
+            " JOIN FETCH p.member m" +
+            " JOIN FETCH m.followers f" +
+            " WHERE f.fromMember.id = :memberId AND p.id < :lastPostId")
+    List<Post> findByFetchJoin(@Param("memberId") Long memberId, @Param("lastPostId") Long lastPostId, Pageable pageable);
 }
 ```
 
 - 쿼리를 날리는 `PostRepository` 입니다.
-- QueryDSL 대신 JPQL 을 사용했습니다. (QueryDSL 을 써도 동일합니다)
 - 인스타 피드 조건에 맞는 데이터를 쿼리로 한번에 뽑아오기 때문에 추가 쿼리가 발생하지 않습니다.
+- Fetch Join 은 연관된 테이블끼리만 사용 가능한데, `Follow` 와 `Post` 는 직접적인 연관 관계가 없기 때문에 `Member` 까지 같이 조인해줘야 합니다.
 
 <br>
 
@@ -215,14 +217,16 @@ public class PostService {
     private final PostRepository postRepository;
 
     public List<Post> getFeeds(Long lastPostId) {
-        Member member = getCurrentMember();
-        return postRepository.findByFetchJoin(member.getId(), lastPostId, PageRequest.of(0, 5));
+        Member currentMember = getCurrentMember();
+        PageRequest pageRequest = PageRequest.of(0, 5, Sort.by("id").descending());
+
+        return postRepository.findByFetchJoin(currentMember.getId(), lastPostId, pageRequest);
     }
 }
 ```
 
 - `PageRequest.of(0, 5)` 을 사용해서 일정한 사이즈 만큼의 데이터를 가져옵니다.
-- 무한 스크롤은 `lastPostId` 를 사용해서 데이터를 필터링 하기 때문에 무조건 0 번째 페이지를 가져옵니다.
+- 무한 스크롤은 `lastPostId` 를 사용해서 데이터를 필터링 하기 때문에 무조건 0 번째 페이지를 가져오도록 설정했습니다.
 
 <br>
 
@@ -248,7 +252,9 @@ ORDER BY post.post_id DESC
 ```
 
 - 실제로 날라가는 쿼리입니다.
-- 분명 `Pageable` 을 사용했음에도 불구하고 LIMIT 쿼리가 날라가지 않는 것을 볼 수 있습니다.
+- 분명 `Pageable` 을 사용했음에도 불구하고 LIMIT 조건이 추가되지 않는 것을 볼 수 있습니다.
+- 왜 이런 결과가 발생하는지는.. 구글링을 통해서 확인하실 수 있습니다.
+- 어쨌뜬 **Fetch Join 과 Pageable 은 함께 사용 불가능**합니다.
 
 <br>
 
@@ -282,21 +288,21 @@ public class PostService {
     private final PostRepository postRepository;
 
     public List<Post> getFeeds(Long lastPostId) {
-        // 로그인 한 사용자가 팔로잉 중인 사람들 리스트를 구합니다.
-        List<Member> followings = getCurrentMember()
-                .getFollowings()
+        Member currentMember = getCurrentMember();
+
+        List<Member> followings = currentMember.getFollowings()
                 .stream()
                 .map(Follow::getToMember)
                 .collect(Collectors.toList());
 
-        // Pageable 로 LIMIT 5 와 Order By ID Desc 추가
         PageRequest pageRequest = PageRequest.of(0, 5, Sort.by("id").descending());
         return postRepository.findByIdLessThanAndMemberIn(lastPostId, followings, pageRequest);
     }
 }
 ```
 
-- `getFollowings()` 로 팔로우 대상들을 먼저 가져와서 `IN` 쿼리에 넣어줍니다.
+- `getFollowings()` 로 팔로우 대상들을 먼저 가져옵니다.
+- `post` 테이블을 조회할 때 대상 ID 들을 `IN` 쿼리에 넣어줍니다.
 
 <br>
 
@@ -312,7 +318,7 @@ ORDER BY post.post_id DESC
 LIMIT ?
 ```
 
-- 쿼리 한두번에 데이터를 모두 가져오고 LIMIT 쿼리도 정상적으로 날라갑니다.
+- 쿼리 한 두번에 데이터를 모두 가져오고 LIMIT 쿼리도 정상적으로 날라갑니다.
 - `IN` 쿼리 조건 컬럼에 인덱스만 걸려있다면 성능도 보장됩니다.
 
 <br>
@@ -325,15 +331,23 @@ LIMIT ?
 
 `IN` 쿼리는 분명 효율적이긴 하지만 갯수가 1000 이 넘어가면 역시 성능적인 문제를 피할 수 없습니다.
 
-그렇기 때문에 1000 개 이상의 데이터가 존재한다면 나누어서 `IN` 쿼리를 날리는게 더 효율적입니다.
+그래도 `IN` 쿼리를 사용하겠다면 임의로 1000 개씩 자른 후 나누어서 호출해야 합니다.
 
 <br>
 
-## 2.4. Inner Join
+## 2.4. Join + Limit
 
 위 코드에서 말했던 것처럼 `IN` 쿼리를 사용하기 위해 구한 `followings` 값 역시 엄청나게 큰 값이 될 수 있습니다.
 
-그래서 `Post` 를 Inner Join 과 Limit 를 사용해서 한번에 구하는 쿼리를 사용해봤습니다.
+따라서 다른 방법을 생각해봐야 하는데, 제가 실무에서 JPA 를 사용하지 않으니 어떤 방법으로 해야 할 지 감이 오지 않았습니다.
+
+그래서 인프런에서 JPA 권위자이신 김영한 님에게 질문을 드렸고 답변을 받았습니다.
+
+솔루션은 JPQL 로 Join, Limit 조건을 작성해서 직접 `post` 테이블을 조회하는 거였습니다.
+
+JPA 에서 Fetch Join 은 Pageable 사용이 불가능하지만 일반 Join 은 사용할 수 있습니다.
+
+사실 생각해보면 단순한 거였는데 바보 같이 네이티브 쿼리를 짜지 않는 방법만 찾다 보니 멀리 돌아왔습니다.
 
 <br>
 
@@ -342,9 +356,9 @@ LIMIT ?
 public interface PostRepository extends JpaRepository<Post, Long> {
     @Query(value = "SELECT p" +
             " FROM Post p" +
-            " INNER JOIN Follow f" +
+            " JOIN Follow f" +
             " ON p.member.id = f.toMember.id" +
-            " WHERE p.id < :lastPostId AND f.fromMember.id = :memberId")
+            " WHERE f.fromMember.id = :memberId AND p.id < :lastPostId")
     List<Post> findByJoinFollow(@Param("memberId") Long memberId, @Param("lastPostId") Long lastPostId, Pageable pageable);
 }
 ```
@@ -379,78 +393,20 @@ ORDER BY post.post_id DESC
 LIMIT ?
 ```
 
-- 단 하나의 쿼리로 원하는 조건의 데이터를 가져옵니다!
+- 단 하나의 쿼리로 원하는 데이터를 가져옵니다 !
 
 <br>
 
-## 2.4. Batch Size
+# Conclusion
 
-Batch Size 는 Fetch Join 과 함께 1 + N 문제를 해결하는 방법 중 하나입니다.
+`@OneToMany` 조건이 걸려있는 컬렉션을 호출할 때는 성능상 문제가 없는 지 고민이 필요합니다.
 
-<br>
+만약 데이터가 너무 많다면 Limit 조건을 추가해서 DB 에서 가져오는 데이터 크기를 조절해야 합니다.
 
-### 2.4.1. 개념
+이런 경우 1 + N 문제의 일반적인 해결책인 Fetch Join 이나 Batch Size 를 사용할 수 없었고 결국 네이티브 쿼리로 해결했습니다.
 
-`@OneToMany` 필드, 즉 `Collection` 에 `@BatchSize(size = 100)` 을 추가하면 엔티티에서 해당 필드를 호출할 때 JPA 가 알아서 최적화해서 값을 가져옵니다.
+네이티브 쿼리를 짜지 않고 Entity 내에서 해결하는 것이 JPA 스럽게 작성하는 거라고 생각했는데 잘못 생각하고 있었던 것 같습니다.
 
-예를 들어, `Member` 엔티티에서 `getPosts()` 를 호출합니다.
+성능 최적화를 위해선 복잡한 쿼리도 작성할 수 밖에 없다는 점을 깨달았네요.
 
-```java
-Member member1 = memberRepository.findById(2L).get();
-Member member2 = memberRepository.findById(3L).get();
-
-// Posts 를 실제로 사용해야 쿼리가 나가기 때문에 size() 까지 호출
-int size1 = member1.getPosts().size();
-int size2 = member2.getPosts().size();
-```
-
-<br>
-
-위 쿼리에서 `Post` 를 구하는 쿼리는 정직하게 2 번 호출됩니다.
-
-```sql
-SELECT * FROM member WHERE member.member_id = 2
-SELECT * FROM member WHERE member.member_id = 3
-
-SELECT * FROM post WHERE post.member_id = 2
-SELECT * FROM post WHERE post.member_id = 3
-```
-
-<br>
-
-만약 `Member` 의 갯수가 2 개가 아니라 100 개라면 어떻게 될까요?
-
-`Post` 엔티티를 구하기 위해 100 번의 호출, 즉 1 + N 문제가 발생합니다.
-
-하지만 `Member` 엔티티에 있는 `@OneToMany` 컬렉션에 배치 사이즈를 걸어둔다면 이 문제를 해결할 수 있습니다.
-
-<br>
-
-```java
-@BatchSize(size = 100)
-@OneToMany(mappedBy = "member")
-private List<Post> posts = new ArrayList<>();
-```
-
-이렇게 `@BatchSize` 만 추가하고 처음 코드를 다시 실행시키면..
-
-<br>
-
-```sql
-SELECT * FROM member WHERE member.member_id = 2
-SELECT * FROM member WHERE member.member_id = 3
-
-SELECT * FROM post WHERE post.member_id IN (2, 3)
-```
-
-`post` 를 구할 때는 `IN` 쿼리로 실행하는 것을 확인할 수 있습니다.
-
-참고로 `@BatchSize` 의 `size` 값을 설정한 만큼 `IN` 사이즈를 조절합니다.
-
-위 코드에서는 100 으로 설정했기 때문에 데이터가 250 개라면 1 ~ 100, 101 ~ 200, 201 ~ 250 이렇게 세 번에 나누어서 `IN` 쿼리를 날립니다.
-
-(사실 완전히 똑같은 사이즈로 분배해서 날리지는 않고 내부적으로 최적화한 사이즈로 나누어서 날립니다. 여기서는 깊게 알아보진 않습니다)
-
-<br>
-
-정리하자면 JPA 의 트랜잭션이 끝나는 순간 DB 에 날리게 되는 `@OneToMany` 컬렉션에 대한 쿼리들을 하나로 모아서 날려주는 편리한 기능입니다.
+JPQL 로 짜고 보니 QueryDSL 의 필요성을 느끼게 되었고, 귀찮은 질문에도 친절하게 답변해주신 영한님의 강의를 구매했습니다.
