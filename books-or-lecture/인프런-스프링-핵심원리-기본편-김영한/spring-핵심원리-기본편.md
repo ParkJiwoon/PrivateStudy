@@ -1432,3 +1432,74 @@ prototypeBean2 = com.jiwoon.practicewebmvc.scope.ProtoTypeTest$PrototypeBean@17d
 <br>
 
 ## 3. 프로토타입 빈과 싱글톤 빈을 함께 사용할 시 문제점
+
+```java
+@Scope("singleton")
+static class InvalidSingletonBean {
+    private final PrototypeBean prototypeBean; // Singleton 빈 주입 시점에만 새로 생성됨
+
+    @Autowired
+    public InvalidSingletonBean(PrototypeBean prototypeBean) {
+        this.prototypeBean = prototypeBean;
+    }
+
+    // ... logic
+}
+```
+
+싱글톤 빈 내부에 프로토타입 빈을 주입해서 사용한다고 가정합니다.
+
+프로토타입 빈은 매번 생성되는 빈이지만 싱글톤 내부에 존재하게 되면 새롭게 생성되지 않습니다.
+
+싱글톤 빈이 생성되는 시점에 컨테이너에 요청해서 주입되고, 관리 책임이 싱글톤 빈에게 넘어갔기 때문에 싱글톤 빈이 사라지지 않는 이상 주입된 프로토타입 빈을 계속 사용합니다.
+
+<br>
+
+## 4. Provider
+
+```java
+@Scope("singleton")
+static class InvalidSingletonBean {
+
+    // 프로토타입 빈을 직접 받는게 아니라 호출 시점에 컨테이너 빈을 요청하는 Provider
+    @Autowired
+    private ObjectProvider<PrototypeBean> prototypeBeansProvider;
+
+    public void logic() {
+        PrototypeBean prototypeBean = prototypeBeansProvider.getObject();
+        // ... logic
+    }
+}
+```
+
+`ObjectProvider` 를 사용하면 `getObject()` 메서드 호출 시점에 컨테이너에 프로토타입 빈을 요청합니다.
+
+따라서 원하던 것처럼 매번 새로운 프로토타입 빈을 생성해서 사용 가능합니다.
+
+<br>
+
+## 5. 웹 관련 스코프
+
+`request` 와 같은 스코프는 웹과 관련된 스코프입니다.
+
+HTTP 요청이 들어오면 생성되고 응답을 보내면 사라집니다.
+
+그래서 그냥 주입해서 사용하려고 하면 스프링 서버가 띄워지지 않습니다.
+
+사용자 요청이 들어오는 시점에 생성되기 때문에 스프링 컨테이너가 뜨는 시점에는 생성된 빈이 없기 때문이죠.
+
+따라서 `Provider` 를 사용해서 빈 요청 시점을 조절해야 합니다.
+
+하지만 `Provider` 를 매번 사용하는건 번거로운 일이죠. 스프링에서는 편하게 사용하기 위해 `proxyMode` 라는 걸 제공합니다.
+
+<br>
+
+### 5.1. proxyMode
+
+```java
+@Scope(value = "request", proxyMode = ScopedProxyMode.TARGET_CLASS)
+```
+
+프록시 모드를 활성화하면 스프링 빈 주입 시점에 가짜 프록시 빈을 주입해줍니다.
+
+그리고 사용하는 시점 (메서드 호출 시점) 에 컨테이너에 요청해서 진짜 빈을 주입 받아서 사용합니다.
