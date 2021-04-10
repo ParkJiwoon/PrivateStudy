@@ -308,12 +308,11 @@ Java 에서는 기본형과 참조형을 서로 변환해주는 박싱, 언박�
 ## 4.3. Function (`T -> R`)
 
 기본형을 받아서 기본형 리턴
+
 - `IntToDoubleFunction`
 - `IntToLongFunction`
-
 - `LongToDoubleFunction`
 - `LongToIntFunction`
-
 - `DoubleToIntFunction`
 - `DoubleToLongFunction`
 
