@@ -1121,6 +1121,6 @@ Content-Type: application/json
 
 # Reference
 
-- [Github 전체 코드](https://github.com/ParkJiwoon/jwt-security)
+- [Github 전체 코드](https://github.com/ParkJiwoon/practice-codes/tree/master/spring-security-jwt)
 - [인프런 Spring Boot JWT Tutorial (정은구)](https://www.inflearn.com/course/%EC%8A%A4%ED%94%84%EB%A7%81%EB%B6%80%ED%8A%B8-jwt#)
 - [JWT 토큰 확인 가능한 사이트](https://jwt.io/)
