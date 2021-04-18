@@ -1,5 +1,3 @@
-# Java Stream count() 의 비밀
-
 # Overview
 
 Java 8 Stream 에는 `count()` 라는 종결 함수가 있습니다.
