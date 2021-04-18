@@ -4,13 +4,13 @@
 
 다운로드 링크 : https://www.h2database.com/html/main.html
 
-<img src = "images/h2-1.png" width="40%">
+<img src = "https://github.com/ParkJiwoon/PrivateStudy/raw/master/spring/images/h2-1.png" width="50%">
 
 <br>
 
 최신 버전보다는 안정화된 버전이 괜찮습니다.
 
-<img src = "images/h2-2.png" width="40%">
+<img src = "https://github.com/ParkJiwoon/PrivateStudy/raw/master/spring/images/h2-2.png" width="50%">
 
 <br>
 
@@ -22,7 +22,7 @@
 
 만약 권한이 없으면 `chmod 755 ./bin/h2.sh` 로 권한을 부여합니다.
 
-![](images/h2-3.png)
+<img src = "https://github.com/ParkJiwoon/PrivateStudy/raw/master/spring/images/h2-3.png" width="50%">
 
 <br>
 
@@ -34,7 +34,7 @@
 
 그리고 연결 버튼을 눌러서 진입합니다.
 
-![](images/h2-4.png)
+<img src = "https://github.com/ParkJiwoon/PrivateStudy/raw/master/spring/images/h2-4.png" width="50%">
 
 <br>
 
@@ -42,7 +42,7 @@
 
 이후에 다시 h2 console 에서 연결 끊기 후 `jdbc:h2:tcp://localhost/~/my-db-test` 로 접속해서 사용하면 됩니다.
 
-![](images/h2-5.png)
+<img src = "https://github.com/ParkJiwoon/PrivateStudy/raw/master/spring/images/h2-5.png" width="70%">
 
 <br>
 
