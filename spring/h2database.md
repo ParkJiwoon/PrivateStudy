@@ -4,13 +4,13 @@
 
 다운로드 링크 : https://www.h2database.com/html/main.html
 
-![](images/h2-1.png)
+<img src = "images/h2-1.png" width="40%">
 
 <br>
 
 최신 버전보다는 안정화된 버전이 괜찮습니다.
 
-![](images/h2-2.png)
+<img src = "images/h2-2.png" width="40%">
 
 <br>
 
