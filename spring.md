@@ -7,7 +7,6 @@
 - [@Autowired 와 @Qualifier](#autowired-와-qualifier)
 - [@Before @BeforeClass @BeforeEach @BeforeAll](#before-beforeclass-beforeeach-beforeall)
 - [PostConstruct](#postconstruct)
-- [JUnit 5 에서 @Nested 와 @DisplayName 으로 가독성 있는 테스트 코드 작성하기](#junit-5-에서-nested-와-displayname-으로-가독성-있는-테스트-코드-작성하기)
 
 <br>
 
