@@ -105,3 +105,5 @@ class CalculatorTest {
 # 5. Conclusion
 
 이제 우리는 `private` 로 선언된 값이나 변수도 테스트 가능합니다.
+
+전체 테스트 코드는 [Github](https://github.com/ParkJiwoon/practice-codes/blob/master/spring-test/src/test/java/com/practice/springtest/privat/CalculatorTest.java) 에서 확인할 수 있습니다.
