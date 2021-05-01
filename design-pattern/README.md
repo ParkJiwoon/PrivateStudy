@@ -1,3 +1,3 @@
-# 디자인 패턴
+# Design Pattern
 
-- Factory Method Pattern (팩토리 메소드 패턴): 어떤 클래스의 인스턴스를 만들지 서브 클래스에서 결정. 클래스의 인스턴스 만드는 일을 서브 클래스에게 맡김
+- [Factory Method Pattern (팩토리 메소드 패턴)](./factory-method-pattern.md)
