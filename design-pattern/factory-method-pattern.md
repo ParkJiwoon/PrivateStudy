@@ -91,6 +91,8 @@ public class PetFactory {
 
 ## 3.1. 기존
 
+<img src = "https://github.com/ParkJiwoon/PrivateStudy/blob/master/design-pattern/images/factory-method-pattern-1.png?raw=true" width="50%">
+
 ```java
 public class FactoryMethodApp {
     public static void main(String[] args) {
@@ -113,11 +115,9 @@ public class FactoryMethodApp {
 
 <br>
 
-![](images/factory-method-pattern-1.png)
-
-<br>
-
 ## 3.2. 적용
+
+<img src = "https://github.com/ParkJiwoon/PrivateStudy/blob/master/design-pattern/images/factory-method-pattern-2.png?raw=true" width="50%">
 
 ```java
 public class FactoryMethodApp {
@@ -141,7 +141,6 @@ public class FactoryMethodApp {
 
 <br>
 
-![](images/factory-method-pattern-2.png)
 
 <br>
 
