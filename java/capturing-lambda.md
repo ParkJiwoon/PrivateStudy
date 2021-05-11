@@ -1,4 +1,4 @@
-# effectively final: 람다 표현식 내에서 사용하는 변수가 fianl 처럼 사용되어야 하는 이유
+# effectively final: 람다 표현식 내에서 사용하는 변수가 final 처럼 사용되어야 하는 이유
 
 # 1. Overview
 
