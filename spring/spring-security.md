@@ -12,136 +12,13 @@ JWT 와 Spring Security 코드는 [인프런 Spring Boot JWT Tutorial (정은구
 
 <br>
 
-# 1. JWT 란 (Json Web Token)
+# 1. JWT
 
-JSON 객체를 사용해서 토큰 자체에 정보를 저장하는 Web Token 입니다.
-
-Header, Payload, Signature 3 개의 부분으로 구성되어 있으며 쿠키나 세션을 이용한 인증보다 안전하고 효율적입니다.
-
-일반적으로는 `Authorization: <type> <credentials>` 형태로 Request Header 에 담겨져 오기 때문에 Header 값을 확인해서 가져올 수 있습니다.
+JWT 에 관련된 글은 따로 작성했기 때문에 [링크](https://github.com/ParkJiwoon/PrivateStudy/blob/master/web/jwt.md)로 대체합니다.
 
 <br>
 
-## 1.1. 장단점
-
-### 1.1.1. 장점
-
-- 중앙 인증 서버, 저장소에 대한 의존성이 없어서 수평 확장에 유리
-- Base64 URL Safe Encoding 이라 URL, Cookie, Header 어떤 형태로도 사용 가능
-- Stateless 한 서버 구현 가능
-- 웹이 아닌 모바일에서도 사용 가능
-- 인증 정보를 다른 곳에서도 사용 가능 (OAuth)
-
-### 1.1.2. **단점**
-
-- Payload 의 정보가 많아지면 네트워크 사용량 증가
-- 다른 사람이 토큰을 decode 하여 데이터 확인 가능
-- 토큰을 탈취당한 경우 대처하기 어려움
-    - 기본적으로는 서버에서 관리하는게 아니다보니 탈취당한 경우 강제 로그아웃 처리가 불가능
-    - 토큰 유효시간이 만료되기 전까지 탈취자는 자유롭게 인증 가능
-    - 그래서 유효시간을 짧게 가져가고 refresh token 을 발급하는 방식으로 많이 사용
-
-<br>
-
-## 1.2. Token 구성요소
-
-- Header
-    - `alg`: Signature 를 해싱하기 위한 알고리즘 정보를 갖고 있음
-    - `typ`: 토큰의 타입을 나타내는데 없어도 됨. 보통 JWT 를 사용
-
-- Payload
-    - 서버와 클라이언트가 주고받는, 시스템에서 실제로 사용될 정보에 대한 내용을 담고 있음
-    - JWT 가 [기본적으로 갖고 있는 키워드](https://tools.ietf.org/html/rfc7519#section-4.1)가 존재
-    - 원한다면 추가할 수도 있음
-        - `iss`: 토큰 발급자
-        - `sub`: 토큰 제목
-        - `aud`: 토큰 대상
-        - `exp`: 토큰의 만료시간
-        - `nbf`: Not Before
-        - `iat`: 토큰이 발급된 시간
-        - `jti`: JWT의 고유 식별자
-
-- Signature
-    - 서버에서 토큰이 유효한지 검증하기 위한 문자열
-    - Header + Payload + Secret Key 로 값을 생성하므로 데이터 변조 여부를 판단 가능
-    - Secret Key 는 노출되지 않도록 서버에서 잘 관리 필요
-
-<br>
-
-## 1.3. 토큰 인증 타입
-
-`Authorization: <type> <credentials>` 형태에서 `<type>` 부분에 들어갈 값입니다.
-
-엄격한 규칙이 있는건 아니고 일반적으로 많이 사용되는 형태라고 생각하면 됩니다.
-
-- Basic
-    - 사용자 아이디와 암호를 Base64 로 인코딩한 값을 토큰으로 사용
-- Bearer
-    - JWT 또는 OAuth 에 대한 토큰을 사용
-- Digest
-    - 서버에서 난수 데이터 문자열을 클라이언트에 보냄
-    - 클라이언트는 사용자 정보와 nonce 를 포함하는 해시값을 사용하여 응답
-- HOBA
-    - 전자 서명 기반 인증
-- Mutual
-    - 암호를 이용한 클라이언트-서버 상호 인증
-- AWS4-HMAC-SHA256
-    - AWS 전자 서명 기반 인증
-
-<br>
-
-# 2. Refresh Token
-
-JWT 역시 탈취되면 누구나 API 를 호출할 수 있다는 단점이 존재합니다.
-
-세션은 탈취된 경우 세션 저장소에서 탈취된 세션 ID 를 삭제하면 되지만, JWT 는 서버에서 관리하지 않기 때문에 속수무책으로 당할 수밖에 없습니다.
-
-그래서 탈취되어도 피해가 최소화 되도록 유효시간을 짧게 가져갑니다.
-
-하지만 만료 시간을 30분으로 설정하면 일반 사용자는 30 분마다 새로 로그인 하여 토큰을 발급받아야 합니다.
-
-사용자가 매번 로그인 하는 과정을 생략하기 위해 필요한 게 Refresh Token 입니다.
-
-<br>
-
-Refresh Token 은 로그인 토큰 (Access Token) 보다 긴 유효 시간을 가지며, Access Token 이 만료된 사용자가 재발급을 원할 경우 Refresh Token 을 함께 전달합니다.
-
-서버는 Access Token 에 담긴 사용자의 정보를 확인하고 Refresh Token 이 아직 만료되지 않았다면 새로운 토큰을 발급해줍니다.
-
-이렇게 하면 사용자가 매번 로그인해야 하는 번거로움 없이 로그인을 지속적으로 유지할 수 있습니다.
-
-<br>
-
-Refresh Token 은 사용자가 로그인 할 때 같이 발급되며, 클라이언트가 안전한 곳에 보관하고 있어야 합니다.
-
-Access Toekn 과 달리 매 요청마다 주고 받지 않기 때문에 탈취 당할 위험이 적으며, 요청 주기가 길기 때문에 별도의 저장소에 보관 합니다. (정책마다 다르게 사용)
-
-<br>
-
-## 2.1. Refresh Token 저장소
-
-Refresh Token 은 서버에서 별도의 저장소에 보관하는 것이 좋습니다.
-
-- Refresh Token 은 사용자 정보가 없기 때문에 저장소에 값이 있으면 검증 시 어떤 사용자의 토큰인지 판단하기 용이
-- 탈취당했을 때 저장소에서 Refresh Token 정보를 삭제하면 Access Token 만료 후에 재발급이 안되게 강제 로그아웃 처리 가능
-- 일반적으로 Redis 많이 사용
-
-<br>
-
-## 2.2. Refresh Token 으로 Access Token 재발급 시나리오
-
-1. `access token` 으로 요청을 마구 보내던 클라이언트는 유효기간이 얼마 남지 않았음을 확인
-2. `access token` 이 만료되었거나 만료 될랑 말랑한 시점에 재발급을 위해 `access token + refresh token` 을 함께 보냄
-3. 서버는 `refresh token` 의 만료 여부를 확인
-4. `access token` 으로 유저 정보 (username 또는 userid) 를 획득하고 저장소에 해당 유저 정보를 key 값으로 한 value 가 `refresh token` 과 일치하는지 확인
-5. 3~4번의 검증이 끝나면 새로운 토큰 세트 (access + refresh) 발급
-6. 서버는 `refresh token` 저장소의 value 업데이트
-
-<br>
-
-# 3. Spring Security
-
-이제 JWT 와 Spring Security 를 사용하여 직접 구현하는 과정을 알아봅니다.
+# 2. Spring Security
 
 Spring Security 는 사용자 정보 (ID/PW) 검증 및 유저 정보 관리 등을 쉽게 사용할 수 있도록 제공합니다.
 
@@ -161,9 +38,9 @@ JWT 와 같이 소개되는 경우가 많은데 스프링 시큐리티는 원래
 // build.gradle
 
 plugins {
-	id 'org.springframework.boot' version '2.4.3'
-	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-	id 'java'
+    id 'org.springframework.boot' version '2.4.3'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'java'
 }
 
 group = 'com.tutorial'
@@ -182,7 +59,10 @@ repositories {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+        // security 관련 의존성
 	implementation 'org.springframework.boot:spring-boot-starter-security'
+
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.h2database:h2'
@@ -190,6 +70,7 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 
+        // jwt 관련 의존성
 	compile group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.2'
 	runtime group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.2'
 	runtime group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.2'
@@ -202,7 +83,7 @@ test {
 
 <br>
 
-## 3.1. 테스트를 위한 Member 도메인 설계
+# 3. Member 도메인 설계
 
 시큐리티 설정을 테스트하기 위한 기본적인 사용자 도메인을 만듭니다.
 
@@ -217,7 +98,7 @@ test {
 
 <br>
 
-### 3.1.1. Member
+## 3.1. Member
 
 ```java
 @Getter
@@ -261,7 +142,7 @@ public enum Authority {
 
 <br>
 
-### 3.1.2. MemberRepository
+## 3.2. MemberRepository
 
 ```java
 @Repository
@@ -276,7 +157,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
 <br>
 
-### 3.1.3. MemberService
+## 3.3. MemberService
 
 ```java
 @Service
@@ -308,7 +189,7 @@ public class MemberService {
 
 <br>
 
-### 3.1.4. MemberController
+## 3.4. MemberController
 
 ```java
 @RestController
@@ -333,7 +214,7 @@ public class MemberController {
 
 <br>
 
-### 3.1.5. application.yml
+## 3.5. application.yml
 
 ```yaml
 spring:
@@ -373,7 +254,7 @@ jwt:
 
 <br>
 
-## 3.2. JWT 와 Security 설정
+# 4. JWT 와 Security 설정
 
 - JWT 관련
     - `TokenProvider`: 유저 정보로 JWT 토큰을 만들거나 토큰을 바탕으로 유저 정보를 가져옴
@@ -387,7 +268,7 @@ jwt:
 
 <br>
 
-### 3.2.1. TokenProvider
+## 4.1. TokenProvider
 
 ```java
 @Slf4j
@@ -504,7 +385,7 @@ public class TokenProvider {
 
 <br>
 
-### 3.2.2. JwtFilter
+## 4.2. JwtFilter
 
 ```java
 @RequiredArgsConstructor
@@ -554,7 +435,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
 <br>
 
-### 3.2.3.  JwtSecurityConfig
+## 4.3. JwtSecurityConfig
 
 ```java
 // 직접 만든 TokenProvider 와 JwtFilter 를 SecurityConfig 에 적용할 때 사용
@@ -576,7 +457,7 @@ public class JwtSecurityConfig extends SecurityConfigurerAdapter<DefaultSecurity
 
 <br>
 
-### 3.2.4. JwtAuthenticationEntryPoint
+## 4.4. JwtAuthenticationEntryPoint
 
 ```java
 @Component
@@ -594,7 +475,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
 <br>
 
-### 3.2.5. JwtAccessDeniedHandler
+## 4.5. JwtAccessDeniedHandler
 
 ```java
 @Component
@@ -612,7 +493,7 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
 
 <br>
 
-### 3.2.6. SecurityConfig
+## 4.6. SecurityConfig
 
 ```java
 @EnableWebSecurity
@@ -676,7 +557,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 <br>
 
-### 3.2.7. SecurityUtil
+## 4.7. SecurityUtil
 
 ```java
 @Slf4j
@@ -704,7 +585,7 @@ public class SecurityUtil {
 
 <br>
 
-## 3.3. Refresh Token 저장소
+# 5. Refresh Token 저장소
 
 Access Token 과 Refresh Token 을 함께 사용하기 때문에 저장이 필요합니다.
 
@@ -714,7 +595,7 @@ Access Token 과 Refresh Token 을 함께 사용하기 때문에 저장이 필�
 
 <br>
 
-### 3.3.1. RefreshToken
+## 5.1. RefreshToken
 
 ```java
 @Getter
@@ -746,7 +627,7 @@ public class RefreshToken {
 
 <br>
 
-### 3.3.2. RefreshTokenRepository
+## 5.2. RefreshTokenRepository
 
 ```java
 @Repository
@@ -759,7 +640,7 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long
 
 <br>
 
-## 3.4. 사용자 인증 과정
+# 6. 사용자 인증 과정
 
 지금까지 스프링 시큐리티와 JWT 를 사용하기 위한 설정들을 전부 끝냈습니다.
 
@@ -771,7 +652,7 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long
 
 <br>
 
-### 3.4.1. AuthController
+## 6.1. AuthController
 
 ```java
 @RestController
@@ -804,7 +685,7 @@ public class AuthController {
 
 <br>
 
-### 3.4.2. AuthService
+## 6.2. AuthService
 
 ```java
 @Service
@@ -884,13 +765,13 @@ public class AuthService {
 
 <br>
 
-#**회원가입**
+#**회원가입 (signup)**
 
 - 평범하게 유저 정보를 받아서 저장합니다.
 
 <br>
 
-#**로그인**
+#**로그인 (login)**
 
 - `Authentication`
     - 사용자가 입력한 Login ID, PW 로 인증 정보 객체 `UsernamePasswordAuthenticationToken`를 생성합니다.
@@ -906,7 +787,7 @@ public class AuthService {
 
 <br>
 
-#**재발급**
+#**재발급 (reissue)**
 
 - Access Token + Refresh Token 을 Request Body 에 받아서 검증합니다.
 - Refresh Token 의 만료 여부를 먼저 검사합니다.
@@ -916,7 +797,7 @@ public class AuthService {
 
 <br>
 
-### 3.4.3. CustomUserDetailsService
+## 6.3. CustomUserDetailsService
 
 ```java
 @Service
@@ -953,26 +834,26 @@ public class CustomUserDetailsService implements UserDetailsService {
 
 <br>
 
-**1) CustomUserDetailsService**
+### 6.3.1. CustomUserDetailsService
 
-![](https://github.com/ParkJiwoon/PrivateStudy/blob/master/spring/images/security-2.png?raw=true)
+<img src="https://github.com/ParkJiwoon/PrivateStudy/blob/master/spring/images/security-2.png?raw=true" width="80%">
 
 `loadUserByUsername` 는 여러 곳에서 호출하고 있는데 이 중에서 `DaoAuthenticationProvider` 내부를 확인해봅니다.
 
 <br>
 
-**2) DaoAuthenticationProvider**
+### 6.3.2. DaoAuthenticationProvider
 
-![](https://github.com/ParkJiwoon/PrivateStudy/blob/master/spring/images/security-3.png?raw=true)
+<img src="https://github.com/ParkJiwoon/PrivateStudy/blob/master/spring/images/security-3.png?raw=true" width="80%">
 
 - `username` 을 받아서 넘겨주는 `retrieveUser` 메소드 내부에서 호출합니다.
 - 그럼 이 `retrieveUser` 는 어디서 호출할까요?
 
 <br>
 
-**3) AbstractUserDetailsAuthenticationProvider**
+### 6.3.3. AbstractUserDetailsAuthenticationProvider
 
-![](https://github.com/ParkJiwoon/PrivateStudy/blob/master/spring/images/security-4.png?raw=true)
+<img src="https://github.com/ParkJiwoon/PrivateStudy/blob/master/spring/images/security-4.png?raw=true" width="80%">
 
 - `DaoAuthenticationProvider` 의 부모 클래스인 `AbstractUserDetailsAuthenticationProvider` 에서 호출합니다.
 - 코드를 쭉 보니 받아온 user 변수로 `additionalAuthenticationChecks` 메소드를 호출합니다.
@@ -980,9 +861,9 @@ public class CustomUserDetailsService implements UserDetailsService {
 
 <br>
 
-**4) 다시 DaoAuthenticationProvider**
+## 6.3.4. 다시 DaoAuthenticationProvider
 
-![](https://github.com/ParkJiwoon/PrivateStudy/blob/master/spring/images/security-5.png?raw=true)
+<img src="https://github.com/ParkJiwoon/PrivateStudy/blob/master/spring/images/security-5.png?raw=true" width="80%">
 
 - **실제로 비밀번호 검증이 이루어지는 부분입니다 !**
 - Request 로 받아서 만든 `authentication` 와 DB 에서 꺼낸 값인 `userDetails` 의 비밀번호를 비교합니다.
@@ -992,15 +873,15 @@ public class CustomUserDetailsService implements UserDetailsService {
 
 <br>
 
-![](https://github.com/ParkJiwoon/PrivateStudy/blob/master/spring/images/security-6.png?raw=true)
+<img src="https://github.com/ParkJiwoon/PrivateStudy/blob/master/spring/images/security-6.png?raw=true" width="80%">
 
 - `AbstractUserDetailsAuthenticationProvider` 의 `authenticate` 는 단 한곳에서 호출합니다.
 
 <br>
 
-**5) ProviderManager**
+### 6.3.5. ProviderManager
 
-![](https://github.com/ParkJiwoon/PrivateStudy/blob/master/spring/images/security-7.png?raw=true)
+<img src="https://github.com/ParkJiwoon/PrivateStudy/blob/master/spring/images/security-7.png?raw=true" width="80%">
 
 - 여기서도 `authenticate` 라는 메소드네요.
 - `AuthenticationProvider` 라는 인터페이스에서 호출하는데요.
@@ -1009,16 +890,16 @@ public class CustomUserDetailsService implements UserDetailsService {
 
 <br>
 
-**6) AuthService**
+### 6.3.6. AuthService
 
-![](https://github.com/ParkJiwoon/PrivateStudy/blob/master/spring/images/security-8.png?raw=true)
+<img src="https://github.com/ParkJiwoon/PrivateStudy/blob/master/spring/images/security-8.png?raw=true" width="80%">
 
 - `ProviderManager` 는 `AuthenticationManager` 의 구현체입니다.
 - 지금까지의 탐구 과정을 역으로 다시 가보면 어떤 순서로 비밀번호 검증이 이루어지는 지 알 수 있습니다.
 
 <br>
 
-![](https://github.com/ParkJiwoon/PrivateStudy/blob/master/spring/images/security-9.png?raw=true)
+<img src="https://github.com/ParkJiwoon/PrivateStudy/blob/master/spring/images/security-9.png?raw=true">
 
 1. `AuthService` (그림에서는 오타) 에서 `AuthenticationManagerBuilder` 주입 받음
 2. AuthenticationManagerBuilder 에서 `AuthenticationManager` 를 구현한 `ProviderManager` 생성
@@ -1028,7 +909,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
 <br>
 
-# 4. API 호출 테스트
+# 7. API 호출 테스트
 
 이제 서버를 띄우고 실제로 API 호출을 해봅니다.
 
@@ -1036,9 +917,9 @@ API 요청은 인텔리제이에 있는 http Tool 을 사용했습니다.
 
 <br>
 
-## 4.1. 가입
+## 7.1. 가입
 
-```powershell
+```sh
 # Request
 POST http://localhost:8080/auth/signup
 Content-Type: application/json
@@ -1056,9 +937,9 @@ Content-Type: application/json
 
 <br>
 
-## 4.2. 로그인
+## 7.2. 로그인
 
-```powershell
+```sh
 # Request
 POST http://localhost:8080/auth/login
 Content-Type: application/json
@@ -1079,9 +960,9 @@ Content-Type: application/json
 
 <br>
 
-## 4.3. 일반 API 요청
+## 7.3. 일반 API 요청
 
-```powershell
+```sh
 # Request
 GET http://localhost:8080/member/me
 Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIyIiwiYXV0aCI6IlJPTEVfVVNFUiIsImV4cCI6MTYxNTExNDI4MH0.43LvabP41Awhicy6YYAYHtDPnxNYpEygtE-DjLaDjNpAxZf01Nx4xE_dGk0V4jBpjwCgKVGKZIMyEeIppwzARQ
@@ -1096,9 +977,9 @@ Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIyIiwiYXV0aCI6IlJPTEVfVVNFU
 
 <br>
 
-## 4.4. 재발급
+## 7.4. 재발급
 
-```powershell
+```sh
 # Request
 POST http://localhost:8080/auth/reissue
 Content-Type: application/json
@@ -1123,4 +1004,4 @@ Content-Type: application/json
 
 - [Github 전체 코드](https://github.com/ParkJiwoon/practice-codes/tree/master/spring-security-jwt)
 - [인프런 Spring Boot JWT Tutorial (정은구)](https://www.inflearn.com/course/%EC%8A%A4%ED%94%84%EB%A7%81%EB%B6%80%ED%8A%B8-jwt#)
-- [JWT 토큰 확인 가능한 사이트](https://jwt.io/)
+
