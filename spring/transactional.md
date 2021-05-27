@@ -6,6 +6,21 @@ Spring 에서 `@Transactional` 을 사용할 시에 지정할 수 있는 옵션�
 
 # 1. propagation
 
+- 기본값: REQUIRED
+- 사용법: `@Transactional(propagation = NEVER)`
+
+트랜잭셔널 전파 옵션을 설정할 수 있습니다.
+
+- REQUIRED: 부모 트랜잭션이 존재할 경우 참여하고 없는 경우 새 트랜잭션을 시작
+- SUPPORTS: 부모 트랜잭션 내에서 실행하며 부모 트랜잭션이 없을 경우 nontransactionally로 실행
+- MANDATORY: 부모 트랜잭션 내에서 실행되며 부모 트랜잭션이 없을 경우 예외가 발생
+- REQUIRES_NEW: 부모 트랜잭션을 무시하고 무조건 새로운 트랜잭션이 생성
+- NOT_SUPPORTED: nontransactionally로 실행하며 부모 트랜잭션 내에서 실행될 경우 일시 정지
+- NEVER: nontransactionally로 실행되며 부모 트랜잭션이 존재한다면 예외가 발생
+- NESTED: 해당 메서드가 부모 트랜잭션에서 진행될 경우 별개로 커밋되거나 롤백될 수 있음. 둘러싼 트랜잭션이 없을 경우 REQUIRED와 동일하게 작동
+
+
+
 
 
 # 2. isolation
