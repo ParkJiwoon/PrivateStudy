@@ -4,55 +4,30 @@ Java 에는 `Checked Exception` 과 `Unchecked Exception` 이 존재합니다.
 
 이 둘은 헷갈리기 쉽지만 사실 큰 차이가 존재합니다.
 
-<br>
-
-## 1.1. 예외 처리 필수
-
-checked 와 unchecked 를 나누는 가장 큰 기준입니다.
-
-`Checked Exception` 은 직접 예외 처리를 하던지 상위 메소드로 넘기던지 **반드시 예외를 처리**해줘야 합니다.
-
-`Checked Exception` 의 한 종류인 `IOException` 를 예로 들어보겠습니다.
-
-```java
-public void needTryCatch() {
-  try {
-    // ...
-  } catch (IOException e) {
-    // ..
-  }
-}
-```
-
-- `try catch` 같은걸로 반드시 예외를 잡아서 처리를 해줘야 함
+|               |   Checked   |         Unchecked          |
+| :-----------: | :---------: | :------------------------: |
+|   예외 처리   |    필수     |         필수 아님          |
+| 트랜잭션 롤백 |    안됨     | 기본값으로 들어있어서 진행 |
+|     검증      | 컴파일 단계 |        런타임 단계         |
 
 <br>
 
-```java
-public void needThrow() throws IOException {
-  // ...
-}
-```
+## 1.1. Checked Exception
 
-- 만약 직접 처리하기 싫다면 메소드를 정의할 때 뒤에 `thorws Exception` 으로 상위 메소드에 넘겨서 처리하게 만듬
-
-<br>
-
-## 1.2. Transaction Rollback
-
-DB 처리 도중 `RuntimeException` 이 발생하면 **롤백이 진행**되지만 `Checked Exception` 은 발생해도 데이터가 **롤백되지 않고 커밋까지 완료**됩니다.
-
-만약 예외 발생 시 롤백을 진행하고 싶다면 `try catch` 로 잡아서 `Uncheked Exception` 을 던져줘야 합니다.
+- 예외 처리 필수
+  - `try catch` 로 잡아서 예외를 처리하거나 상위 메소드로 넘겨줘야함
+- Transaction 기본 롤백 대상이 아니라서 롤백 처리하려면 추가 처리 필요 ([참고 링크](https://github.com/ParkJiwoon/PrivateStudy/blob/master/spring/transactional.md#4-rollbackfor))
+- 컴파일 단계에서 체크
 
 <br>
 
-## 1.3. 검증 단계
+## 1.2. Unchecked Exception (RuntimeException)
 
-checked 는 **컴파일 단계**에서 Exception 체크가 가능합니다.
-
-모든 unchecked exception 은 `RuntimeException` 을 상속받습니다.
-
-unchecked 는 `RuntimeException` 이라는 이름에서도 알 수 있듯이 **런타임 단계**에서 발견되며, 어떤 예외가 발생할지 개발자가 미리 예측하기 힘듭니다.
+- 예외 처리 필수 아님
+  - 예측할 수 없는 예외라서 필수 처리 불가능
+- Transaction 롤백 대상
+  - `@Transactional` `rollbackFor` 에 기본 옵션으로 들어가있기 때문에 예외 발생 시 롤백 처리됨
+- 런타임 단계에서 체크
 
 <br><br>
 
@@ -66,8 +41,7 @@ Spring 에는 HTTP Status 응답 처리를 위한 여러가지 방법이 있습�
 
 ```java
 @ResponseStatus(code = HttpStatus.NOT_FOUND, reason = "Data Not Found")
-public class DataNotFoundException extends RuntimeException {
-}
+public class DataNotFoundException extends RuntimeException { }
 ```
 
 Spring 3 부터는 HTTP Status 와 Response 를 제공하는 `@ResponseStatus` 어노테이션이 생겼습니다.
@@ -125,13 +99,16 @@ Spring 3 부터는 HTTP Status 와 Response 를 제공하는 `@ResponseStatus` �
 RuntimeException 을 상속하며 마찬가지로 HTTP Status 와 Message 를 설정할 수 있습니다.
 
 ```java
-public ResponseStatusException(HttpStatus status, @Nullable String reason, @Nullable Throwable cause) {
-}
+public ResponseStatusException(
+  HttpStatus status, 
+  @Nullable String reason, 
+  @Nullable Throwable cause
+) {}
 ```
 
-- status: HTTP Status
-- reason: HTTP response Message
-- cause: ResponseStatusException 을 발생시킨 Exception
+- `status`: HTTP Status
+- `reason`: HTTP response Message
+- `cause`: ResponseStatusException 을 발생시킨 Exception
 
 <br>
 
@@ -141,7 +118,7 @@ public ResponseStatusException(HttpStatus status, @Nullable String reason, @Null
 
 <br>
 
-### 2.2.1. 장점
+다음과 같은 장점이 있습니다.
 
 - 비슷한 유형의 예외를 별도로 처리할 수 있고, 응답마다 다른 상태 코드를 세팅 가능합니다.
 - 불필요한 Exception 클래스 생성을 피할 수 있습니다.
