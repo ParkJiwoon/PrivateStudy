@@ -4,6 +4,12 @@
 
 Spring 에서 `@Transactional` 을 사용할 때 지정할 수 있는 옵션들을 알아봅니다.
 
+- isolation
+- propagation
+- readOnly
+- rollbackFor
+- timeout
+
 <br>
 
 # 1. isolation
