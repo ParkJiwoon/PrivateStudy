@@ -16,7 +16,8 @@ Java 에는 `Checked Exception` 과 `Unchecked Exception` 이 존재합니다.
 
 - 예외 처리 필수
   - `try catch` 로 잡아서 예외를 처리하거나 상위 메소드로 넘겨줘야함
-- Transaction 기본 롤백 대상이 아니라서 롤백 처리하려면 추가 처리 필요 ([참고 링크](https://github.com/ParkJiwoon/PrivateStudy/blob/master/spring/transactional.md#4-rollbackfor))
+- Transaction 기본 롤백 대상이 아니라서 롤백 처리하려면 추가 처리 필요
+  - [@Transactional 의 rollbackFor 옵션 참고](https://github.com/ParkJiwoon/PrivateStudy/blob/master/spring/transactional.md#4-rollbackfor)
 - 컴파일 단계에서 체크
 
 <br>
