@@ -204,3 +204,129 @@ Hello, world!
 <br>
 
 ## 2.2. 애플리케이션 구성 관리의 용이성
+
+도커 컨테이너는 애플리케이션과 인프라를 함께 담은 상자
+
+일정 규모 이상의 시스템은 여러 개의 애플리케이션으로 구성되므로, 여러 개의 컨테이너로 구성된다고 볼 수 있음
+
+도커는 필요한 컨테이너를 각각 실행하는 방법으로 시스템 구성
+
+하지만 복잡한 시스템을 의존성 문제 없이 한 덩어리로 원활히 동작시키는 것은 쉽지 않음
+
+**도커 컴포즈 (Docker compose)**
+
+- 여러 컨테이너를 사용하는 애플리케이션을 쉽게 관리할 수 있는 도구
+- yaml 포맷으로 작성된 설정 파일로 컨테이너를 정의
+- 컨테이너 간의 의존 관계를 정의해서 시작 순서를 제어 가능
+
+```yaml
+# 웹 애플리케이션과 Redis 컨테이너의 구성 예시
+
+version: "3"
+services:
+  web:
+    image: gihyodocker/web
+    ports:
+      - "3000:33000"
+    environment:
+      REDIS_TARGET: redis
+    depends_on:
+      - redis
+  redis:
+    image: "redis:alpine"
+```
+
+**도커 스웜 (Docker Swarm)**
+
+- 도커 컴포즈가 단일 서버를 넘어 여러 서버에 걸쳐 있는 여러 컨테이너를 관리 가능하게 만드는 도구
+- 여러 컨테이너를 관리하는 것만이 목적인 도커 컴포즈와 달리
+  - 컨테이너의 증가 혹은 감소
+  - 노드의 리소스를 효율적으로 활용하기 위한 컨테이너 배치 및 로드 밸런싱 기능
+  - 배포 시 롤링 업데이트 (오래된 컨테이너와 새로운 컨테이너를 단계적으로 서비스에 교체 투입) 이 가능
+
+**도커 컨테이너 오케스트레이션 시스템: 쿠버네티스**
+
+- 이렇게 여러 서버에 걸쳐 있는 여러 컨테이너를 관리하는 기법을 컨테이너 오케스트레이션 (container orchestration) 이라고 함
+- 컨테이너 오케스트레이션 분야에서 사실상 표준으로 자리 잡은 것이 쿠버네티스 (Kubernetes)
+- 도커 스웜보다 기능이 충실하며 확장성이 높음 (복잡성도 높음)
+
+<br>
+
+# 3. 리얼 도커 환경 구축하기
+
+- 윈도우용/macOS 용 도커 설치
+- 윈도우용/macOS 용 도커에는 하이퍼바이저형 가상화 사용
+  - OS 자체에 내장된 가상화 시스템을 이용해 오버헤드를 최소한을 억제
+- 도커를 이용하면 호스트 OS 위에 여러 도커 컨테이너를 전개하고 이 컨테이너끼리 통신을 주고받는 방식으로 애플리케이션을 구축하는 경우가 많음
+
+**macOS 용 도커 설치**
+
+- [도커 ID 생성](https://hub.docker.com/signup?utm_source=docker&utm_medium=inproductad&utm_campaign=hubimagedetailanonusersignup)
+- 다운로드: https://hub.docker.com/editions/community/docker-ce-desktop-mac
+- `Docker.dmg` 파일 실행
+- Application 폴더에서 Docker 실행
+- 처음 실행시 나타나는 주의사항 "Docker needs privileged access" 라는 팝업에서 OK 클릭
+- 메뉴 바에 도커 아이콘이 나타나고 "Docker is starting..." 라는 메시지가 나오면 1-2분 정도 기다림
+- "Docker is now up and running!" 이라는 메시지 출력되면 준비 완료
+- 터미널에서 `docker version` 명령어로 설치 확인
+
+```yml
+Client:
+ Cloud integration: 1.0.17
+ Version:           20.10.7
+ API version:       1.41
+ Go version:        go1.16.4
+ Git commit:        f0df350
+ Built:             Wed Jun  2 11:56:22 2021
+ OS/Arch:           darwin/amd64
+ Context:           default
+ Experimental:      true
+
+Server: Docker Engine - Community
+ Engine:
+  Version:          20.10.7
+  API version:      1.41 (minimum version 1.12)
+  Go version:       go1.13.15
+  Git commit:       b0f5bc3
+  Built:            Wed Jun  2 11:54:58 2021
+  OS/Arch:          linux/amd64
+  Experimental:     false
+ containerd:
+  Version:          1.4.6
+  GitCommit:        d71fcd7d8303cbf684402823e425e9dd2e99285d
+ runc:
+  Version:          1.0.0-rc95
+  GitCommit:        b9ee9c6314599f1b4a7f497e1f1f856fe433d3b7
+ docker-init:
+  Version:          0.19.0
+  GitCommit:        de40ad0
+```
+
+**도커 기본 설정**
+
+macOS 에서는 상태바에 도커 아이콘을 클릭하고 "Preferences" 를 누르면 설정 가능
+
+- 도커 자동 실행
+  - `General > Start docker when you log in` 을 체크하면 운영 체제에 로그인할 때 도커 자동 실행
+- 자동 업데이트 확인
+  - `General > Automatically check for updates` 체크하면 업데이트 여부를 자동으로 확인
+  - 최신 버전을 알려주기만 할 뿐 강제 업데이트는 발생하지 않음
+- 호스트 운영체제 디렉터리 마운트
+  - `Resources > File Sharing` 탭에서는 도커 컨테이너에 마운트할 호스트 운영 체제의 디렉터리 설정 가능
+  - 기본값은 `/Users`, `/Volumes`, `/tmp`, `/private` 으로 되어 있음
+  - 설정된 디렉터리 아래에 위치한 디렉터리를 컨테이너에 마운트 가능하며 그 외에는 경고 메세지 출력되며 마운트 되지 않음
+- 가상 디스크 용량 설정 / CPU 코어 및 메모리 할당
+  - `Resources > Advanced` 탭에서 조절 가능
+  - 호스트 운영 체제의 CPU 코어와 메모리 리소스를 얼마나 도커에 할당할지 설정 가능
+  - 기본값은 CPUs=2, Memory=2GB 이며 설정된 리소스는 컨테이너 실행 시에만 사용됨
+- 프록시
+  - `Resources > Proxies` 탭에서 원격 도커 레지스트리에서 도커 이미지를 받아올 (pull) 때 사용할 HTTP/HTTPS 프록시 설정 가능
+  - 제한된 대상에만 접근을 허용하는 프라이빗 레지스트리에서 이미지를 받아와야 하는 경우에는 "Manual proxy configuration" 을 설정하면 됨
+- Docker Engine
+  - 윈도우/macOS 용 도커의 설정하ㅗ면에 나오지 않는 사항을 JSON 포맷으로 설정
+- 쿠버네티스
+  - 쿠버네티스 사용 활성화 가능
+- 도커 재실행 / 모든 데이터 삭제
+  - 설정키 우측의 거미 모양 누르면 메뉴 나옴
+  - 도커 컨테이너 및 이미지 등 모든 데이터 삭제 가능
+  - 도커 제거 가능 (컨테이너 및 이미지 모두 파기)
