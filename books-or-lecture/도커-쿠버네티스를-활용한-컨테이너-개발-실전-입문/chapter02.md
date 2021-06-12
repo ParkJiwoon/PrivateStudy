@@ -2,6 +2,32 @@
 
 도커의 기본 조작 방법과 애플리케이션을 배포하는 과정까지 알아본다
 
+- [도커 컨테이너 배포](#도커-컨테이너-배포)
+- [1. 컨테이너로 애플리케이션 실행하기](#1-컨테이너로-애플리케이션-실행하기)
+  - [1.1. 도커 이미지와 도커 컨테이너](#11-도커-이미지와-도커-컨테이너)
+  - [1.2. 간단한 애플리케이션과 도커 이미지 만들기](#12-간단한-애플리케이션과-도커-이미지-만들기)
+  - [1.3. 도커 이미지 빌드하기](#13-도커-이미지-빌드하기)
+  - [1.4. 도커 컨테이너 실행](#14-도커-컨테이너-실행)
+  - [1.5. 포트 포워딩](#15-포트-포워딩)
+- [2. 도커 이미지 다루기](#2-도커-이미지-다루기)
+  - [2.1. docker image build - 이미지 빌드](#21-docker-image-build---이미지-빌드)
+  - [2.2. docker search - 이미지 검색](#22-docker-search---이미지-검색)
+  - [2.3. docker image pull - 이미지 내려받기](#23-docker-image-pull---이미지-내려받기)
+  - [2.4. docker image ls - 보유한 도커 이미지 목록 보기](#24-docker-image-ls---보유한-도커-이미지-목록-보기)
+  - [2.5. docker image tag - 이미지에 태그 붙이기](#25-docker-image-tag---이미지에-태그-붙이기)
+  - [2.6. docker image push - 이미지를 외부에 공개하기](#26-docker-image-push---이미지를-외부에-공개하기)
+- [3. 도커 컨테이너 다루기](#3-도커-컨테이너-다루기)
+  - [3.1. 도커 컨테이너의 생명주기](#31-도커-컨테이너의-생명주기)
+  - [3.2. docker container run - 컨테이너 생성 및 실행](#32-docker-container-run---컨테이너-생성-및-실행)
+  - [3.3. docker container ls - 도커 컨테이너 목록 보기](#33-docker-container-ls---도커-컨테이너-목록-보기)
+  - [3.4. docker container stop - 컨테이너 정지하기](#34-docker-container-stop---컨테이너-정지하기)
+  - [3.5. docker container restart - 컨테이너 재시작하기](#35-docker-container-restart---컨테이너-재시작하기)
+  - [3.6. docker container rm - 컨테이너 파기하기](#36-docker-container-rm---컨테이너-파기하기)
+  - [3.7. docker container logs - 표준 출력 연결하기](#37-docker-container-logs---표준-출력-연결하기)
+  - [3.8. docker container exec - 실행 중인 컨테이너에서 명령 실행하기](#38-docker-container-exec---실행-중인-컨테이너에서-명령-실행하기)
+  - [3.9. docker container cp - 파일 복사하기](#39-docker-container-cp---파일-복사하기)
+- [4. 운영과 관리를 위한 명령](#4-운영과-관리를-위한-명령)
+
 <br>
 
 # 1. 컨테이너로 애플리케이션 실행하기
@@ -16,6 +42,8 @@
 ## 1.1. 도커 이미지와 도커 컨테이너
 
 도커 이미지로 도커 컨테이너를 만드는 과정을 한번 알아보자
+
+<br>
 
 **1) 도커 이미지 다운**
 
@@ -40,6 +68,8 @@ docker.io/gihyodocker/echo:latest
 - `gihyodocker/echo:latest` 라는 도커 이미지를 받아옴
 - 이 이미지는 누구나 받을 수 있도록 공개되어 있으며 `docker image pull` 명령어로 다운 가능
 
+<br>
+
 **2) 도커 이미지 실행**
 
 ```sh
@@ -50,6 +80,8 @@ $ docker container run -t -p 9000:8080 gihyodocker/echo:latest
 - 지금 만든 컨테이너는 옵션을 통해 포트 포워딩이 적용되어 있음
 - 도커 실행 환경의 포트 9000 을 거쳐 HTTP 요청을 전달 받음
 
+<br>
+
 **3) 애플리케이션 실행 확인**
 
 ```sh
@@ -58,6 +90,8 @@ Hello Docker!!
 ```
 
 - curl 명령어로 호출하면 정상적으로 동작되는 것을 확인 가능
+
+<br>
 
 **4) 도커 컨테이너 종료**
 
@@ -72,7 +106,9 @@ dfc9aa5b2646
 
 Go 언어로 만든 간단한 웹 서버를 도커 컨테이너에서 실행해보자
 
-**1) 코드 작성**
+<br>
+
+**1) 애플리케이션 코드 작성**
 
 ```go
 // main.go
@@ -103,7 +139,9 @@ func main() {
 - 포트 8080 으로 요청을 받는 서버 애플리케이션
 - 클라이언트로부터 요청을 받으면 `received request` 라는 메시지를 출력
 
-**2) 만든 코드를 도커 컨테이너에 배치**
+<br>
+
+**2) Dockerfile 작성**
 
 `main.go` 파일과 같은 디렉터리에 Dockerfile 을 작성
 
@@ -116,33 +154,489 @@ COPY main.go /echo
 CMD ["go", "run", "/echo/main.go"]
 ```
 
-**3) 도커 이미지 빌드하기**
+- FROM
+  - 도커 이미지의 바탕이 될 베이스 이미지 지정
+  - Dockerfile 로 이미지를 빌드할 때 먼저 `FROM` 인스트럭션에 지정된 이미지를 내려받음
+  - `FROM` 에서 받아오는 도커 이미지는 도커 허브 (Docker Hub) 라는 레지스트리에 공개된 것
+  - 도커 이미지는 고유의 해시값을 갖는데, 해시만으론 해당 이미지가 무엇인지 특정하기가 어려워 특정 언어와 태그를 같이 사용하는 경우가 많음
 
+- RUN
+  - 도커 이미지를 실행할 때 컨테이너 안에서 실행할 명령
 
+- COPY
+  - 도커가 동작 중인 호스트 머신의 파일이나 디렉터리를 도커 컨테이너 안으로 복사
+  - 비슷한 명령어로 ADD 가 존재
 
+- CMD
+  - 도커 컨테이너를 실행할 때 컨테이너 안에서 실행할 프로세스
+  - `RUN` 은 이미지를 빌드할때 실행되고 `CMD` 는 컨테이너를 시작할 때 한번 실행
 
 <br>
 
-## 1.3. Dockerfile 인스트럭션
+## 1.3. 도커 이미지 빌드하기
 
-**1) FROM**
+`docker image build` 명령으로 빌드
 
-- 도커 이미지의 바탕이 될 베이스 이미지 지정
-- Dockerfile 로 이미지를 빌드할 때 먼저 `FROM` 인스트럭션에 지정된 이미지를 내려받음
-- `FROM` 에서 받아오는 도커 이미지는 도커 허브 (Docker Hub) 라는 레지스트리에 공개된 것
-- 도커 이미지는 고유의 해시값을 갖는데, 해시만으론 해당 이미지가 무엇인지 특정하기가 어려워 특정 언어와 태그를 같이 사용하는 경우가 많음
+`-t` 옵션으로 이미지명 지정, 태그명도 지정 가능ㅎ며 생략 시 latest 태그가 붙음
 
-**2) RUN**
+```sh
+# 도커 이미지 빌드 문법: docker image build -t <이미지명[:태그명]> <Dockerfile 경로>
+$ docker image build -t example/echo:latest .
 
-- 도커 이미지를 실행할 때 컨테이너 안에서 실행할 명령
+# 빌드된 도커 이미지 확인
+$ docker image ls
+REPOSITORY         TAG       IMAGE ID       CREATED         SIZE
+example/echo       latest    c301cf8b8d7c   2 minutes ago   750MB
+```
 
-**3) COPY**
+- `example` 은 네임스페이스며 이미지 이름 충돌 방지를 위해 붙이는 것이 좋음
 
-- 도커가 동작 중인 호스트 머신의 파일이나 디렉터리를 도커 컨테이너 안으로 복사
-- 비슷한 명령어로 ADD 가 존재
+<br>
 
-**4) CMD**
+## 1.4. 도커 컨테이너 실행
 
-- 도커 컨테이너를 실행할 때 컨테이너 안에서 실행할 프로세스
-- `RUN` 은 이미지를 빌드할때 실행되고 `CMD` 는 컨테이너를 시작할 때 한번 실행
-  
+```sh
+$ docker container run example/echo:latest
+2021/06/12 15:09:12 start server
+```
+
+- `docker container run` 명령어로 실행 가능
+- 포어그라운드에서 계속 동작함
+- `docker stop $(docker container ls -q)` 명령어로 종료 가능
+
+<br>
+
+```sh
+$ docker container run -d example/echo:latest
+d13792d7cc6dae6c7ddebf47a17efc92b54bfdc989d2a9c4cac4f0a3699363b4
+```
+
+- `-d` 옵션을 붙여서 백그라운드로 컨테이너실행
+- 백그라운드로 실행하면 도커 컨테이너의 ID (해시값) 출력
+
+<br>
+
+```sh
+$ docker container ls
+CONTAINER ID   IMAGE                 COMMAND                  CREATED          STATUS          PORTS     NAMES
+d13792d7cc6d   example/echo:latest   "go run /echo/main.go"   45 seconds ago   Up 44 seconds             bold_blackburn
+```
+
+- 실행중인 컨테이너 목록 조회
+
+<br>
+
+## 1.5. 포트 포워딩
+
+```sh
+$ curl http://localhost:8080/
+curl: (7) Failed to connect to localhost port 8080: Connection refused
+```
+
+- 위에서 작성한 Go 언어 애플리케이션은 포트 8080 을 사용
+- 그러나 8080 으로 GET 요청을 보내도 `Connection refused` 발생
+
+<br>
+
+도커 컨테이너에서 실행한 애플리케이션의 포트는 컨테이너 포트라고 함
+
+curl 을 컨테이너 안에서 실행하면 올바르게 동작하지만 컨테이너 밖에서는 컨테이너 안의 포트를 바로 사용 불가능
+
+**컨테이너 밖에서 온 요청을 컨테이너 안에 있는 애플리케이션에 전달하는 게 도커의 포트 포워딩**
+
+호스트 머신의 포트를 컨테이너 포트와 연결해서 전달하여 컨테이너 포트를 컨테이너 외부에서 이용 가능하게 만듬
+
+<br>
+
+```sh
+# -p 옵션으로 포트 포워딩 지정
+$ docker container run -d -p 9000:8080 example/echo:latest
+c498e3816dbd220f1777d6cd9b8577d4b0cfe53de145e7e4b2ddf2570a680fb9
+
+# 포트 포워딩으로 호스트 포트에 요청하면 컨테이터 포트에 전달됨
+$ curl http://localhost:9000/
+Hello Docker!!
+
+# 할당된 포트 확인 가능
+$ docker container ls
+CONTAINER ID   IMAGE                 COMMAND                  CREATED         STATUS         PORTS                                       NAMES
+c498e3816dbd   example/echo:latest   "go run /echo/main.go"   2 minutes ago   Up 2 minutes   0.0.0.0:9000->8080/tcp, :::9000->8080/tcp   elastic_burnell
+```
+
+- `-p <호스트 포트:컨테이너 포트>` 옵션을 사용해서 포트 포워딩 지정
+- 위 명령어는 호스트 포트 9000 을 컨테이너 포트 8080 에 연결
+- 어떤 포트가 할당되었는지는 `ls` 명령어로 확인 가능
+
+<br>
+
+# 2. 도커 이미지 다루기
+
+도커 이미지란? 도커 컨테이너를 만들기 위한 템플릿
+
+- 도커 이미지 빌드
+- 이미지를 다루는 기본 명령
+- 도커 허브에 이미지 등록 과정
+
+Docker 이미지 명령어를 보려면 `docker image --help` 를 사용할 수 있음
+
+```html
+$ docker image --help
+
+Usage:  docker image COMMAND
+
+Manage images
+
+Commands:
+  build       Build an image from a Dockerfile
+  history     Show the history of an image
+  import      Import the contents from a tarball to create a filesystem image
+  inspect     Display detailed information on one or more images
+  load        Load an image from a tar archive or STDIN
+  ls          List images
+  prune       Remove unused images
+  pull        Pull an image or a repository from a registry
+  push        Push an image or a repository to a registry
+  rm          Remove one or more images
+  save        Save one or more images to a tar archive (streamed to STDOUT by default)
+  tag         Create a tag TARGET_IMAGE that refers to SOURCE_IMAGE
+
+Run 'docker image COMMAND --help' for more information on a command.
+```
+
+<br>
+
+## 2.1. docker image build - 이미지 빌드
+
+```sh
+# docker image build -t <이미지명[:태그명]> <Dockerfile 경로>
+
+# -t 옵션 : 이미지명과 태그명 붙이기. 거의 필수적으로 사용
+$ docker image build -t example/echo:latest .
+
+# -f 옵션 : Dockerfile 파일명 (기본값: Dockerfile)
+$ docker image build -f Dockerfile-test -t example/echo:latest .
+
+# --pull 옵션 : 매번 base 이미지를 강제로 새로 받기
+$ docker image build --pull=true -t example/echo:latest .
+```
+
+- 일반적으로 `FROM` 명령어로 지정된 이미지는 레지스트리에서 다운받은 Base 이미지를 기반으로 새로운 이미지를 빌드함
+- 이렇게 레지스트리에서 받아온 도커 이미지는 일부러 삭제하지 않는 한 호스트 OS 에 저장됨
+- 그러나 `--pull` 옵션을 상요하면 매번 Base 이미지를 새로 받음
+
+<br>
+
+## 2.2. docker search - 이미지 검색
+
+```sh
+# docker search [options] <검색 키워드>
+
+$ docker search --limit 5 mysql
+
+NAME                  DESCRIPTION                                     STARS     OFFICIAL   AUTOMATED
+mysql                 MySQL is a widely used, open-source relation…   10990     [OK]
+mysql/mysql-server    Optimized MySQL Server Docker images. Create…   814                  [OK]
+mysql/mysql-cluster   Experimental MySQL Cluster Docker images. Cr…   85
+bitnami/mysql         Bitnami MySQL Docker Image                      52                   [OK]
+circleci/mysql        MySQL is a widely used, open-source relation…   20
+```
+
+- Docker Hub 에 등록된 레포지토리 검색
+- 검색 결과 처음에 나오는 네임스페이스가 생략된 레포지토리는 mysql 공식 레포지토리
+- 검색 결과는 Stars 순
+
+<br>
+
+## 2.3. docker image pull - 이미지 내려받기
+
+```sh
+# docker image pull [options] <레포지토리명[:태그명]>
+
+$ docker image pull jenkins:2.60.3
+
+2.60.3: Pulling from library/jenkins
+55cbf04beb70: Already exists
+1607093a898c: Already exists
+9a8ea045c926: Already exists
+d4eee24d4dac: Already exists
+c58988e753d7: Pull complete
+794a04897db9: Pull complete
+70fcfa476f73: Pull complete
+0539c80a02be: Pull complete
+54fefc6dcf80: Pull complete
+911bc90e47a8: Pull complete
+38430d93efed: Pull complete
+7e46ccda148a: Pull complete
+c0cbcb5ac747: Pull complete
+35ade7a86a8e: Pull complete
+aa433a6a56b1: Pull complete
+841c1dd38d62: Pull complete
+b865dcb08714: Pull complete
+5a3779030005: Pull complete
+12b47c68955c: Pull complete
+1322ea3e7bfd: Pull complete
+Digest: sha256:eeb4850eb65f2d92500e421b430ed1ec58a7ac909e91f518926e02473904f668
+Status: Downloaded newer image for jenkins:2.60.3
+docker.io/library/jenkins:2.60.3
+```
+
+- 레포지토리명과 태그명은 도커 허브에 존재해야 함
+- 태그명을 생략하면 기본값으로 지정된 태그가 적용 (보통 latest)
+
+<br>
+
+## 2.4. docker image ls - 보유한 도커 이미지 목록 보기
+
+```sh
+# docker image ls [options] <레포지토리[:태그]>
+
+$ docker image ls
+
+REPOSITORY         TAG       IMAGE ID       CREATED       SIZE
+example/echo       latest    c301cf8b8d7c   2 hours ago   750MB
+jenkins            2.60.3    cd14cecfdb3a   2 years ago   696MB
+gihyodocker/echo   latest    3dbbae6eb30d   3 years ago   733MB
+```
+
+- 호스트 운영 체제에 저장된 도커 이미지 목록을 보여줌
+- `pull` 로 원격에서 받은 이미지 뿐만 아니라 `build` 로 내려받은 이미지도 호스트 운영 체제에 저장됨
+
+<br>
+
+## 2.5. docker image tag - 이미지에 태그 붙이기
+
+```sh
+# docker image tag <기반이미지명[:태그]> <새 이미지명[:태그]>
+
+# 0.1.0 태그 부여
+$ docker image tag example/echo:latest example/echo:0.1.0
+
+# IMAGE ID 가 같으므로 같은 이미지를 가리킨다는 것을 알 수 있음
+$ docker image ls
+
+REPOSITORY         TAG       IMAGE ID       CREATED       SIZE
+example/echo       0.1.0     c301cf8b8d7c   2 hours ago   750MB
+example/echo       latest    c301cf8b8d7c   2 hours ago   750MB
+```
+
+<br>
+
+## 2.6. docker image push - 이미지를 외부에 공개하기
+
+```sh
+# docker image push [options] <레포지토리명[:태그]>
+
+# 실제로 호출하면 access denied 뜸
+$ docker image push example/echo:latest
+```
+
+- 저장된 도커 이미지를 도커 허브 등의 레지스트리에 등록
+- 도커 허브는 자신 혹은 소속 기관이 소유한 레포지토리에만 이미지 등록 가능하기 때문에 네임스페이스 변경 필요
+- 도커 허브에 푸시하려면 로그인 필요
+
+<br>
+
+# 3. 도커 컨테이너 다루기
+
+도커 컨테이너는 가상 환경
+
+파일 시스템과 애플리케이션이 함께 담겨 있는 박스라고 보면 됨
+
+<br>
+
+## 3.1. 도커 컨테이너의 생명주기
+
+도커 컨테이너는 3 가지 상태를 가짐
+
+각 컨테이너는 같은 이미지로 생성했따고 해도 별개의 상태를 가짐
+
+이 점이 상태를 갖지 않는 도커 이미지와 컨테이너의 큰 차이
+
+- 실행 중
+  - `docker container run` 명령어로 실행시킨 상태
+  - 실행이 끝나면 정지 상태가 됨
+  - 애플리케이션 보통 종료하지 않는 이상 계속 실행 상태고, 단순히 출력만 하고 끝나버리는 코드도 있음
+- 정지
+  - 실행 중인 컨테이너를 사용자가 명시적으로 정지 (`docker container stop`) 하거나 컨테이너에서 실행된 애플리케이션의 정상/오류 여부를 막론하고 종료된 상태
+  - 컨테이너를 정지해도 디스크에 종료 시점의 상태가 남기 때문에 정지 시킨 컨테이너를 다시 실행할 수 있음
+  - `docker container ls -a` 명령어로 정지시킨 걸 포함한 모든 컨테이너를 확인 가능
+- 파기
+  - 정지 상태의 컨테이너는 명시적으로 파기하지 않는 이상 디스크에 그대로 남아 있음
+  - 불필요한 컨테이너는 삭제 가능하며 한번 파기한 컨테이너는 다시 실행 불가능
+
+<br>
+
+## 3.2. docker container run - 컨테이너 생성 및 실행
+
+```sh
+# docker container run [options] <이미지명[:태그]> [<명령>] [<명령인자>..]
+# docker container run [options] <이미지 ID> [<명령>] [<명령인자>..]
+
+# example/echo:latest 이미지로 컨테이너를 백그라운드에서 실행
+$ docker container run -d -p 9000:8080 example/echo:latest
+2dd1db7bf713f962fd9cf29b5bd6ba91776c850300e8337f8cabe16a0938820f
+
+## 컨테이너에 이름 붙여서 실행하기
+# docker container run --name [<컨테이너명>] [<이미지명>]:[<태그>]
+
+$ docker container run -d --name gihyo-echo example/echo:latest
+
+$ docker container ls
+
+CONTAINER ID   IMAGE                 COMMAND                  CREATED         STATUS         PORTS                                       NAMES
+18d3c0feddca   example/echo:latest   "go run /echo/main.go"   4 seconds ago   Up 3 seconds                                               gihyo-echo
+```
+
+- `-d`
+  - 백그라운드로 실행
+- `-p`
+  - 포트 포워딩 (호스트 포트: 9000 -> 컨테이너 포트: 8080)
+- `--name`
+  - 실행할 컨테이너에 이름을 붙임 (이 옵션을 사용하지 않으면 랜덤값으로 부여됨)
+  - 같은 이름의 컨테이너를 새로 실행하려면 기존 컨테이너를 삭제해야 하기 때문에 개발용으로는 자주 사용되지만 운영 환경에서는 거의 사용되지 않음
+- `--rm`
+  - 컨테이너를 종료할 때 파기
+  - 한번 실행한 후에 더이상 유지할 필요가 없는 명령행 도구 컨테이너를 실행할 때 유용
+- `-v`
+  - 컨테이너 간에 디렉터리나 파일을 공유하기 위해 사용
+
+<br>
+
+## 3.3. docker container ls - 도커 컨테이너 목록 보기
+
+실행 중이거나 종료된 컨테이너의 목록을 보여줌
+
+```sh
+# docker container ls [optinos]
+
+# --filter 옵션 사용
+$ docker container ls --filter "name=gihyo-echo" # 컨테이너명
+$ docker container ls --filter "ancestor=example/echo" # 이미지명
+```
+
+- `-q`
+  - 컨테이너 ID 만 추출
+- `-a`
+  - 종료된 컨테이너를 포함한 모든 컨테이너 목록 조회
+- `--filter`
+  - 특정 조건을 만족하는 컨테이너 목록 조회
+
+<br>
+
+## 3.4. docker container stop - 컨테이너 정지하기
+
+```sh
+# docker container stop <컨테이너 ID 또는 컨테이너명>
+
+$ docker container run -d -p 9000:8080 example/echo:latest
+76860e335dfa643979fb740bc0faf12941c49bfff719ae8eda420780102b3c38
+
+$ docker container stop 76860e335dfa643979fb740bc0faf12941c49bfff719ae8eda420780102b3c38
+76860e335dfa643979fb740bc0faf12941c49bfff719ae8eda420780102b3c38
+```
+
+- 실행 중인 컨테이너 종료
+
+<br>
+
+## 3.5. docker container restart - 컨테이너 재시작하기
+
+```sh
+# docker container restart <컨테이너 ID 또는 컨테이너명>
+
+$ docker container restart gihyo-echo
+gihyo-echo
+
+$ docker container ls
+
+CONTAINER ID   IMAGE                 COMMAND                  CREATED          STATUS         PORTS     NAMES
+18d3c0feddca   example/echo:latest   "go run /echo/main.go"   12 minutes ago   Up 4 seconds             gihyo-echo
+```
+
+- 파기되지 않은 정지 상태 컨테이너 재시작
+
+<br>
+
+## 3.6. docker container rm - 컨테이너 파기하기
+
+```sh
+# docker container rm [options] <컨테이너 ID 또는 컨테이너명>
+
+# 1. 정지된 컨테이너 확인
+$ docker container ls -a
+
+CONTAINER ID   IMAGE                     COMMAND                  CREATED          STATUS                     PORTS     NAMES
+76860e335dfa   example/echo:latest       "go run /echo/main.go"   2 minutes ago    Exited (2) 2 minutes ago             heuristic_sutherland
+
+# 2. 파기
+$ docker container rm heuristic_sutherland
+heuristic_sutherland
+
+# 3. 파기 여부 확인
+$ docker container ls -a
+
+CONTAINER ID   IMAGE                     COMMAND                  CREATED          STATUS                     PORTS     NAMES
+```
+
+- 정지 상태의 컨테이너를 완전히 파기
+- 정지 상태의 컨테이너가 쌓이면 디스크 용량을 차지하기 때문에 정리 필요
+- 같은 이름을 가진 컨테이너가 존재하는 경우 새로운 컨테이너를 생성하려면 기존 컨테이너 파기 필요
+- `-f`
+  - 실행중인 컨테이너 강제로 파기
+
+<br>
+
+## 3.7. docker container logs - 표준 출력 연결하기
+
+```sh
+# docker container logs [options] <컨테이너 ID 또는 컨테이너명>
+```
+
+- 실행 중인 특정 컨테이너의 로그를 확인 가능
+- 실제로 운영할 때는 다른 툴로 로그를 볼 수 있기 때문에 실제로 사용하는 경우는 많지 않음
+- `-f`
+  - 새로 출력되는 로그를 계속 보여줌 (테일링)
+
+<br>
+
+## 3.8. docker container exec - 실행 중인 컨테이너에서 명령 실행하기
+
+```sh
+# docker container exec [options] <컨테이너 Id 또는 컨테이너명> <컨테이너에서 실행할 명령>
+
+# 컨테이너에 pwd 명령어 실행
+$ docker container exec gihyo-echo pwd
+/go
+
+# 해당 컨테이너에 접속한 것처럼 사용하고 싶을 때
+$ docker container exec -it gihyo-echo sh
+# pwd
+/go
+# ls
+bin  src
+```
+
+- 컨테이너에 ssh 로 접속한 것처럼 컨테이너 내부 조작 가능
+- 컨테이너 내부의 파일을 수정하는 건 부작용을 초래할 수 있기 때문에 운영 환경에서는 하면 안됨
+
+<br>
+
+## 3.9. docker container cp - 파일 복사하기
+
+```sh
+# docker container cp [options] <컨테이너 ID 또는 컨테이너명>:<원본파일> <대상파일>
+# docker container cp [options] <호스트 원본파일> <컨테이너 ID 또는 컨테이너명>:<대상파일>
+
+# 컨테이너 안의 파일을 호스트로 복사
+$ docker container cp echo:/echo/main.go .
+
+# 호스트의 파일을 컨테이너로 복사
+$ docker container cp dummy.txt echo:/tmp
+```
+
+- 컨테이너끼리 또는 컨테이너와 호스트 간의 파일 복사
+- 아직 파기되지 않은 정지 상태 컨테이너에도 실행 가능
+
+<br>
+
+# 4. 운영과 관리를 위한 명령
