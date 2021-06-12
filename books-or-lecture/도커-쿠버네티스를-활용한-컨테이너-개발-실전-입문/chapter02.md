@@ -69,3 +69,80 @@ dfc9aa5b2646
 <br>
 
 ## 1.2. 간단한 애플리케이션과 도커 이미지 만들기
+
+Go 언어로 만든 간단한 웹 서버를 도커 컨테이너에서 실행해보자
+
+**1) 코드 작성**
+
+```go
+// main.go
+
+package main
+ 
+import (
+    "fmt"
+    "log"
+    "net/http"
+)
+ 
+func main() {
+    http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+        log.Println("received request")
+        fmt.Fprintf(w, "Hello Docker!!")
+    })
+ 
+    log.Println("start server")
+    server := &http.Server{Addr: ":8080"}
+    if err := server.ListenAndServe(); err != nil {
+        log.Println(err)
+    }
+}
+```
+
+- 모든 HTTP 요청에 대해 'Hello Docker!!'라는 응답을 보냄
+- 포트 8080 으로 요청을 받는 서버 애플리케이션
+- 클라이언트로부터 요청을 받으면 `received request` 라는 메시지를 출력
+
+**2) 만든 코드를 도커 컨테이너에 배치**
+
+`main.go` 파일과 같은 디렉터리에 Dockerfile 을 작성
+
+```docker
+FROM golang:1.9
+ 
+RUN mkdir /echo
+COPY main.go /echo
+ 
+CMD ["go", "run", "/echo/main.go"]
+```
+
+**3) 도커 이미지 빌드하기**
+
+
+
+
+<br>
+
+## 1.3. Dockerfile 인스트럭션
+
+**1) FROM**
+
+- 도커 이미지의 바탕이 될 베이스 이미지 지정
+- Dockerfile 로 이미지를 빌드할 때 먼저 `FROM` 인스트럭션에 지정된 이미지를 내려받음
+- `FROM` 에서 받아오는 도커 이미지는 도커 허브 (Docker Hub) 라는 레지스트리에 공개된 것
+- 도커 이미지는 고유의 해시값을 갖는데, 해시만으론 해당 이미지가 무엇인지 특정하기가 어려워 특정 언어와 태그를 같이 사용하는 경우가 많음
+
+**2) RUN**
+
+- 도커 이미지를 실행할 때 컨테이너 안에서 실행할 명령
+
+**3) COPY**
+
+- 도커가 동작 중인 호스트 머신의 파일이나 디렉터리를 도커 컨테이너 안으로 복사
+- 비슷한 명령어로 ADD 가 존재
+
+**4) CMD**
+
+- 도커 컨테이너를 실행할 때 컨테이너 안에서 실행할 프로세스
+- `RUN` 은 이미지를 빌드할때 실행되고 `CMD` 는 컨테이너를 시작할 때 한번 실행
+  
