@@ -969,7 +969,7 @@ slave01   setup-sshd                       Up      22/tcp
 
 **4) 파일 구조**
 
-```text
+```sh
 $ tree -a -L 2
 .
 ├── docker-compose.yml
