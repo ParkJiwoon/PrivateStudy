@@ -964,3 +964,41 @@ $ docker-compose ps
 master    /sbin/tini -- /usr/local/b ...   Up      50000/tcp, 0.0.0.0:8080->8080/tcp,:::8080->8080/tcp
 slave01   setup-sshd                       Up      22/tcp
 ```
+
+<br>
+
+**4) 파일 구조**
+
+```text
+$ tree -a -L 2
+.
+├── docker-compose.yml
+└── jenkins_home
+    ├── .cache
+    ├── .groovy
+    ├── .java
+    ├── .lastStarted
+    ├── .ssh
+    ├── config.xml
+    ├── copy_reference_file.log
+    ├── hudson.model.UpdateCenter.xml
+    ├── hudson.plugins.git.GitTool.xml
+    ├── identity.key.enc
+    ├── jenkins.telemetry.Correlator.xml
+    ├── jobs
+    ├── logs
+    ├── nodeMonitors.xml
+    ├── nodes
+    ├── plugins
+    ├── queue.xml.bak
+    ├── secret.key
+    ├── secret.key.not-so-secret
+    ├── secrets
+    ├── updates
+    ├── userContent
+    ├── users
+    ├── war
+    └── workflow-libs
+
+15 directories, 12 files
+```
