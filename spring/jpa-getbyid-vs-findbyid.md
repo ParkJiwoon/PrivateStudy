@@ -1,4 +1,4 @@
-# JPA 의 getById vs findById
+# JPA 의 getById() vs findById()
 
 # 1. Overview
 
