@@ -102,8 +102,7 @@ public class HelloController {
 }
 ```
 
-- `@Operation`
-  - `summary`: 
+- 적용한 설정들이 어떻게 표현되는지는 아래에서 설명합니다.
 
 <br>
 
