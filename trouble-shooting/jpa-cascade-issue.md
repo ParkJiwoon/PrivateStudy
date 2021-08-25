@@ -29,6 +29,8 @@ houseRepository.save(house);    // 에러 발생 (person 의 id 값을 모르는
 
 연관 관계 매핑해줄 때 사용하는 `@ManyToOne`, `@OneToOne`, `@OneToMany` 어노테이션에 `cascade` 옵션을 설정해줍니다.
 
+`cascade` 는 "영속성 전이" 라고 하는 개념인데 특정 엔티티를 영속화 할 때 연관된 엔티티도 함께 영속화 합니다.
+
 저장할 때만 사용하려면 `cascade = CascadeType.PERSIST` 로 설정해주면 되며, 전체 적용인 `CascadeType.ALL` 로 설정해도 됩니다.
 
 그럼 `House` 데이터를 저장하기 전에 `Person` 값부터 저장합니다.
