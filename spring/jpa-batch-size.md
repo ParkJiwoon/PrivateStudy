@@ -1,93 +1,171 @@
-# BatchSize
+# JPA Batch Size
 
-# Overview
+# 1. Overview
 
-Batch Size 는 Fetch Join 과 함께 1 + N 문제를 해결하는 방법 중 하나입니다.
+BatchSize 는 JPA 의 성능 개선을 위한 옵션 중 하나입니다.
 
-Batch Size 는 **1 + N 에서 데이터가 많지 않다는 사실이 확실히 보장되는 경우**에 간단한 설정 추가만으로 최적화가 가능합니다.
+여러 개의 프록시 객체를 조회할 때 `WHERE` 절이 같은 여러 개의 `SELECT` 쿼리들을 하나의 `IN` 쿼리로 만들어줍니다.
 
-<br>
-
-# 1. 개념
-
-1 + N 에서의 문제점은 1 개의 쿼리로 가져온 특정 데이터를 조건으로 하여 N 개의 추가 쿼리를 날리는 것이 문제입니다.
-
-여기서 N 개의 쿼리란 일반적으로 `SELECT * FROM aaa WHERE aaa.bbb_id = ?` 와 같은 조회 쿼리죠.
-
-하지만 N 개의 쿼리가 모두 똑같은 쿼리에 `aaa.bbb_id` 조건만 바뀐다면 굳이 이렇게 할 필요가 없습니다.
-
-`SELECT * FROM aaa WHERE aaa.bbb_id IN (?, ?, ...)` 와 같이 IN 쿼리로 바꿔버리면 한번에 모든 데이터를 가져올 수 있습니다.
-
-처음에는 이 개념이 잘 이해되지 않았습니다.
-
-어차피 특정 Member 의 Post 리스트를 구하려는 건데 한번에 모든 데이터를 가져오면 코드에서 또 분리해줘야 하지 않을까? 하는 생각이 들었기 때문이죠.
+간단한 테스트와 함께 사용법을 알아봅니다.
 
 <br>
 
-# 2. 동작
-
-`@OneToMany` 필드, 즉 `Collection` 에 `@BatchSize(size = 100)` 을 추가하면 엔티티에서 해당 필드를 호출할 때 JPA 가 알아서 최적화해서 값을 가져옵니다.
-
-예를 들어, `Member` 엔티티에서 `getPosts()` 를 호출합니다.
+# 2. Domain 정의
 
 ```java
-Member member1 = memberRepository.findById(2L).get();
-Member member2 = memberRepository.findById(3L).get();
+@Entity
+public class Parent {
 
-// Posts 를 실제로 사용해야 쿼리가 나가기 때문에 size() 까지 호출
-int size1 = member1.getPosts().size();
-int size2 = member2.getPosts().size();
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "parent_id")
+    private Long id;
+
+    private String name;
+
+    @OneToMany(mappedBy = "parent")
+    private List<Child> children = new ArrayList<>();
+}
+
+
+@Entity
+public class Child {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "child_id")
+    private Long id;
+
+    private String name;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id")
+    private Parent parent;
+}
 ```
 
+간단한 `Parent(N) <-> Child(1)` 관계의 도메인을 작성했습니다.
+
+편의상 Getter/Setter 는 생략합니다.
+
 <br>
 
-위 쿼리에서 `Post` 를 구하는 쿼리는 정직하게 2 번 호출됩니다.
+# 3. BatchSize 정의
 
-```sql
-SELECT * FROM member WHERE member.member_id = 2
-SELECT * FROM member WHERE member.member_id = 3
-
-SELECT * FROM post WHERE post.member_id = 2
-SELECT * FROM post WHERE post.member_id = 3
+```java
+@Target({TYPE, METHOD, FIELD})
+@Retention(RUNTIME)
+public @interface BatchSize {
+	int size();
+}
 ```
 
+`@BatchSize` 클래스 파일을 보면 위과 같이 나와있습니다.
+
+Type, Method, Field 에 사용할 수 있으며 `size` 를 설정해야 합니다. (Method 에 설정하는 건 자주 사용하지 않아서 이 포스트에선 제외합니다)
+
+`size` 는 간단히 말해서 `IN` 절에 들어갈 요소의 최대 갯수를 의미합니다.
+
+만약 `IN` 절에 `size` 보다 더 많은 요소가 들어가야 한다면 여러 개의 `IN` 쿼리로 나누어 날립니다.
+
 <br>
 
-만약 `Member` 의 갯수가 2 개가 아니라 100 개라면 어떻게 될까요?
-
-`Post` 엔티티를 구하기 위해 100 번의 호출, 즉 1 + N 문제가 발생합니다.
-
-하지만 `Member` 엔티티에 있는 `@OneToMany` 컬렉션에 배치 사이즈를 걸어둔다면 이 문제를 해결할 수 있습니다.
-
-<br>
+## 3.1. Type (Class) 에 정의
 
 ```java
 @BatchSize(size = 100)
-@OneToMany(mappedBy = "member")
-private List<Post> posts = new ArrayList<>();
+@Entity
+public class Parent {
+    ...
+}
 ```
 
-이렇게 `@BatchSize` 만 추가하고 처음 코드를 다시 실행시키면..
+Entity 클래스 위에 붙일 수 있습니다.
+
+만약 다른 엔티티에서 여러 개의 `Parent` 객체를 프록시로 호출한다면 배치사이즈가 적용되어 `IN` 쿼리로 조회할 겁니다.
 
 <br>
+
+## 3.2. Field 에 정의
+
+```java
+@Entity
+public class Parent {
+
+    @BatchSize(size = 100)
+    @OneToMany(mappedBy = "parent")
+    private List<Child> children = new ArrayList<>();
+}
+```
+
+`@OneToMany` 를 사용하는 Collections 에 붙이면 여러 `Parent` 객체가 `getChildren()` 호출할 때 하나의 쿼리로 가져옵니다.
+
+<br>
+
+## 3.3. application.yml 에 정의
+
+```yaml
+spring:
+    properties:
+      hibernate:
+        default_batch_fetch_size: 100
+```
+
+`application.yml` 에 추가하면 프로젝트 전역으로 배치 사이즈를 적용할 수 있습니다.
+
+<br>
+
+# 4. 호출 테스트
+
+```java
+List<Parent> parents = parentRepository.findAll();
+
+// 실제로 사용해야 쿼리가 나가기 때문에 size() 까지 호출해줌
+parents.get(0).getChildren().size();
+parents.get(1).getChildren().size();
+```
+
+`Parent`, `Child` 데이터가 이미 존재한다고 가정하고 테스트 코드를 작성했습니다.
+
+`parents` 에서 `for` 문으로 간단하게 작성해도 되지만 명시적으로 두번 호출해봅니다.
+
+<br>
+
+## 4.1. Before
 
 ```sql
-SELECT * FROM member WHERE member.member_id = 2
-SELECT * FROM member WHERE member.member_id = 3
+SELECT * FROM parent
 
-SELECT * FROM post WHERE post.member_id IN (2, 3)
+SELECT * FROM child WHERE child.parent_id = 1
+SELECT * FROM child WHERE child.parent_id = 2
 ```
 
-`post` 를 구할 때는 `IN` 쿼리로 실행하는 것을 확인할 수 있습니다.
+배치 사이즈를 적용하지 않으면 `child` 테이블을 조회하기 위해 두 개의 쿼리가 날아갑니다.
 
-참고로 `@BatchSize` 의 `size` 값을 설정한 만큼 `IN` 사이즈를 조절합니다.
-
-위 코드에서는 100 으로 설정했기 때문에 데이터가 250 개라면 1 ~ 100, 101 ~ 200, 201 ~ 250 이렇게 세 번에 나누어서 `IN` 쿼리를 날립니다.
-
-(사실 완전히 똑같은 사이즈로 분배해서 날리지는 않고 내부적으로 최적화한 사이즈로 나누어서 날립니다. 여기서는 깊게 알아보진 않습니다)
+만약 `parents` 의 갯수가 더 많다면 갯수만큼 쿼리가 날아갈겁니다.
 
 <br>
 
-# Conclusion
+## 4.2. After
 
-정리하자면 JPA 의 트랜잭션이 끝나는 순간 DB 에 날리게 되는 `@OneToMany` 컬렉션에 대한 쿼리들을 하나로 모아서 날려주는 편리한 기능입니다.
+```sql
+SELECT * FROM parent
+
+SELECT * FROM child WHERE child.parent IN (1, 2)
+```
+
+배치 사이즈를 추가하면 여러 쿼리를 하나의 `IN` 쿼리로 만들어줍니다.
+
+`IN` 절에 들어가는 요소의 갯수는 설정 가능합니다.
+
+만약 조건 갯수보다 설정한 배치사이즈 크기가 더 작다면 `IN` 쿼리가 추가로 날아갑니다.
+
+예를 들어 `size` 를 100 으로 설정했기 때문에 데이터가 250 개라면 1 ~ 100, 101 ~ 200, 201 ~ 250 이렇게 세 번에 나누어서 `IN` 쿼리를 날립니다.
+
+(사실 완전히 똑같은 사이즈로 분배해서 날리지는 않고 내부적으로 최적화한 사이즈로 나누어서 날립니다)
+
+<br>
+
+# 5. Conclusion
+
+BatchSize 옵션을 사용하면 비슷한 조회 쿼리 데이터들을 한번에 가져올 수 있어 성능적으로 효과를 볼 수 있습니다.
