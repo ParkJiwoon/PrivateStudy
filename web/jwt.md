@@ -116,12 +116,13 @@ Refresh Token 은 서버에서 별도의 저장소에 보관하는 것이 좋습
 
 ## 2.2. Refresh Token 으로 Access Token 재발급 시나리오
 
-1. `access token` 으로 요청을 마구 보내던 클라이언트는 유효기간이 얼마 남지 않았음을 확인
-2. `access token` 이 만료되었거나 만료 될랑 말랑한 시점에 재발급을 위해 `access token + refresh token` 을 함께 보냄
-3. 서버는 `refresh token` 의 만료 여부를 확인
-4. `access token` 으로 유저 정보 (username 또는 userid) 를 획득하고 저장소에 해당 유저 정보를 key 값으로 한 value 가 `refresh token` 과 일치하는지 확인
-5. 3~4번의 검증이 끝나면 새로운 토큰 세트 (access + refresh) 발급
-6. 서버는 `refresh token` 저장소의 value 업데이트
+1. 클라이언트는 `access token` 으로 API 요청하며 서비스 제공
+2. `access token` 이 만료되면 서버에서 `access token` 만료 응답을 내려줌
+3. 클라이언트는 `access token` 만료 응답을 받고 재발급을 위해 `access token + refresh token` 을 함께 보냄
+4. 서버는 `refresh token` 의 만료 여부를 확인
+5. `access token` 으로 유저 정보 (username 또는 userid) 를 획득하고 저장소에 해당 유저 정보를 key 값으로 한 value 가 `refresh token` 과 일치하는지 확인
+6. 4~5번의 검증이 끝나면 새로운 토큰 세트 (access + refresh) 발급
+7. 서버는 `refresh token` 저장소의 value 업데이트
 
 <br>
 
