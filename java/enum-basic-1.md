@@ -1,4 +1,4 @@
-# Java Enum 기초
+# Java Enum 기초 1편
 
 # 1. Overview
 
@@ -116,7 +116,7 @@ public enum Day {
     // ..codes
 
     private static final Map<String, Day> BY_LABEL =
-            Stream.of(values()).collect(Collectors.toMap(Day::label, Function.identity()));
+            Stream.of(values()).collect(Collectors.toMap(Day::label, e -> e));
 
     public static Day valueOfLabel(String label) {
         return BY_LABEL.get(label);
