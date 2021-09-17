@@ -1,4 +1,4 @@
-# Java Enum 기초 1편
+# Java Enum 1편 : Enum 기본적인 사용
 
 # 1. Overview
 
