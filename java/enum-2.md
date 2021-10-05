@@ -1,14 +1,14 @@
-# Java Enum 2편 : 상수값에 메소드 추가
+# Java Enum 2편 : 여러가지 활용법
 
 # 1. Overview
 
-Java [Java Enum 1편 : Enum 기본적인 사용](./enum-1.md)에 대해서는 이미 학습했습니다.
+[Java Enum 1편 : Enum 기본적인 사용](./enum-1.md)에 대해서는 이미 학습했습니다.
 
-이번에는 Enum 에 메소드를 추가하여 원하는 동작을 만들어내는 방법을 알아봅니다.
+이번에는 Enum 에 메소드를 추가하여 원하는 동작을 만들어내는 방법과 그밖의 활용법을 알아봅니다.
 
 <br>
 
-# 2. 상수별 메소드 구현: Enum 상수 별로 다른 동작이 필요할 때
+# 2. 메소드 추가 1: Enum 상수 별로 다른 동작이 필요할 때
 
 가장 쉽게 떠올릴 수 있는 방법은 `switch` 문입니다.
 
@@ -61,7 +61,7 @@ public enum Operation {
 
 <br>
 
-# 3. 전략 열거 타입: Enum 상수 일부가 같은 동작을 공유할 때
+# 3. 메소드 추가 2: Enum 상수 일부가 같은 동작을 공유할 때
 
 위에서 본 방법은 Enum 에 있는 각각의 상수가 모두 다른 동작을 할 때 사용했습니다.
 
@@ -145,7 +145,7 @@ public enum Fruit {
 
 <br>
 
-# 4. 여러 상수별 동작이 혼합될 때
+# 4. 메소드 추가 3: 여러 상수별 동작이 혼합될 때
 
 한 Enum 상수값의 동작에 다른 Enum 상수값이 필요하다면 그냥 `switch` 문을 쓰는 것이 좋습니다.
 
@@ -167,6 +167,84 @@ public enum Direction {
 
 <br>
 
+# 5. ordinal 메서드 대신 인스턴스 필드를 사용하라
+
+Enum 클래스에는 기본적으로 `ordinal` 이라는 메소드를 제공합니다.
+
+0 부터 시작되며 특정 상수값의 위치 (Index) 를 리턴해줍니다.
+
+Enum API 문서를 보면 `ordinal` 에 대해서 이렇게 쓰여 있습니다.
+
+"대부분의 개발자는 이 메소드를 쓸 일이 없다. 이 메소드는 `EnumSet` 과 `EnumMap` 같이 열거 타입 기반 범용 자료구조에 쓸 목적으로 설계되었다."
+
+`oridnal` 을 사용할 때의 단점은 여러 가지 있습니다.
+
+- 나중에 추가될 Enum 상수값이 꼭 순서대로라는 보장이 없다
+- 중복된 숫자를 가져야 할 때 구분이 불가능하다
+
+그러므로 `ordinal` 메소드를 사용하지 말고 별도의 인스턴스 필드를 선언해서 사용합시다.
+
+<br>
+
+# 6. ordinal 인덱싱 대신 EnumMap 을 사용하라
+
+Enum 값을 Index 로 사용하고 싶을 때 `배열 + ordinal` 을 사용하는 것보다 `EnumMap` 을 사용하는 것이 좋습니다.
+
+`EnumMap` 도 내부적으로 `ordinal` 을 사용하기 때문에 성능 상의 차이도 없습니다.
+
+위에서도 한번 언급했었지만 개발자가 직접 `ordinal` 을 쓸 상황은 없습니다.
+
+<br>
+
+# 7. 비트 필드 대신 EnumSet 을 사용하라
+
+과거에는 여러 값들을 집합으로 사용해야 할 경우 비트로 사용했습니다.
+
+```java
+public class Text {
+    public static final int STYLE_BOLD          = 1 << 0;   // 1
+    public static final int STYLE_ITALIC        = 1 << 1;   // 2
+    public static final int STYLE_UNDERLINE     = 1 << 2;   // 4
+    public static final int STYLE_STRIKETHROUGH = 1 << 3;   // 8
+
+    // 매개변수 styles 는 0 개 이상의 STYLE_ 상수를 비트별 OR 한 값
+    public void applyStyles(int styles) {
+        // ...
+    }
+}
+
+// usage
+text.applyStyles(STYLE_BOLD | STYLE_ITALIC);
+```
+
+- 여러 개의 상수값을 OR 하여 사용하면 집합을 나타낼 수 있음
+- 이렇게 만들어진 집합을 비트 필드 (bit field) 라고 함
+- 비트 필드 값은 해석하기 어려움
+- 최대 몇 비트가 필요한지 API 작성 시 미리 예측하여 적절합 타입 (int, long) 을 선택해야 함
+
+<br>
+
+## 7.1. EnumSet 클래스
+
+```java
+public class Text {
+    public enum Style { BOLD, ITALIC, UNDERLINE, STRIKETHROUGH }
+
+    public void applyStyles(Set<Style> styles) {
+        // ...
+    }
+}
+
+// usage
+text.applyStyles(EnumSet.of(Text.Style.BOLD, Text.Style.ITALIC));
+```
+
+- `java.util` 패키지
+- `Set` 인터페이스를 구현하며, 타입 안전하고, 다른 어떤 `Set` 구현체와도 함께 사용 가능
+- `EnumSet` 내부는 비트 벡터로 구현됨
+
+<br>
+
 # Reference
 
-- [이펙티브 자바 Effective Java 3/E](http://www.yes24.com/Product/Goods/65551284) Item 34 : int 상수 대신 열거 타입을 사용하라
+- [이펙티브 자바 Effective Java 3/E](http://www.yes24.com/Product/Goods/65551284) Item 34 ~ 37

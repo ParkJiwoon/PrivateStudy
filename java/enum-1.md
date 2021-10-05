@@ -18,6 +18,8 @@ public static final String WED = "Wednesday";
 
 Enum 클래스는 이러한 문제점을 말끔히 해결해주는 굉장히 유용한 클래스입니다.
 
+추가적인 활용법은 [Java Enum 2편 : 여러가지 활용법](./enum-2.md) 에서 다루기로 하고 여기서는 기본적인 사용법에 대해서 알아봅니다.
+
 <br>
 
 # 2. 정의
