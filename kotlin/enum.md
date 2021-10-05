@@ -2,7 +2,7 @@
 
 # 1. Overview
 
-Java Enum 에 이어 Kotlin Enum 사용법에 대해서도 알아봅니다.
+[Java Enum](../java/enum-1.md) 에 이어 Kotlin Enum 사용법에 대해서도 알아봅니다.
 
 사용법과 이유에 대해서는 Java 에서 알아보았으니 간단하게 코드만 작성합니다.
 
