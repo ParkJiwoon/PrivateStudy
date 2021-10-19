@@ -2,7 +2,7 @@
 
 # Overview
 
-```groovy
+```java
 compile 'org.springframework.boot:spring-boot-starter-web'
 implementation 'org.springframework.boot:spring-boot-starter-web'
 
@@ -26,17 +26,15 @@ testImplementation 'org.springframework.boot:spring-boot-starter-test'
 myApp -> mySpring -> myJava
 ```
 
-<br>
-
 myApp 에서 mySpring 을 의존하고 mySpring 은 myJava 를 의존합니다.
 
 이 때 `compile` 을 사용해서 mySpring 을 빌드하게 되면 mySpring 이 의존하고 있는 myJava 까지 함께 빌드합니다.
 
-그래서 myApp 에서 myJava 에서 제공하는 API 까지 사용할 수 있습니다.
+그래서 myApp 에서 myJava 모듈이 제공하는 API 까지 사용할 수 있습니다.
 
-만약 myJava 를 직접적으로 사용할 필요가 없다면 쓸데없는 API 들이 노출되고 빌드 시간도 오래 걸리게 하는 결과를 만듭니다.
+만약 myJava 를 직접적으로 사용할 필요가 없다면 필요하지 않은 API 들이 노출되고 빌드 시간도 오래 걸리기 때문에 비효율적인 행동이 됩니다.
 
-대신 `implementation` 을 사용해서 빌드하면 mySpring 만 빌드하기 때문에 빌드 속도가 빠르고 필요한 API 만 노출해서 사용할 수 있습니다.
+대신 `implementation` 을 사용해서 빌드하면 mySpring 모듈만 가져오기 때문에 빌드 속도가 빠르고 필요한 API 만 노출해서 사용할 수 있습니다.
 
 <br>
 
@@ -47,6 +45,14 @@ myApp 에서 mySpring 을 의존하고 mySpring 은 myJava 를 의존합니다.
 그러니 만약 상위 모듈까지 전부 가져오고 싶을 땐 `compile` 대신 `api` 를 사용하면 됩니다.
 
 일반적인 경우에는 `implementation` 을 사용해서 빌드 속도를 향상시키는 것이 좋습니다.
+
+<br>
+
+# Conclusion
+
+- `implementation` 은 지정한 모듈만 가져오고 `compile`, `api` 는 상위 모듈까지 전부 가져옵니다.
+- `compile` 은 deprecated 되었고 대신 `api` 를 사용하면 됩니다.
+- **일반적인 상황에서는 빌드 속도가 빠르고 필요한 모듈만 가져오는 `implementation` 을 사용하면 됩니다.**
 
 <br>
 
