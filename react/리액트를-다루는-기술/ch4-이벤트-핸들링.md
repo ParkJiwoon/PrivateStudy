@@ -1,0 +1,206 @@
+# 4장 이벤트 핸들링
+
+- [4장 이벤트 핸들링](#4장-이벤트-핸들링)
+- [1. HTML 이벤트 시스템](#1-html-이벤트-시스템)
+- [2. 리액트의 이벤트 시스템](#2-리액트의-이벤트-시스템)
+  - [2.1. 이벤트 이름은 카멜 표기법으로 작성합니다.](#21-이벤트-이름은-카멜-표기법으로-작성합니다)
+  - [2.2. 이벤트에 실행할 자바스크립트 코드 대신 함수 형태의 값을 전달합니다.](#22-이벤트에-실행할-자바스크립트-코드-대신-함수-형태의-값을-전달합니다)
+  - [2.3. DOM 요소에만 이벤트를 설정할 수 있습니다.](#23-dom-요소에만-이벤트를-설정할-수-있습니다)
+- [2. 예제로 이벤트 핸들링 익히기](#2-예제로-이벤트-핸들링-익히기)
+  - [2.1. 컴포넌트 생성](#21-컴포넌트-생성)
+  - [2.2. input 여러 개 다루기](#22-input-여러-개-다루기)
+- [3. 정리](#3-정리)
+
+# 1. HTML 이벤트 시스템
+
+사용자가 웹 브라우저에서 DOM 요소들과 상호 작용하는 것을 이벤트 (event) 라고 합니다.
+
+예를 들면 버튼에 마우스 커서를 올리면 `onmouseover` 이벤트를 실행하고 클릭하면 `onclick` 이벤트를 실행합니다.
+
+<br>
+
+# 2. 리액트의 이벤트 시스템
+
+리액트에서 사용하는 이벤트 시스템은 HTML 이벤트와 거의 동일하지만 조금 다른 점이 있습니다.
+
+<br>
+
+## 2.1. 이벤트 이름은 카멜 표기법으로 작성합니다.
+
+ex) onclick => onClick
+
+ex) onkeyup => onKeyUp
+
+<br>
+
+## 2.2. 이벤트에 실행할 자바스크립트 코드 대신 함수 형태의 값을 전달합니다.
+
+HTML 이벤트에서는 `alert('error')` 처럼 실행할 자바스크립트 코드를 넣었지만, 리액트에서는 함수 형태의 객체를 전달해야 합니다.
+
+<br>
+
+## 2.3. DOM 요소에만 이벤트를 설정할 수 있습니다.
+
+div, button, input, form, span 등의 DOM 요소에는 이벤트를 설정할 수 있지만 개발자가 직접 만든 컴포넌트에는 이벤트를 설정할 수 없습니다.
+
+예를 들어 `<MyComponent onClick={doSomething} />` 라는 컴포넌트를 작성해도, 컴포넌트에 이벤트 핸들링이 설정되는게 아니라 `props.onClick` 변수를 전달하게 됩니다.
+
+<br>
+
+리액트에서 지원하는 이벤트 종류는 다음과 같습니다. 
+
+(더 많은 이벤트는 [리액트 공식 가이드](https://reactjs.org/docs/events.html) 참고)
+
+- Clipboard
+- Composition
+- KeyBoard
+- Focus
+- Form
+- Mouse
+- Selection
+- Touch
+- UI
+- Wheel
+- Media
+- Image
+- Animation
+- Trasition
+
+<br>
+
+# 2. 예제로 이벤트 핸들링 익히기
+
+함수형 컴포넌트만 알아봅니다.
+
+<br>
+
+## 2.1. 컴포넌트 생성
+
+```jsx
+// EventPractice.js
+
+import React, { useState } from "react";
+
+const EventPractice = () => {
+  const [message, setMessage] = useState('');
+
+  // input text 값이 변할 때마다 message 값 세팅
+  const handleChange = (e) => setMessage(e.target.value)
+
+  // 버튼을 누르면 message alert 을 띄우고 값을 비워줌
+  const handleClick = () => {
+    alert(message);
+    setMessage('');
+  }
+
+  // input 값을 입력하고 엔터를 누르면 버튼 클릭 효과와 같은 이벤트 발생
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleClick();
+    }
+  }
+
+  return (
+    <div>
+      <h1>이벤트 연습</h1>
+      <input 
+        type="text" 
+        name="message" 
+        placeholder="아무거나 입력해 보세요" 
+        value={message} 
+        onChange={handleChange}
+        onKeyPress={handleKeyPress}
+      />
+      <button onClick={handleClick}>확인</button>
+    </div>
+  )
+}
+
+export default EventPractice;
+```
+
+간단하게 `onChange`, `onKeyPress`, `onClick` 이벤트에 대해서 작성합니다.
+
+이벤트에 함수를 바로 입력해도 좋지만 별도의 함수를 선언하는 것이 훨씬 가독성이 좋습니다.
+
+<br>
+
+## 2.2. input 여러 개 다루기
+
+위 코드에서는 input 값이 하나라 `state` 하나를 선언해서 처리했지만 input 값이 여러 개인 경우에는 어떻게 할까요?
+
+각 input 마다 메소드를 만들어서 매핑해줘야 할까요?
+
+때론 각각 메소드를 만드는게 좋을 때도 있지만 event 객체를 활용하면 좀더 쉽게 처리할 수 있습니다.
+
+`e.target.name` 은 input 의 name 속성입니다.
+
+이 값을 사용하면 나머지 값은 그대로 유지한 채 특정 input 값만 변경할 수 있습니다.
+
+```jsx
+import React, { useState } from "react";
+
+const EventPractice = () => {
+  const [form, setForm] = useState({
+    username: '',
+    message: ''
+  });
+  const { username, message } = form;
+
+  // input text 값이 변경된 곳만 세팅
+  const handleChange = (e) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  // 버튼을 누르면 alert 을 띄우고 값을 비워줌
+  const handleClick = () => {
+    alert(username + ': ' + message);
+    setForm({
+      username: '',
+      message: ''
+    });
+  };
+
+  // input 값을 입력하고 엔터를 누르면 버튼 클릭 효과와 같은 이벤트 발생
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleClick();
+    }
+  }
+
+  return (
+    <div>
+      <h1>이벤트 연습</h1>
+      <input
+        type="text"
+        name="username"
+        placeholder="사용자명"
+        value={username}
+        onChange={handleChange}
+      />
+      <input 
+        type="text" 
+        name="message" 
+        placeholder="아무거나 입력해 보세요" 
+        value={message} 
+        onChange={handleChange}
+        onKeyPress={handleKeyPress}
+      />
+      <button onClick={handleClick}>확인</button>
+    </div>
+  )
+}
+
+export default EventPractice;
+```
+
+<br>
+
+# 3. 정리
+
+리액트에서 이벤트를 다루는 것은 순수 자바스크립트 또는 jQuery 와 비슷합니다.
+
+리액트의 장점 중 하나는 자바스크립트에 익숙하다면 쉽게 활용할 수 있다는 점입니다.
