@@ -1,0 +1,312 @@
+# 3장 컴포넌트
+
+- [3장 컴포넌트](#3장-컴포넌트)
+- [1. 클래스형 컴포넌트](#1-클래스형-컴포넌트)
+- [2. 컴포넌트 생성](#2-컴포넌트-생성)
+  - [2.1. 모듈 내보내기 (export)](#21-모듈-내보내기-export)
+  - [2.2. 모듈 불러오기 (import)](#22-모듈-불러오기-import)
+- [3. props](#3-props)
+  - [3.1. 자식 컴포넌트에서 props 렌더링](#31-자식-컴포넌트에서-props-렌더링)
+  - [3.2. 부모 컴포넌트에서 props 내려주기](#32-부모-컴포넌트에서-props-내려주기)
+  - [3.3. props 기본값 설정: defaultProps](#33-props-기본값-설정-defaultprops)
+  - [3.4. 컴포넌트 태그 사이의 내용을 보여주는 children](#34-컴포넌트-태그-사이의-내용을-보여주는-children)
+  - [3.5. 비구조화 할당 문법을 통해 props 값 추출](#35-비구조화-할당-문법을-통해-props-값-추출)
+  - [3.6. propTypes 를 활용한 props 검증](#36-proptypes-를-활용한-props-검증)
+- [4. state](#4-state)
+  - [4.1. useState 사용하기](#41-usestate-사용하기)
+  - [4.2. state 를 사용할 때 주의 사항](#42-state-를-사용할-때-주의-사항)
+- [5. 정리](#5-정리)
+
+# 1. 클래스형 컴포넌트
+
+클래스형 컴포넌트는 현재 나는 사용할 일 없으므로 설명을 생략합니다.
+
+리액트 Hooks 의 등장 이후로는 웬만하면 함수형 컴포넌트로 작성합니다.
+
+<br>
+
+# 2. 컴포넌트 생성
+
+```jsx
+// MyComponent.js
+
+import React from "react";
+
+const MyComponent = () => {
+  return <div>나의 새롭고 멋진 컴포넌트</div>
+}
+
+export default MyComponent;
+```
+
+화살표 함수를 이용해서 컴포넌트를 작성했습니다.
+
+`function` 키워드를 사용하는 것과 큰 차이는 없기 때문에 취향에 따라 편한걸 사용하면 됩니다.
+
+<br>
+
+## 2.1. 모듈 내보내기 (export)
+
+```jsx
+export default MyComponent;
+```
+
+작성한 컴포넌트를 `export` 를 사용하여 내보내야 다른 곳에서 `import` 하여 사용할 수 있습니다.
+
+<br>
+
+## 2.2. 모듈 불러오기 (import)
+
+```jsx
+// App.js
+
+import React from 'react';
+import MyComponent from './MyComponent';
+
+const App = () => {
+  return <MyComponent />
+}
+
+export default App;
+```
+
+위에서 작성하고 내보낸 `MyComponent` 컴포넌트를 `App.js` 에서 `import` 하여 사용할 수 있습니다.
+
+<br>
+
+# 3. props
+
+`props` 는 properties 를 줄인 표현으로 컴포넌트 속성을 설정할 때 사용하는 요소입니다.
+
+부모 컴포넌트에서 자식 컴포넌트를 호출할 때 내려주는 값이라고 생각하면 됩니다.
+
+<br>
+
+## 3.1. 자식 컴포넌트에서 props 렌더링
+
+```jsx
+// MyComponent.js
+
+import React from "react";
+
+const MyComponent = props => {
+  return <div>안녕하세요, 제 이름은 {props.name} 입니다.</div>
+}
+
+export default MyComponent;
+```
+
+부모 컴포넌트로부터 넘겨받은 `props` 는 자식 컴포넌트에서 렌더링 할 수 있습니다.
+
+넘겨받은 `props` 는 컴포넌트 함수의 파라미터로 받아서 사용 가능합니다.
+
+
+<br>
+
+## 3.2. 부모 컴포넌트에서 props 내려주기
+
+```jsx
+// App.js
+
+import React from 'react';
+import MyComponent from './MyComponent';
+
+const App = () => {
+  return <MyComponent name="React" />
+}
+
+export default App;
+```
+
+자식 컴포넌트를 호출할 때 원하는 속성 값을 넣어서 호출하면 됩니다.
+
+<br>
+
+## 3.3. props 기본값 설정: defaultProps
+
+```jsx
+// MyComponent.js
+
+import React from "react";
+
+const MyComponent = props => {
+  return <div>안녕하세요, 제 이름은 {props.name} 입니다.</div>
+}
+
+MyComponent.defaultProps = {
+  name: '기본 이름'
+}
+
+export default MyComponent;
+```
+
+`defaultProps` 값을 설정해주면 부모 컴포넌트가 아무런 값도 넘겨주지 않았을 때 사용할 `props` 값을 정할 수 있습니다.
+
+<br>
+
+## 3.4. 컴포넌트 태그 사이의 내용을 보여주는 children
+
+```jsx
+// App.js
+
+import React from 'react';
+import MyComponent from './MyComponent';
+
+const App = () => {
+  return <MyComponent>리액트</MyComponent>
+}
+
+export default App;
+```
+
+리액트 컴포넌트 태그 사이에 값을 넣으면 해당 컴포넌트에서 `props.children` 값으로 렌더링 가능합니다.
+
+<br>
+
+```jsx
+// MyComponent.js
+
+import React from "react";
+
+const MyComponent = props => {
+  return (
+    <div>
+      안녕하세요. 제 이름은 {props.name} 입니다. <br/>
+      children 값은 {props.children} 입니다.
+    </div>
+  )
+}
+
+MyComponent.defaultProps = {
+  name: '기본 이름'
+}
+
+export default MyComponent;
+```
+
+<br>
+
+## 3.5. 비구조화 할당 문법을 통해 props 값 추출
+
+ES6 문법을 활용해서 `props` 값을 바로 추출할 수 있습니다.
+
+지금까지는 컴포넌트 함수의 파라미터로 `props` 를 받아서 직접 `props.name`, `props.children` 같은 방식으로 호출했습니다.
+
+하지만 ES6 의 비구조화 할당 (구조분해 할당이라고도 함) 을 사용하면 더 짧게 사용할 수 있습니다.
+
+```jsx
+const MyComponent = props => {
+  return <div>이름: {props.name}, children: {props.children}</div>
+}
+
+// 비구조화 할당 사용
+const MyComponent = props => {
+  const { name, children } = props;
+  return <div>이름: {name}, children: {children}</div>
+}
+
+// 비구조화 할당으로 파라미터 변경
+const MyComponent = ({ name, children }) => {
+  return <div>이름: {name}, children: {children}</div>
+}
+```
+
+<br>
+
+## 3.6. propTypes 를 활용한 props 검증
+
+```jsx
+// MyComponent.js
+
+import React from "react";
+import PropTypes from 'prop-types'
+
+const MyComponent = ({ name, number, children }) => {
+  return <div>이름: {name}, children: {children}, number: {number}</div>
+}
+
+MyComponent.defaultProps = {
+  name: '기본 이름'
+}
+
+MyComponent.propTypes = {
+  name: PropTypes.string,
+  number: PropTypes.number.isRequired
+}
+
+export default MyComponent;
+```
+
+`propTypes` 을 사용하면 이 컴포넌트가 받아야 하는 `props` 의 타입을 지정할 수 있습니다.
+
+아래 코드처럼 `props.name` 의 타입을 `string` 으로 지정하면 다른 타입이 넘어오는 경우 브라우저 콘솔창에 에러가 발생합니다.
+
+그리고 `isRequired` 를 사용해서 필수 값을 설정해줄 수도 있습니다.
+
+`isRequired` 역시 값이 없으면 콘솔창에 에러가 발생합니다.
+
+한가지 주의해야 할 점은, `propTypes` 양식을 지키지 않는다고 해서 코드가 실행되지 않는 것은 아니기 때문에 개발자가 브라우저 콘솔 에러를 보고 확인해야 합니다.
+
+<br>
+
+# 4. state
+
+`props` 가 부모 컴포넌트에서 내려주는 값이라면 `state` 는 현재 컴포넌트 내부에서 사용하는 가변적인 데이터입니다.
+
+`props` 는 일반적으로 읽기 전용으로 사용하고 현재 컴포넌트에서 변경 불가능합니다.
+
+만약 `props` 값을 변경하고 싶다면 부모 컴포넌트에서 변경하는 callback 함수를 같이 내려받아 호출해야합니다.
+
+원래 `state` 라는 개념은 클래스형 컴포넌트에서만 사용 가능했습니다.
+
+과거에 대부분의 컴포넌트가 클래스형이었던 이유도 `state` 와 Life Cycle 때문이었죠.
+
+리액트 16.8 버전부터는 `useState` 라는 함수를 사용해서 함수형 컴포넌트에서도 `state` 값을 사용할 수 있게 되었습니다.
+
+<br>
+
+## 4.1. useState 사용하기
+
+```jsx
+// Say.js
+
+import React, { useState } from "react";
+
+const Say = () => {
+  const [message, setMessage] = useState('');
+  const onClickEnter = () => setMessage('안녕하세요!');
+  const onClickLeave = () => setMessage('안녕히 가세요!');
+
+  return (
+    <div>
+      <button onClick={onClickEnter}>입장</button>
+      <button onClick={onClickLeave}>퇴장</button>
+      <h1>{message}</h1>
+    </div>
+  );
+};
+
+export default Say;
+```
+
+`useState` 는 비구조화 할당을 사용해서 `[변수, Setter 함수] = useState(초기값)` 형태로 사용합니다.
+
+변수의 타입은 숫자, 문자열, 객체, 배열 어떤것이든 상관 없고 초기값을 어떤걸로 넣어주냐에 따라 결정됩니다.
+
+한 컴포넌트 내에서 여러개의 `useState` 를 선언해서 사용할 수 있습니다.
+
+<br>
+
+## 4.2. state 를 사용할 때 주의 사항
+
+`state` 값을 바꿀 때는 항상 Setter 함수를 사용해야 합니다.
+
+배열이나 객체값 또한 현재 인스턴스에서 수정하지 말고 새로운 사본을 만든 후 Setter 함수를 사용해서 업데이트 해야 합니다.
+
+<br>
+
+# 5. 정리
+
+이 장에서는 컴포넌트를 만드는 방법과 `props`, `state` 를 사용하는 방법을 학습했습니다.
+
+둘다 렌더링 할 데이터를 담고 있다는 건 동일하지만 `props` 는 부모 컴포넌트가 설정하고, `state` 는 컴포넌트 자체적으로 지니고 있는 가변적인 데이터입니다.
