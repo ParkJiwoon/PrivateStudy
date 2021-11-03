@@ -1,4 +1,4 @@
-# Mac OS 터미널을 이쁘게 꾸며보자
+# Mac OS 터미널을 이쁘게 꾸며보자 (Iterm2 + Oh My Zsh)
 
 # 1. D2Coding Font 설치
 
