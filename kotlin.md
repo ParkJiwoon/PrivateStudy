@@ -5,7 +5,7 @@
 - [Swap](#swap)
 - [drop, dropLast, dropWhile, dropLastWhile](#drop-dropLast-dropWhile-dropLastWhile)
 
-<br><br>
+<br>
 
 # For
 
