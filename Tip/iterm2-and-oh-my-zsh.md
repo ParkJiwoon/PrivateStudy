@@ -20,7 +20,7 @@ brew install --cask iterm2
 
 설치 후에는 "Preference > Profiles > Text" 로 이동해서 폰트를 변경할 수 있습니다.
 
-![image](https://user-images.githubusercontent.com/28972341/139916829-96c67e7f-d6e4-4849-af73-a29366eff03a.png)
+![image](https://user-images.githubusercontent.com/28972341/140167044-54c375dc-7f73-43fb-94f6-a7890a2cec07.png)
 
 <br>
 
