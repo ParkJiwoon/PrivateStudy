@@ -1,12 +1,10 @@
 # Mac OS 터미널을 이쁘게 꾸며보자 (Iterm2 + Oh My Zsh)
 
-# 1. D2Coding Font 설치
+# 1. Hack Font 설치
 
-Hack 폰트와 더불어 좋아하는 폰트입니다.
+가장 좋아하는 폰트입니다.
 
-D2Coding 의 장점은 한글 간격도 맞춰줘서 한국인들이 쓰기 더 좋다는 점입니다.
-
-https://github.com/naver/d2codingfont 에서 D2Coding Zip 을 다운받고 풀어서 설치하면 됩니다.
+https://sourcefoundry.org/hack/#download 에서 Mac OS Zip 을 다운받고 풀어서 설치하면 됩니다.
 
 <br>
 
@@ -22,7 +20,7 @@ brew install --cask iterm2
 
 설치 후에는 "Preference > Profiles > Text" 로 이동해서 폰트를 변경할 수 있습니다.
 
-![image](https://user-images.githubusercontent.com/28972341/139916829-96c67e7f-d6e4-4849-af73-a29366eff03a.png)
+![image](https://user-images.githubusercontent.com/28972341/140167044-54c375dc-7f73-43fb-94f6-a7890a2cec07.png)
 
 <br>
 
