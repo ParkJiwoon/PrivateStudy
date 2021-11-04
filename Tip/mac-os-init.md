@@ -12,7 +12,7 @@
 
 ## 1.1. 트랙패드 탭해서 클릭
 
-<img src="https://user-images.githubusercontent.com/28972341/139861950-2d8b0417-b974-406c-a99b-7cf238c51d1c.png" width="80%">
+<img src="https://user-images.githubusercontent.com/28972341/139861950-2d8b0417-b974-406c-a99b-7cf238c51d1c.png" width="70%">
 
 맥북은 기본적으로 꾹 눌러서 클릭하는데 위 설정을 키면 손가락 한번 탭한 것으로 클릭 가능합니다.
 
@@ -22,7 +22,7 @@
 
 ## 1.2. 트랙패드 세손가락으로 드래그
 
-<img src="https://user-images.githubusercontent.com/28972341/139862421-8ac4ff66-12a5-4890-acb9-e4050f23780d.png" width="80%">
+<img src="https://user-images.githubusercontent.com/28972341/139862421-8ac4ff66-12a5-4890-acb9-e4050f23780d.png" width="70%">
 
 `환경설정 > 손쉬운 사용 > 포인터 제어기 > 트랙패드 옵션` 에 들어가서 활성화 가능합니다.
 
@@ -70,7 +70,7 @@ $ vi ~/Library/KeyBindings/DefaultkeyBinding.dict
 
 ## 1.5. Mac 에서 한글 입력이 잘 안되는 현상
 
-<img src="https://user-images.githubusercontent.com/28972341/140368046-1535a725-347c-4f91-b230-656f77e0ebe5.png" width="80%">
+<img src="https://user-images.githubusercontent.com/28972341/140368046-1535a725-347c-4f91-b230-656f77e0ebe5.png" width="70%">
 
 개인적인 이슈였을 수도 있는데, 맥북 에디터에서 한글을 입력하면 자음이나 모음 한두개가 입력되지 않고 씹히는 현상을 겪었습니다.
 
@@ -110,7 +110,7 @@ https://www.mowglii.com/itsycal/ 에서 다운로드 하거나 `brew install --c
 
 ## 2.3. Rectangle
 
-<img src="https://user-images.githubusercontent.com/28972341/139869750-071d2003-5eab-4acb-ad5a-44766965749d.png" width="30%">
+<img src="https://user-images.githubusercontent.com/28972341/139869750-071d2003-5eab-4acb-ad5a-44766965749d.png" width="20%">
 
 https://rectangleapp.com/ 에서 직접 다운받아 사용 가능합니다.
 
@@ -140,7 +140,7 @@ Mac OS, Window, Mobile 전부 호환 돼서 편리합니다.
 
 ## 2.7. Spark
 
-<img src="https://user-images.githubusercontent.com/28972341/139893436-9a9beb91-3e72-4e66-9770-9a906f012c85.png" width="70%">
+<img src="https://user-images.githubusercontent.com/28972341/139893436-9a9beb91-3e72-4e66-9770-9a906f012c85.png" width="50%">
 
 맥북 기본 메일앱이 마음에 안들어서 [App Store 에서 다운](https://apps.apple.com/kr/app/spark-email-app-by-readdle/id1176895641) 받았습니다.
 
