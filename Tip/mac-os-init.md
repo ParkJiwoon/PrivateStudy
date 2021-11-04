@@ -98,7 +98,7 @@ $ vi ~/Library/KeyBindings/DefaultkeyBinding.dict
 
 ## 2.2. itsycal
 
-<img src="https://user-images.githubusercontent.com/28972341/140375421-d0d6dc82-082a-49c2-b3e4-9b8bd9ecd58f.png" width="50%">
+<img src="https://user-images.githubusercontent.com/28972341/140375421-d0d6dc82-082a-49c2-b3e4-9b8bd9ecd58f.png" width="30%">
 
 https://www.mowglii.com/itsycal/ 에서 다운로드 하거나 `brew install --cask itsycal` 명령어로 설치할 수 있습니다.
 
@@ -110,7 +110,7 @@ https://www.mowglii.com/itsycal/ 에서 다운로드 하거나 `brew install --c
 
 ## 2.3. Rectangle
 
-<img src="https://user-images.githubusercontent.com/28972341/139869750-071d2003-5eab-4acb-ad5a-44766965749d.png" width="20%">
+<img src="https://user-images.githubusercontent.com/28972341/139869750-071d2003-5eab-4acb-ad5a-44766965749d.png" width="30%">
 
 https://rectangleapp.com/ 에서 직접 다운받아 사용 가능합니다.
 
