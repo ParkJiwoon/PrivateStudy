@@ -10,6 +10,14 @@
 
 # 1. 환경설정
 
+- [1. 트랙패드 탭해서 클릭](#11-트랙패드-탭해서-클릭)
+- [2. 트랙패드 세손가락으로 드래그](#12-트랙패드-세손가락으로-드래그)
+- [3. 마우스 가속도 끄기](#13-마우스-가속도-끄기)
+- [4. ₩ 를 ` 로 입력하게 바꾸기](#14--를--로-입력하게-바꾸기)
+- [5. Mac 에서 한글 입력이 잘 안되는 현상](#15-mac-에서-한글-입력이-잘-안되는-현상)
+
+<br>
+
 ## 1.1. 트랙패드 탭해서 클릭
 
 <img src="https://user-images.githubusercontent.com/28972341/139861950-2d8b0417-b974-406c-a99b-7cf238c51d1c.png" width="70%">
@@ -83,6 +91,15 @@ $ vi ~/Library/KeyBindings/DefaultkeyBinding.dict
 # 2. 유용한 앱들
 
 다음은 제가 맥북에서 사용하는 앱들입니다.
+
+- [1. iShot](#21-ishot)
+- [2. itsycal](#22-itsycal)
+- [3. Rectangle](#23-rectangle)
+- [5. AppCleaner](#25-appcleaner)
+- [6. Notion](#26-notion)
+- [7. Spark](#27-spark)
+- [8. Amphetamine](#28-amphetamine)
+- [9. Visual Studio Code](#29-visual-studio-code)
 
 <br>
 
