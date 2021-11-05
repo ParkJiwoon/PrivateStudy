@@ -40,6 +40,14 @@ $ git clone https://github.com/dracula/iterm.git
 
 <br><br>
 
+## 2.2. 한글 깨짐 수정
+
+<img src="https://user-images.githubusercontent.com/28972341/140474241-ca0f1353-734b-4010-ae21-ba307c1cf62e.png" width="80%">
+
+<img src="https://user-images.githubusercontent.com/28972341/140474283-392b4853-cea2-438b-b2c0-7ba56fdaa6af.png" width="80%">
+
+<br><br>
+
 # 3. Oh My ZSH 설치
 
 Oh My Zsh 는 기본 쉘보다 더 다양한 기능을 제공하는 Z Shell 의 플러그인입니다.
