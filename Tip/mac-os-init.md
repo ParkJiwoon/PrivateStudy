@@ -197,5 +197,7 @@ Mac OS, Window, Mobile 전부 호환 돼서 편리합니다.
 - Material Icon Theme : 그냥 아이콘이 이뻐보여서..
 - One Dark Pro : 그냥 테마
 - Paste Image (by mushan) : 클립보드 이미지를 붙여넣을 때 자동으로 이미지 파일이 생성되게 도와줌
-  - `Paste Image: Base Path` 설정을 `${currentFileDir}/images/` 으로 변경
-  - `Paste Image: Path` 설정을 `${currentFileDir}/images/` 으로 변경
+  - `Paste Image: Base Path` 설정을 `${currentFileDir}/images` 으로 변경
+  - `Paste Image: Path` 설정을 `${currentFileDir}/images` 으로 변경
+  - `Paste Image: Default Name` 설정을 `Y_MM_DD_HH_mm_ss` 으로 변경
+  - `Paste Image: Name Prefix` 설정을 `screen_` 으로 추가
