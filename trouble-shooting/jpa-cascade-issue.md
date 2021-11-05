@@ -14,13 +14,13 @@ JPA 연관 관계 테스트 중에 발생했습니다.
 
 FK 로 사용되는 컬럼값이 없는 상태에서 데이터를 넣으려다 발생한 에러입니다.
 
-예를 들어 `사람 (id, name)` 이라는 테이블과 `집 (id, address, person_id)` 라는 테이블 관계가 있을 때, 사람 데이터를 넣지 않고 집을 넣으려고 하면 `person_id` 값이 없어서 에러가 발생합니다.
+예를 들어 `Person (id, name)` 이라는 테이블과 `House (id, address, person_id)` 라는 테이블 관계가 있을 때, `Person` 데이터를 넣지 않고 `House` 데이터를 넣으려고 하면 `person_id` 값이 없어서 에러가 발생합니다.
 
 ```java
 Person person = new Person("Alice");
 House house = new House("Seoul", person);
 
-houseRepository.save(house);    // 에러 발생 (person 의 id 값을 모르는데 넣으려고 해서)
+houseRepository.save(house);    // 에러 발생 (person 의 id 값을 모르는데 테이블에 넣으려고 해서)
 ```
 
 <br>
