@@ -191,7 +191,11 @@ Mac OS, Window, Mobile 전부 호환 돼서 편리합니다.
 개발용으로도 많이 쓰지만 저는 JetBrain 제품을 사용하기 때문에 마크다운 에디터로만 사용하고 있습니다.
 
 설치한 확장팩
+
 - Markdown All in One : Markdown 작성 도와주는 확장팩
 - Markdown Preview Enhanced : Markdown Github 스타일로 미리보기 가능
 - Material Icon Theme : 그냥 아이콘이 이뻐보여서..
 - One Dark Pro : 그냥 테마
+- Paste Image (by mushan) : 클립보드 이미지를 붙여넣을 때 자동으로 이미지 파일이 생성되게 도와줌
+  - `Paste Image: Base Path` 설정을 `${currentFileDir}/images/` 으로 변경
+  - `Paste Image: Path` 설정을 `${currentFileDir}/images/` 으로 변경
