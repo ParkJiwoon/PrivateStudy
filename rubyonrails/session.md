@@ -50,7 +50,9 @@ end
 
 쿠키 세션 저장소를 제외한 모든 세션 저장소는 동일한 프로세스로 동작합니다.
 
-<br>
+<img src="https://user-images.githubusercontent.com/28972341/140613146-23e29d31-0ccb-4519-89f7-aebb838011c7.png" width="80%">
+
+<br><br>
 
 ## 3.1. Session 값 저장
 
