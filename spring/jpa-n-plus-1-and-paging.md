@@ -111,6 +111,8 @@ public class Post {
 
 # 2. 명세
 
+<img src="https://user-images.githubusercontent.com/28972341/140606941-ee3a9a32-ab91-4fd6-9c4e-8efebc3a4730.png" width="80%">
+
 제가 구하고자 하는건 인스타 피드입니다.
 
 로그인 한 내 정보를 갖고 있고, 내가 팔로우한 사용자들을 `follow` 테이블에서 가져와야 합니다.
@@ -130,26 +132,22 @@ public class Post {
 ## 2.1. 단순하게 Entity Collection 호출
 
 ```java
-@Service
-@RequiredArgsConstructor
-public class PostService {
-    public List<Post> getFeeds(Long lastPostId) {
-        Member currentMember = getCurrentMember();
+public List<Post> getFeeds(Long lastPostId) {
+    Member currentMember = getCurrentMember();
 
-        List<Post> posts = new ArrayList<>();
+    List<Post> posts = new ArrayList<>();
 
-        // 내가 팔로우 하는 "모든" 대상들이 작성한 "모든" 게시글을 가져옴
-        currentMember.getFollowings()
-                .stream()
-                .map(Follow::getToMember)
-                .forEach(member -> posts.addAll(member.getPosts()));
+    // 내가 팔로우 하는 "모든" 대상들이 작성한 "모든" 게시글을 가져옴
+    currentMember.getFollowings()
+            .stream()
+            .map(Follow::getToMember)
+            .forEach(member -> posts.addAll(member.getPosts()));
 
-        return posts.stream()
-                .filter(post -> post.getId() < lastPostId)
-                .sorted((a, b) -> (int) (b.getId() - a.getId()))
-                .limit(5L)
-                .collect(Collectors.toList());
-    }
+    return posts.stream()
+            .filter(post -> post.getId() < lastPostId)
+            .sorted((a, b) -> (int) (b.getId() - a.getId()))
+            .limit(5L)
+            .collect(Collectors.toList());
 }
 ```
 
@@ -211,17 +209,11 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 <br>
 
 ```java
-@Service
-@RequiredArgsConstructor
-public class PostService {
-    private final PostRepository postRepository;
+public List<Post> getFeeds(Long lastPostId) {
+    Member currentMember = getCurrentMember();
+    PageRequest pageRequest = PageRequest.of(0, 5, Sort.by("id").descending());
 
-    public List<Post> getFeeds(Long lastPostId) {
-        Member currentMember = getCurrentMember();
-        PageRequest pageRequest = PageRequest.of(0, 5, Sort.by("id").descending());
-
-        return postRepository.findByFetchJoin(currentMember.getId(), lastPostId, pageRequest);
-    }
+    return postRepository.findByFetchJoin(currentMember.getId(), lastPostId, pageRequest);
 }
 ```
 
@@ -232,7 +224,7 @@ public class PostService {
 
 ### 2.2.2. Fetch Join Paging 결과가 실제로는 어떻게 나올까?
 
-```html
+```bash
 o.h.h.internal.ast.QueryTranslatorImpl   : HHH000104: firstResult/maxResults specified with collection fetch; applying in memory!
 ```
 
@@ -253,12 +245,53 @@ ORDER BY post.post_id DESC
 
 - 실제로 날라가는 쿼리입니다.
 - 분명 `Pageable` 을 사용했음에도 불구하고 LIMIT 조건이 추가되지 않는 것을 볼 수 있습니다.
-- 왜 이런 결과가 발생하는지는.. 구글링을 통해서 확인하실 수 있습니다.
-- 어쨌뜬 **Fetch Join 과 Pageable 은 함께 사용 불가능**합니다.
+- 왜 이런 결과가 발생하는지는 여기서 너무 깊게 들어가면 내용이 길어지기 때문에 생략하겠습니다.
+- 어쨌든 **Fetch Join 과 Pageable 은 함께 사용 불가능**합니다.
 
 <br>
 
-## 2.3. IN 조회
+## 2.3. Batch Size
+
+1 + N 문제의 또다른 해결법으로 알려진 Batch Size 는 어떨까요?
+
+<br>
+
+```yml
+spring:
+  jpa:
+    properties:
+      hibernate:
+        default_batch_fetch_size: 100   # 전역으로 배치 사이즈 적용
+```
+
+- 100 정도만 적용해서 2.1. 번의 Collection 호출하는 코드를 다시 실행시켜 보겠습니다.
+
+<br>
+
+```sql
+-- 내가 팔로우 한 사람들 목록 조회 (member.getFollowings())
+SELECT * FROM follow WHERE follow.from_member_id = ?
+
+-- 내가 팔로우 한 사람들의 정보들을 IN 쿼리로 조회 (follow.getToMember())
+SELECT * FROM member WHERE member.member_id IN (?, ?, ...)
+
+-- 내가 팔로우 한 사람들의 게시글 조회 (member.getPosts())
+SELECT * FROM post WHERE post.member_id IN (?, ?, ...)
+```
+
+- 쿼리의 갯수가 줄어들어 N + 1 문제가 해결되었습니다.
+- 그러나 LIMIT 쿼리를 넣지 못해서 모든 데이터를 애플리케이션 레이어로 가져온 후에 처리합니다.
+
+<br>
+
+<img src="https://user-images.githubusercontent.com/28972341/140607193-ee9eb35d-647e-451f-9711-ecd9a7181b54.png" width="80%">
+
+- 영한님에게 한번 질문했었는데 OOM 이슈가 있기 때문에 적절한 해결방법이 아닙니다.
+- 만약, 데이터가 일정 개수 이하라는 보장이 있다면 Batch Size 적용만으로도 충분할 것 같습니다.
+
+<br>
+
+## 2.4. IN 쿼리로 조회
 
 `post` 테이블에 `member_id` 가 존재하는데 굳이 테이블 조인을 해야하나?
 
@@ -282,22 +315,16 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 <br>
 
 ```java
-@RequiredArgsConstructor
-@Service
-public class PostService {
-    private final PostRepository postRepository;
+public List<Post> getFeeds(Long lastPostId) {
+    Member currentMember = getCurrentMember();
 
-    public List<Post> getFeeds(Long lastPostId) {
-        Member currentMember = getCurrentMember();
+    List<Member> followings = currentMember.getFollowings()
+            .stream()
+            .map(Follow::getToMember)
+            .collect(Collectors.toList());
 
-        List<Member> followings = currentMember.getFollowings()
-                .stream()
-                .map(Follow::getToMember)
-                .collect(Collectors.toList());
-
-        PageRequest pageRequest = PageRequest.of(0, 5, Sort.by("id").descending());
-        return postRepository.findByIdLessThanAndMemberIn(lastPostId, followings, pageRequest);
-    }
+    PageRequest pageRequest = PageRequest.of(0, 5, Sort.by("id").descending());
+    return postRepository.findByIdLessThanAndMemberIn(lastPostId, followings, pageRequest);
 }
 ```
 
@@ -335,7 +362,7 @@ LIMIT ?
 
 <br>
 
-## 2.4. Join + Limit
+## 2.5. 일반 JOIN + LIMIT JPQL
 
 위 코드에서 말했던 것처럼 `IN` 쿼리를 사용하기 위해 구한 `followings` 값 역시 엄청나게 큰 값이 될 수 있습니다.
 
@@ -368,15 +395,9 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 <br>
 
 ```java
-@RequiredArgsConstructor
-@Service
-public class PostService {
-    private final PostRepository postRepository;
-
-    public List<Post> getFeeds(Long lastPostId) {
-        PageRequest pageRequest = PageRequest.of(0, 5, Sort.by("id").descending());
-        return postRepository.findByJoinFollow(getCurrentMember().getId(), lastPostId, pageRequest);
-    }
+public List<Post> getFeeds(Long lastPostId) {
+    PageRequest pageRequest = PageRequest.of(0, 5, Sort.by("id").descending());
+    return postRepository.findByJoinFollow(getCurrentMember().getId(), lastPostId, pageRequest);
 }
 ```
 
