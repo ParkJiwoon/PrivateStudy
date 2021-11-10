@@ -192,7 +192,7 @@ JavaScript 를 사용하면 페이지를 새로 로드하지 않고 일부만 �
 
 스크린 리더는 `alert` 역할이 붙은 요소가 업데이트 되면 바로 읽기 시작합니다.
 
-`role="alert"` 로 설정한다는 건 `arive-live="assertive" aria-atomic="true"` 와 동일합니다.
+`role="alert"` 로 설정한다는 건 `aria-live="assertive" aria-atomic="true"` 와 동일합니다.
 
 <br>
 
