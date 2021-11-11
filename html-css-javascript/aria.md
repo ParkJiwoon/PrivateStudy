@@ -196,6 +196,18 @@ JavaScript 를 사용하면 페이지를 새로 로드하지 않고 일부만 �
 
 <br>
 
+## 2.5. role="timer"
+
+- [ARIA: timer role](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/timer_role)
+
+현재 요소가 timer 로 사용되고 있다는 걸 의미합니다.
+
+초를 계속 세주려면 `aria-live` 속성을 켜주면 되지만.. 1초마다 계속 컨텐츠가 갱신되기 때문에 알림이 부자연스럽게 계속 끊기는 이슈가 존재합니다.
+
+저는 timer 에 초점이 잡혔을 때의 남은 시간만 읽어주길 바랬기 때문에 `role="timer"` 설정만 해주고 `focus` 이벤트로 `aria-label="남은 시간 mm:ss"` 을 추가해서 사용했습니다.
+
+<br>
+
 # Reference
 
 - [W3C - 웹 접근성이란?](https://www.w3.org/WAI/fundamentals/accessibility-intro/ko)
