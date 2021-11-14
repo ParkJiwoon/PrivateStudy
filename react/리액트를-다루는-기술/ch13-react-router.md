@@ -24,13 +24,13 @@ SPA 의 경우 서버에서 사용자에게 제공하는 페이지는 한 종류
 
 리액트 라우팅 라이브러리는 리액트 라우터 (react-router), 리치 라우터 (reach-router), Next.js 등 여러 가지가 있습니다.
 
-이 장에서는 리액트 라우터에 대해서 알아봅니다.
+이 장에서는 **리액트 라우터**에 대해서 알아봅니다.
 
 <br>
 
 # 1.1. SPA 의 단점
 
-SPA 의 단점은 앱 규모가 커지면 자바스크립트 파일이 너무 커진다는 겁니다.
+SPA 의 단점은 앱 규모가 커지면 **자바스크립트 파일이 너무 커진다**는 겁니다.
 
 페이지 로딩 시 사용자가 실제로 방문하지 않을 수도 있는 페이지의 스크립트도 전부 불러오기 때문이죠.
 
@@ -189,3 +189,160 @@ export default function RouteApp() {
 
 # 3. Route 하나에 여러 개의 path 설정하기
 
+```jsx
+<Route path={["/about", "/info"]} component={About} />
+```
+
+배열로 감싸주면 됩니다.
+
+<br>
+
+# 4. URL 파라미터와 쿼리
+
+페이지 주소를 정의할 때 유동적인 값을 전달하는 방법은 두 가지입니다.
+
+- 파라미터 : `/profiles/{username}`
+- 쿼리 : `/about?details=true`
+
+둘 중 어떤 방식을 사용해야 할지 정해진 것은 없지만 일반적으로 파라미터를 많이 사용하고 쿼리는 검색 필터, 페이징 옵션 등 추가 옵션을 위해 사용합니다.
+
+<br>
+
+## 4.1. URL 파라미터
+
+```jsx
+const data = {
+  vue: {
+    name: "뷰",
+    description: "SPA 를 위한 뷰 프레임워크"
+  },
+  react: {
+    name: "리액트",
+    description: "SPA 를 위한 뷰 라이브러리"
+  }
+}
+
+export default function Profile ({ match }) {
+  const { username } = match.params;
+  const profile = data[username];
+
+  if (!profile) {
+    return <div>존재하지 않는 사용자입니다.</div>
+  }
+
+  return (
+    <div>
+      <h3>{username}({profile.name})</h3>
+      <p>{profile.description}</p>
+    </div>
+  )
+}
+```
+
+컴포넌트로 넘어오는 `match` 라는 객체 안의 `params` 값을 참조합니다.
+
+사용할 때는 다음과 같이 `path` 에 콜론(:) 과 함께 넣어주면 됩니다.
+
+```jsx
+<Route path="/profile/:username" component={Profile} />
+```
+
+<br>
+
+## 4.2. URL 쿼리
+
+쿼리는 `?detail=true&another=1` 과 같은 문자열 형태로 이루어져 있습니다.
+
+이 값을 사용하기 위해선 문자열을 객체 형태로 변환해주어야 합니다.
+
+쿼리 문자열을 객체로 변환할 때는 `qs` 라는 라이브러리를 사용합니다.
+
+```sh
+$ yarn add qs
+```
+
+<br>
+
+`About` 컴포넌트 코드를 아래와 같이 변경합니다.
+
+```jsx
+import qs from "qs";
+
+export default function About({ location }) {
+  const query = qs.parse(location.search, {
+    ignoreQueryPrefix: true // 이 설정을 통해 문자열 맨 앞의 ? 를 생략함
+  })
+
+  // query 는 Integer, Boolean 값을 넣어도 무조건 String 형태로 받아짐
+  const showDetail = query.detail === "true"
+
+  return (
+    <div>
+      <h1>소개</h1>
+      <p>이 프로젝트는 리액트 라우터 기초를 실습해보는 예제 프로젝트입니다.</p>
+      {showDetail && <p>detail 값을 true 로 설정하셨군요!</p>}
+    </div>
+  )
+}
+```
+
+이제 `http://localhost:3000/about?detail=true` 로 들어가면 새로운 문구가 하나 더 추가되서 보입니다.
+
+<br>
+
+# 5. 서브 라우트
+
+서브 라우트란 라우트 내부에 또 라우트를 정의하는 것을 의미합니다.
+
+별로 어렵진 않고 그냥 라우트로 사용되는 컴포넌트 내부에 또 `Route` 컴포넌트를 사용하면 됩니다.
+
+`Profiles` 컴포넌트를 새로 만들어서 `Profile` 컴포넌트를 옮깁니다.
+
+```jsx
+import { Link, Route } from "react-router-dom";
+import Profile from "./Profile";
+
+export default function Profiles () {
+  return (
+    <div>
+      <h3>사용자 목록:</h3>
+      <ul>
+        <li><Link to="/profiles/vue">vue</Link></li>
+        <li><Link to="/profiles/react">react</Link></li>
+      </ul>
+
+      <Route path="/profiles" exact render={() => <div>사용자를 선택해 주세요.</div>} />
+      <Route path="/profiles/:username" component={Profile} />
+    </div>
+  )
+}
+```
+
+`Route` 컴포넌트에 `component` props 가 없는 대신 `render` props 를 넣어서 보여주고 싶은 JSX 만 간단하게 표현합니다.
+
+<br>
+
+```jsx
+import {Link, Route} from "react-router-dom";
+import Home from "./Home";
+import About from "./About";
+import Profiles from "./Profiles";
+
+export default function RouteApp() {
+  return (
+    <div>
+      <ul>
+        <li><Link to="/">홈</Link></li>
+        <li><Link to="/about">소개</Link></li>
+        <li><Link to="/profiles">프로필</Link></li>
+      </ul>
+      <hr />
+      <Route path="/" component={Home} exact={true} />
+      <Route path={["/about", "/info"]} component={About} />
+      <Route path="/profiles" component={Profiles} />
+    </div>
+  )
+}
+```
+
+그리고 `RouteApp` 컴포넌트에 `Profile` 대신 `Profiles` 컴포넌트를 매핑해주면 됩니다.
