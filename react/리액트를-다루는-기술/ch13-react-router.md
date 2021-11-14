@@ -346,3 +346,31 @@ export default function RouteApp() {
 ```
 
 그리고 `RouteApp` 컴포넌트에 `Profile` 대신 `Profiles` 컴포넌트를 매핑해주면 됩니다.
+
+<br>
+
+# 6. 리액트 라우터 부가 기능
+
+## 6.1. history
+
+`history` 객체는 라우트로 사용된 컴포넌트에 `match, location` 과 함께 전달되는 props 중 하나입니다.
+
+이 객체를 통해 컴포넌트 내에 구현하는 메소드에 라우터 API 를 호출할 수 있습니다.
+
+예를 들어, 특정 버튼을 눌렀을 때 뒤로 가거나, 로그인 후 화면을 전환하거나, 다른 페이지로 이탈하는 것을 방지해야할 때 `history` 를 활용합니다.
+
+```jsx
+export default function HistorySample ({ history }) {
+  return (
+    <div>
+      <button onClick={() => history.goBack()}>뒤로</button>
+      <button onClick={() => history.push('/')}>홈으로</button>
+    </div>
+  )
+}
+```
+
+<br>
+
+## 6.2. withRouter
+
