@@ -374,3 +374,38 @@ export default function HistorySample ({ history }) {
 
 ## 6.2. withRouter
 
+`withRouter` 함수는 HoC (Higher-order Component) 입니다.
+
+라우트로 사용된 컴포넌트가 아니어도 `match`, `location`, `history` 객체를 접근할 수 있게 해줍니다.
+
+<br>
+
+```jsx
+import { withRouter } from "react-router-dom";
+
+function WithRouterSample ({ location, match, history }) {
+  return (
+    <div>
+      <h4>location</h4>
+      <textarea
+        value={JSON.stringify(location, null, 2)} // JSON 에 들여쓰기 적용된 상태로 문자열 생성
+        rows={7}
+        readOnly={true}
+      />
+
+      <h4>match</h4>
+      <textarea
+        value={JSON.stringify(match, null, 2)}
+        rows={7}
+        readOnly={true}
+      />
+      <button onClick={() => history.push('/')}>홈으로</button>
+    </div>
+  )
+}
+
+export default withRouter(WithRouterSample)
+```
+
+위 코드처럼 마지막에 `export` 하기 전에 `withRouter` 로 컴포넌트를 감싸줍니다.
+
