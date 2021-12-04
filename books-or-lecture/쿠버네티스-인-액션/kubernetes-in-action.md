@@ -207,7 +207,7 @@ $ docker run -p 8080:8080 -d bcp0109/kubia
 
 <br>
 
-## 2.2. 쿠버네티스 클러스터 설치
+## 2.4. 쿠버네티스 클러스터 설치
 
 지금까지 컨테이너 이미지에 애플리케이션을 패키징하고 도커 허브를 통해 사용할 수 있게 됐습니다.
 
@@ -215,3 +215,36 @@ $ docker run -p 8080:8080 -d bcp0109/kubia
 
 그전에 쿠버네티스 클러스터를 설치해야 합니다.
 
+**2.4.1. GKE 환경 설정**
+
+1. [QuickStart 가이드](https://cloud.google.com/kubernetes-engine/docs/quickstart)를 참고해서 "가입 - 프로젝트 생성 - 빌링 생성 - 쿠버네티스 엔진 API 활성" 순으로 진행합니다.
+2. [구글 클라우드 SDK](https://cloud.google.com/sdk/docs/install) 를 다운로드하고 설치합니다. (`gcloud` 를 포함하고 있음)
+3. `gcloud components install kubectl` 명령어로 `kubectl` 설치
+
+<br>
+
+**2.4.2. 노드 세 개를 가진 쿠버네티스 클러스터 생성**
+
+```sh
+# 노드 3개 생성
+$ gcloud container clusters create kubia --num-nodes 3
+
+# 생성한 노드들 조회
+$ kubectl get nodes
+NAME                                   STATUS   ROLES    AGE   VERSION
+gke-kubia-default-pool-90ff6c74-4n8b   Ready    <none>   36s   v1.21.5-gke.1302
+gke-kubia-default-pool-90ff6c74-h08l   Ready    <none>   36s   v1.21.5-gke.1302
+gke-kubia-default-pool-90ff6c74-k0k4   Ready    <none>   36s   v1.21.5-gke.1302
+```
+
+<br>
+
+**2.4.3. 클러스터의 개념 이해하기**
+
+![](images/screen_2021_12_05_04_09_05.png)
+
+<br>
+
+## 2.5. 쿠버네티스에 애플리케이션 실행하기
+
+96p
