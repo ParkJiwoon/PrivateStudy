@@ -247,4 +247,16 @@ gke-kubia-default-pool-90ff6c74-k0k4   Ready    <none>   36s   v1.21.5-gke.1302
 
 ## 2.5. 쿠버네티스에 애플리케이션 실행하기
 
-96p
+가장 간단한단 방법을 사용해서 쿠버네티스에 애플리케이션을 실행해봅니다.
+
+보통은 배포 구성 요소를 기술한 JSON 이나 YAML 매니페스트를 준비해야합니다.
+
+<br>
+
+**2.3.1. Node.js 애플리케이션 구동하기**
+
+이전에 도커 허브에 푸시한 이미지를 실행해본다.
+
+```sh
+$ kubectl run kubia --image=bcp0109/kubia --port=8080 --generator=run/v1
+```
