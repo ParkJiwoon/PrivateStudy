@@ -215,6 +215,8 @@ $ docker run -p 8080:8080 -d bcp0109/kubia
 
 그전에 쿠버네티스 클러스터를 설치해야 합니다.
 
+<br>
+
 **2.4.1. GKE 환경 설정**
 
 1. [QuickStart 가이드](https://cloud.google.com/kubernetes-engine/docs/quickstart)를 참고해서 "가입 - 프로젝트 생성 - 빌링 생성 - 쿠버네티스 엔진 API 활성" 순으로 진행합니다.
@@ -258,5 +260,90 @@ gke-kubia-default-pool-90ff6c74-k0k4   Ready    <none>   36s   v1.21.5-gke.1302
 이전에 도커 허브에 푸시한 이미지를 실행해본다.
 
 ```sh
-$ kubectl run kubia --image=bcp0109/kubia --port=8080 --generator=run/v1
+# 도커 이미지를 실행하는 파드를 시작
+$ kubectl create deployment --image=bcp0109/kubia kubia
+deployment.apps/kubia created
 ```
+
+- `--image`: 실행하고자 하는 컨테이너 이미지를 명시
+
+<br>
+
+**2.3.2. 파드 소개**
+
+![](images/screen_2021_12_07_01_26_19.png)
+
+쿠버네티스는 개별 컨테이너를 직접 다루지 않고 함께 배치된 다수의 컨테이너라는 개념을 사용합니다.
+
+이 컨테이너의 그룹을 **파드 (Pod)** 라고 합니다.
+
+각 파드는 자체 IP, 호스트 이름, 프로세스 등이 있는 논리적으로 분리된 머신입니다.
+
+애플리케이션은 단일 컨테이너로 실행되는 단일 프로세스일 수도 있고, 주 애플리케이션 프로세스 (서버) 와 부가적으로 도와주는 프로세스 (DB) 로 이루어질 수 있습니다.
+
+같은 워커 노드에서 실행중이라 할지라도 다른 파드에 실행 중인 컨테이너는 다른 머신에서 실행 중인 것으로 나타납니다.
+
+<br>
+
+**2.3.3. 파드 조회하기**
+
+컨테이너는 독립적인 쿠버네티스 오브젝트가 아니기 때문에 **개별 컨테이너를 조회할 수 없고 대신 파드를 조회**해야 합니다.
+
+```sh
+$ kubectl get pods
+```
+
+<br>
+
+**2.3.4. 백그라운드에서 일어난 동작**
+
+![](images/screen_2021_12_07_03_52_23.png)
+
+1. 우선 로컬에서 도커 허브에 이미지를 푸시하여 노드에서도 접근할 수 있게 해줍니다.
+2. `kubectl` 명령어를 실행하면 쿠버네티스의 API 서버로 HTTP 요청을 전달하고 클러스터에 새로운 레플리케이션컨트롤러 오브젝트를 생성합니다.
+3. 레플리케이션컨트롤러는 새 파드를 생성하고 워커 노드 중 하나에 스케줄링(할당) 됩니다.
+4. 해당 워커 노드의 Kubelet 은 파드가 스케줄링 된 것을 보고 로컬에 없는 이미지를 Pull 하도록 도커에게 지시합니다.
+5. 이미지를 다운로드 한 후 도커는 컨테이너를 생성 후 실행합니다.
+
+<br>
+
+**2.3.5. 웹 애플리케이션에 접근하기**
+
+각 파드는 자체 IP 주소를 갖고 있지만 이 주소는 클러스터 내부에 있으며 외부에서 접근 불가능합니다.
+
+외부에서 파드를 접근하기 위해선 서비스 오브젝트를 통해 노출해야 합니다.
+
+```sh
+# 서비스를 통해 포트를 노출
+$ kubectl expose deployment kubia --type=LoadBalancer --port=8080 --name=kubia-http
+service/kubia-http exposed
+```
+
+<br>
+
+생성된 서비스는 명령어로 조회할 수 있습니다.
+
+```sh
+$ kubectl get svc
+NAME         TYPE           CLUSTER-IP    EXTERNAL-IP   PORT(S)          AGE
+kubernetes   ClusterIP      10.96.0.1     <none>        443/TCP          2d
+kubia-http   LoadBalancer   10.96.13.36   <pending>     8080:32294/TCP   12s
+
+
+$ kubectl get svc
+NAME         TYPE           CLUSTER-IP    EXTERNAL-IP    PORT(S)          AGE
+kubernetes   ClusterIP      10.96.0.1     <none>         443/TCP          2d
+kubia-http   LoadBalancer   10.96.13.36   34.97.67.145   8080:32294/TCP   67s
+```
+
+처음에는 로드 밸런서를 생성하기 때문에 pending 상태였지만 나중에는 External IP 가 표시되는 걸 볼 수 있습니다.
+
+이제 http://34.97.67.145:8080/ 주소로 어디서든 애플리케이션에 접근 가능합니다.
+
+![](images/screen_2021_12_07_04_20_56.png)
+
+<br>
+
+## 2.6. 파드, 서비스의 이해
+
+103p
