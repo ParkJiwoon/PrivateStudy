@@ -38,9 +38,10 @@ $ kubectl get pods
 
 # 파드 삭제
 $ kubectl delete pod kubia
-```
 
-<br>
+# 파드 상세한 설명 보기
+$ kubectl describe pod <파드 이름>
+```
 
 <br>
 
