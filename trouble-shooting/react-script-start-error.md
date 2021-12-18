@@ -10,7 +10,7 @@ node:internal/modules/cjs/loader:488
       throw e;
       ^
 
-Error [ERR_PACKAGE_PATH_NOT_EXPORTED]: Package subpath './lib/tokenize' is not defined by "exports" in /Users/kakao/Documents/my/projects/practice-codes/react-js-hello/node_modules/postcss-safe-parser/node_modules/postcss/package.json
+Error [ERR_PACKAGE_PATH_NOT_EXPORTED]: Package subpath './lib/tokenize' is not defined by "exports" in /Users/Documents/my/projects/practice-codes/react-js-hello/node_modules/postcss-safe-parser/node_modules/postcss/package.json
     at new NodeError (node:internal/errors:371:5)
     at throwExportsNotFound (node:internal/modules/esm/resolve:416:9)
     at packageExportsResolve (node:internal/modules/esm/resolve:669:3)
@@ -20,7 +20,7 @@ Error [ERR_PACKAGE_PATH_NOT_EXPORTED]: Package subpath './lib/tokenize' is not d
     at Function.Module._load (node:internal/modules/cjs/loader:778:27)
     at Module.require (node:internal/modules/cjs/loader:999:19)
     at require (node:internal/modules/cjs/helpers:102:18)
-    at Object.<anonymous> (/Users/kakao/Documents/my/projects/practice-codes/react-js-hello/node_modules/postcss-safe-parser/lib/safe-parser.js:1:17) {
+    at Object.<anonymous> (/Users/Documents/my/projects/practice-codes/react-js-hello/node_modules/postcss-safe-parser/lib/safe-parser.js:1:17) {
   code: 'ERR_PACKAGE_PATH_NOT_EXPORTED'
 }
 
