@@ -129,7 +129,19 @@ public class HelloController {
 
 <br>
 
+# 4. SpringDoc ?
+
+Swagger 는 SpringFox 외에 SpringDoc 으로도 설정할 수 있습니다.
+
+특히 현재 Spring Boot 2.6 버전에서 SpringFox Swagger 3.0 의 사용하지 못하는 이슈가 존재합니다.
+
+이럴 때 [SpringDoc 공식 문서](https://springdoc.org/) 를 참고하면 Spring Boot 를 2.5 버전대로 내리지 않아도 Swagger 를 적용할 수 있습니다.
+
+<br>
+
+
 ## Reference
 
 - https://github.com/springfox/springfox
 - https://springfox.github.io/springfox/docs/current/
+- https://springdoc.org/
