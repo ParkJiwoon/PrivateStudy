@@ -146,6 +146,9 @@ $ kubectl logs <파드 이름>
 
 # 여러 컨테이너를 포함한 파드인 경우에 컨테이너 이름 지정
 $ kubectl logs <파드 이름> -c  <컨테이너 이름>
+
+# 이전 컨테이너의 로그 확인
+$ kubectl logs <파드 이름> --previous
 ```
 
 <br>
