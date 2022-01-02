@@ -299,3 +299,14 @@ $ kubectl get rs
 # 데몬셋 조회
 $ kubectl get ds
 ```
+
+<br>
+
+# 11. 잡 (Job)
+
+잡은 지속적으로 실행되는 파드와 다르게 수행 후 종료되는 태스크입니다.
+
+```sh
+# 잡 조회
+$ kubectl get jobs
+```
