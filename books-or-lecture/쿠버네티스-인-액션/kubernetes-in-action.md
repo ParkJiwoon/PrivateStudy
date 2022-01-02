@@ -64,6 +64,14 @@
     - [4.4.1. 데몬셋을 사용해 특정 노드에서만 파드 실행하기](#441-데몬셋을-사용해-특정-노드에서만-파드-실행하기)
     - [4.4.2. 데몬셋 YAML 생성](#442-데몬셋-yaml-생성)
   - [4.5. 완료 가능한 단일 태스크를 수행하는 파드 실행](#45-완료-가능한-단일-태스크를-수행하는-파드-실행)
+    - [4.5.1. 잡 리소스 정의](#451-잡-리소스-정의)
+    - [4.5.2. 잡 실행](#452-잡-실행)
+    - [4.5.3. 완료된 잡 확인](#453-완료된-잡-확인)
+    - [4.5.4. 잡에서 여러 파드 인스턴스 실행하기](#454-잡에서-여러-파드-인스턴스-실행하기)
+    - [4.5.6. 잡 파드 타임아웃 설정](#456-잡-파드-타임아웃-설정)
+  - [4.6. 잡을 주기적으로 실행하기](#46-잡을-주기적으로-실행하기)
+    - [4.6.1. 크론잡 생성하기](#461-크론잡-생성하기)
+- [5장 서비스: 클라이언트가 파드를 검색하고 통신할수 있게 함](#5장-서비스-클라이언트가-파드를-검색하고-통신할수-있게-함)
 
 <br>
 
@@ -953,3 +961,152 @@ spec:
 
 **한번만 실행되고 종료되는 태스크를 잡 (Job)** 이라고 합니다.
 
+잡 또한 레플리카셋, 데몬셋과 마찬가지로 해당 태스크 (파드) 가 성공적으로 완료될 때까지 관리할 수 있습니다.
+
+아래 그림처럼 노드1 에서 실행중이던 파드 A, B, C 가 있을 때 갑작스런 장애로 노드 1이 사라진다면, 또다른 노드2 에서 파드 B, C 는 새로 생성됩니다.
+
+![](images/screen_2022_01_02_12_45_02.png)
+
+<br>
+
+### 4.5.1. 잡 리소스 정의
+
+```yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: batch-job
+spec:
+  template:
+    metadata:
+      labels: # 파드 셀렉터를 지정하지 않음 (파드 템플릿의 레이블을 기반으로 만들어짐)
+        app: batch-job
+    spec:
+      restartPolicy: OnFailure  # 잡은 기본 재시작 정책 (Always) 를 사용할 수 없음
+      containers:
+      - name: main
+        image: luksa/batch-job
+```
+
+위 디스크립터에서 사용되는 `luksa/batch-job` 이미지는 120초 동안 실행된 후 종료되는 프로세스 이미지입니다.
+
+파드 스펙의 `restartPolicy` 은 기본값이 Always 이지만 잡 파드는 무한정 실행하지 않으므로 기본 정책을 사용할 수 없습니다.
+
+그래서 onFailure 또는 Never 로 명시적으로 설정해야 합니다.
+
+<br>
+
+### 4.5.2. 잡 실행
+
+```sh
+# 잡 디스크립터 실행
+$ kubectl apply -f batch-job.yaml
+job.batch/batch-job created
+
+# 잡 확인
+$ kubectl get jobs
+NAME        COMPLETIONS   DURATION   AGE
+batch-job   0/1           3s         3s
+
+# 잡으로 실행된 파드 확인
+$ kubectl get po
+NAME                     READY   STATUS    RESTARTS   AGE
+batch-job-b9zf9          1/1     Running   0          37s
+```
+
+<br>
+
+### 4.5.3. 완료된 잡 확인
+
+위 이미지는 120초 후에 종료되기 때문에 완료된 상태의 잡과 파드를 확인할 수 있습니다.
+
+파드가 완료된 후에 삭제되지 않는 이유는 해당 파드의 로그를 확인할 수 있게 하기 위해서입니다.
+
+```sh
+# 120 초 후에는 완료 상태의 잡을 확인 가능
+$ kubectl get jobs
+NAME        COMPLETIONS   DURATION   AGE
+batch-job   1/1           2m8s       2m44s
+
+# 120 초 후에는 완료 상태의 파드를 확인 가능
+$ kubectl get po
+NAME                     READY   STATUS      RESTARTS   AGE
+batch-job-b9zf9          0/1     Completed   0          2m13s
+
+# 종료된 파드 로그 확인
+$ kubectl logs batch-job-b9zf9
+Sun Jan  2 03:59:30 UTC 2022 Batch job starting
+Sun Jan  2 04:01:30 UTC 2022 Finished succesfully
+```
+
+<br>
+
+### 4.5.4. 잡에서 여러 파드 인스턴스 실행하기
+
+잡은 두 개 이상의 파드 인스턴스를 생성해서 병렬 또는 순차적으로 실행하게 할 수 있습니다.
+
+파드 스펙에 다음 속성을 추가하면 됩니다.
+
+- `completions`: 총 몇 개의 파드를 수행할 지
+- `parallelism`: 동시에 몇 개의 파드를 수행할 지
+
+예를 들어 `completions: 10` 이고 `parallelism: 2` 라면 두 개의 파드씩 동시에 총 5번 (10개) 수행될 겁니다.
+
+이 값들은 레플리카셋과 마찬가지로 `kubectl scale` 명령어로 변경 가능합니다.
+
+<br>
+
+### 4.5.6. 잡 파드 타임아웃 설정
+
+`activeDeadlineSeconds` 속성을 추가해서 파드의 실행 시간을 제한할 수 있습니다.
+
+설정된 시간까지 잡이 완료되지 않으면 시스템을 종료하고 잡을 실패 처리합니다.
+
+<br>
+
+## 4.6. 잡을 주기적으로 실행하기
+
+리눅스 운영체제에서 일정 시간마다 반복되는 작업을 크론 (cron) 작업이라고 합니다.
+
+쿠버네티스에서도 크론잡 (CronJob) 을 지원합니다.
+
+사용법은 일반적인 크론 형식과 동일합니다.
+
+<br>
+
+### 4.6.1. 크론잡 생성하기
+
+```yaml
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: batch-job-every-fifteen-minutes
+spec:
+  schedule: "0,15,30,45 * * * *"  # 매일, 매시간, 0, 15, 30, 45 분에 실행
+  jobTemplate:  # 크론잡이 생성하는 리소스 템플릿
+    spec:
+      template:
+        metadata:
+          labels:
+            app: periodic-batch-job
+        spec:
+          restartPolicy: OnFailure
+          containers:
+          - name: main
+            image: luksa/batch-job
+```
+
+크론잡은 왼쪽에서 오른쪽으로 `분 시 일 월 요일` 을 나타냅니다.
+
+`*` 으로 지정하면 매분, 매시간, 매일 실행한다고 생각하면 됩니다.
+
+예시
+
+- `0,30 * 1 * *`: 매달 첫째날에 30분마다 실행
+- `0 3 * * 0`: 일요일 3AM 마다 실행 (마지막 0 은 일요일을 의미)
+
+<br>
+
+# 5장 서비스: 클라이언트가 파드를 검색하고 통신할수 있게 함
+
+205p

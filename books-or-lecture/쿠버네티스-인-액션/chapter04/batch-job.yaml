@@ -1,0 +1,14 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: batch-job
+spec:
+  template:
+    metadata:
+      labels: # 파드 셀렉터를 지정하지 않음 (파드 템플릿의 레이블을 기반으로 만들어짐)
+        app: batch-job
+    spec:
+      restartPolicy: OnFailure  # 잡은 기본 재시작 정책 (Always) 를 사용할 수 없음
+      containers:
+      - name: main
+        image: luksa/batch-job
