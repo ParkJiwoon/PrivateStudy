@@ -138,6 +138,9 @@ $ kubectl get po -o wide
 # 파드 삭제
 $ kubectl delete pod kubia
 
+# 파드 전체 삭제
+$ kubectl delete po --all
+
 # 파드 상세한 설명 보기
 $ kubectl describe pod <파드 이름>
 
@@ -149,6 +152,9 @@ $ kubectl logs <파드 이름> -c  <컨테이너 이름>
 
 # 이전 컨테이너의 로그 확인
 $ kubectl logs <파드 이름> --previous
+
+# 파드의 환경변수 확인
+$ kubectl exec <파드 이름> -- env
 ```
 
 <br>
@@ -173,6 +179,9 @@ https://stackoverflow.com/questions/47369351/kubectl-apply-vs-kubectl-create
 ```sh
 # 서비스 생성
 $ kubectl expose deployment kubia --type=LoadBalancer --port=8080 --name=kubia-http
+
+# 서비스 조회
+$ kubectl get svc
 ```
 
 <br>
