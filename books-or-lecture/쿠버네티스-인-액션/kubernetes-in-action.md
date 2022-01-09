@@ -72,6 +72,15 @@
   - [4.6. 잡을 주기적으로 실행하기](#46-잡을-주기적으로-실행하기)
     - [4.6.1. 크론잡 생성하기](#461-크론잡-생성하기)
 - [5장 서비스: 클라이언트가 파드를 검색하고 통신할수 있게 함](#5장-서비스-클라이언트가-파드를-검색하고-통신할수-있게-함)
+  - [5.1. 서비스 소개](#51-서비스-소개)
+  - [5.2. 서비스 생성](#52-서비스-생성)
+    - [5.2.1. YAML 디스크립터를 통한 서비스 생성](#521-yaml-디스크립터를-통한-서비스-생성)
+    - [5.2.2. 클러스터 내에서 서비스 테스트](#522-클러스터-내에서-서비스-테스트)
+    - [5.2.3. 동일한 서비스에서 여러 개의 포트 노출 (멀티 포트 서비스)](#523-동일한-서비스에서-여러-개의-포트-노출-멀티-포트-서비스)
+    - [5.2.4. 이름이 지정된 포트 사용](#524-이름이-지정된-포트-사용)
+  - [5.3. 서비스 검색](#53-서비스-검색)
+    - [5.3.1. 환경변수를 통한 서비스 검색](#531-환경변수를-통한-서비스-검색)
+    - [5.3.2. DNS 를 통한 서비스 검색](#532-dns-를-통한-서비스-검색)
 
 <br>
 
@@ -1109,4 +1118,231 @@ spec:
 
 # 5장 서비스: 클라이언트가 파드를 검색하고 통신할수 있게 함
 
-205p
+4장에서는 파드에 대해 알아보고 파드를 계속 실행하기 위한 수단 (레플리카셋 등등) 에 대해서 학습했습니다.
+
+대부분의 파드는 요청을 받는 애플리케이션인데 클라이언트는 파드에 직접적으로 요청한다면 다음과 같은 문제가 있습니다.
+
+- 쿠버네티스는 파드를 생성할 때 IP 주소를 할당하기 때문에 클라이언트가 미리 파드의 IP 주소를 알 수 없습니다.
+- 수평 스케일링을 하면 여러 파드에서 같은 애플리케이션을 제공하기 때문에 특정 파드에 대해 요청하지 말고 단일 IP 로 요청 가능해야 합니다.
+
+위와 같은 이유 때문에 쿠버네티스는 서비스 (Service) 라는 리소스를 제공합니다.
+
+<br>
+
+## 5.1. 서비스 소개
+
+서비스는 동일한 애플리케이션을 제공하는 파드 그룹과 클라이언트를 연결해주는 게이트웨이 역할을 합니다.
+
+서비스는 존재하는 동안 IP 주소와 포트가 바뀌지 않습니다.
+
+클라이언트는 서비스의 IP 와 포트로 요청하고 서비스는 각 파드에 알아서 요청을 분배해줍니다.
+
+그래서 클라이언트는 계속 변경되는 (생성 및 삭제) 파드의 IP 와 포트를 몰라도 지속적으로 요청 가능합니다.
+
+![](images/screen_2022_01_10_02_30_59.png)
+
+<br>
+
+## 5.2. 서비스 생성
+
+서비스에 연결된 파드들은 어떻게 알 수 있을까?
+
+지금까지 사용한 방법과 동일하게 레이블 셀렉터 (Label Selector) 를 사용합니다.
+
+![](images/screen_2022_01_10_02_35_14.png)
+
+<br>
+
+### 5.2.1. YAML 디스크립터를 통한 서비스 생성
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: kubia
+spec:
+  ports:
+  - port: 80  # 서비스가 사용할 포트
+    targetPort: 8080  # 서비스가 포워드할 컨테이너 포트
+  selector: 
+    app: kubia  # app=kubia 레이블이 있는 모든 파드가 서비스에 포함됨
+```
+
+포트 80 의 연결을 허용하고 각 연결을 `app=kubia` 레이블 셀렉터와 일치하는 파드의 포트 8080 으로 라우팅합니다.
+
+<br>
+
+```sh
+# 서비스 생성
+$ kubectl apply -f kubia-svc.yaml
+service/kubia created
+
+# 서비스 조회
+$ kubectl get svc
+NAME         TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
+kubernetes   ClusterIP   10.96.0.1    <none>        443/TCP   35d
+kubia        ClusterIP   10.96.6.96   <none>        80/TCP    4s
+```
+
+<br>
+
+### 5.2.2. 클러스터 내에서 서비스 테스트
+
+클러스터 내에서 서비스로 요청 보내는 방법은 총 세가지가 있습니다.
+
+이 중에서 마지막 방법만 알아봅니다.
+
+1. 서비스의 클러스터 IP 로 요청을 보내고 응답 로그를 남기는 파드를 생성해서 확인
+2. 쿠버네티스 노드로 `ssh` 접속 후 `curl` 명령
+3. `kubectl exec` 명령어로 기존 파드에서 `curl` 명령어 실행
+
+<br>
+
+```sh
+# kubia-5fdd95f6fd-bpxmt 는 app=kubia 인 파드
+$ kubectl exec kubia-5fdd95f6fd-bpxmt -- curl -s http://10.96.6.96
+You've hit kubia-5fdd95f6fd-bpxmt
+```
+
+`--` (더블 대시) 는 명령어 옵션의 끝을 의미합니다.
+
+파드 내에서 실행할 명령어의 옵션과 헷갈리지 않으려면 더블 대시를 이용해 반드시 `kubectl exec` 명령어의 끝을 나타내고 이후 명령어를 입력해야합니다.
+
+위 명령어는 지정한 파드의 컨테이너에서 서비스의 IP 로 요청을 보내는 겁니다.
+
+서비스는 연결된 임의의 파드에게 요청을 전달하는데, 저는 하나의 파드만 떠있어서 같은 파드로 다시 요청이 돌아왔습니다.
+
+만약 **동일한 클라이언트 IP 에서 오는 요청을 전부 같은 파드로** 보내고 싶다면 `spec.sessionAffinity: ClientIP` 옵션을 디스크립터에 추가하면 됩니다.
+
+<br>
+
+### 5.2.3. 동일한 서비스에서 여러 개의 포트 노출 (멀티 포트 서비스)
+
+서비스는 여러 포트를 지원 가능합니다.
+
+예를 들어 8080, 8443 포트인 파드 두개가 존재합니다.
+
+하나의 서비스로 80 -> 8080 파드, 443 -> 8443 파드 이렇게 요청 전달 가능합니다.
+
+```yml
+apiVersion: v1
+kind: Service
+metadata:
+  name: kubia
+spec:
+  ports:  # name 은 단순히 네이밍
+  - name: http  # 포트 80 으로 들어온 요청은 8080 으로 전달
+    port: 80
+    targetPort: 8080
+  - name: https # 포트 443 으로 들어온 요청은 8443 으로 전달 
+    port: 443
+    targetPort: 8443
+  selector: # 레이블 셀렉터는 서비스 전체에 적용돼서 개별 구성 불가능
+    app: kubia
+```
+
+<br>
+
+### 5.2.4. 이름이 지정된 포트 사용
+
+지금까지는 `targetPort` 에 파드의 포트를 직접 입력했는데, 이름만 지정해서 전달할 수도 있습니다.
+
+하지만 이런 경우에는 파드 정의에 포트 이름이 미리 세팅되어 있어야 합니다.
+
+<br>
+
+파드를 정의할 때 포트 이름을 지정해둡니다.
+
+```yaml
+kind: Pod
+spec:
+  containers:
+  - name: kubia
+    ports:  # 포트 별로 이름을 지정합니다.
+    - name: http
+      containerPort: 8080
+    - name: https
+      containerPort: 8443
+```
+
+<br>
+
+서비스의 스펙에서 `targetPort` 에 포트 이름을 지정합니다.
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: kubia
+spec:
+  ports:  # name 은 단순히 네이밍
+  - name: http  # 포트 80 으로 들어온 요청은 http 이름으로 전달
+    port: 80
+    targetPort: http
+  - name: https # 포트 443 으로 들어온 요청은 https 이름으로 전달 
+    port: 443
+    targetPort: https
+```
+
+<br>
+
+## 5.3. 서비스 검색
+
+클라이언트가 서비스의 IP 와 포트를 알아내는 방법에는 여러 가지가 존재합니다.
+
+<br>
+
+### 5.3.1. 환경변수를 통한 서비스 검색
+
+파드에는 각 서비스를 가리키는 환경변수 세트가 존재합니다.
+
+이 환경변수는 서비스가 먼저 생성된 후에 파드를 생성해야 세팅 됩니다.
+
+환경변수를 확인하기 위해 먼저 서비스를 실행한 후 파드를 삭제합니다.
+
+만약 레플리카셋으로 관리되고 있다면 새 파드가 생성될거고 아니라면 파드를 하나 실행해줍니다.
+
+<br>
+
+```sh
+# 비교를 위해 서비스 조회
+$ kubectl get svc
+NAME         TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
+kubernetes   ClusterIP   10.96.0.1    <none>        443/TCP   36d
+kubia        ClusterIP   10.96.6.96   <none>        80/TCP    66m
+
+# 파드의 환경변수 확인
+$ kubectl exec kubia-5fdd95f6fd-pgwd7 -- env
+
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+HOSTNAME=kubia-5fdd95f6fd-pgwd7
+NPM_CONFIG_LOGLEVEL=info
+NODE_VERSION=7.10.1
+YARN_VERSION=0.24.4
+KUBIA_SERVICE_HOST=10.96.6.96 # kubia 서비스의 클러스터 IP
+KUBIA_SERVICE_PORT=80         # kubia 서비스의 포트
+KUBERNETES_PORT_443_TCP_PROTO=tcp
+KUBERNETES_SERVICE_HOST=10.96.0.1
+KUBERNETES_PORT=tcp://10.96.0.1:443
+KUBIA_PORT_80_TCP_ADDR=10.96.6.96
+KUBERNETES_SERVICE_PORT_HTTPS=443
+KUBERNETES_PORT_443_TCP_ADDR=10.96.0.1
+KUBERNETES_SERVICE_PORT=443
+KUBERNETES_PORT_443_TCP=tcp://10.96.0.1:443
+KUBERNETES_PORT_443_TCP_PORT=443
+KUBIA_PORT=tcp://10.96.6.96:80
+KUBIA_PORT_80_TCP=tcp://10.96.6.96:80
+KUBIA_PORT_80_TCP_PROTO=tcp
+KUBIA_PORT_80_TCP_PORT=80
+HOME=/root
+```
+
+서비스가 현재 기본으로 떠있는 `kubernetes` 와 우리가 아까 띄운 `kubia` 이렇게 두 개가 있습니다.
+
+우리가 띄운 서비스의 정보를 알려면 `KUBIA_SERVICE_HOST` 와 `KUBIA_SERVICE_PORT` 정보를 확인하면 됩니다.
+
+<br>
+
+### 5.3.2. DNS 를 통한 서비스 검색
+
+217p

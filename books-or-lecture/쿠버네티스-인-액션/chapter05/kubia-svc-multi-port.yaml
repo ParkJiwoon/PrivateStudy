@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: kubia
+spec:
+  ports:  # name 은 단순히 네이밍
+  - name: http  # 포트 80 으로 들어온 요청은 8080 으로 전달
+    port: 80
+    targetPort: 8080
+  - name: https # 포트 443 으로 들어온 요청은 8443 으로 전달 
+    port: 443
+    targetPort: 8443
+  selector: # 레이블 셀렉터는 서비스 전체에 적용돼서 개별 구성 불가능
+    app: kubia
