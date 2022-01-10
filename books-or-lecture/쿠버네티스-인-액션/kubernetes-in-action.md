@@ -81,6 +81,12 @@
   - [5.3. 서비스 검색](#53-서비스-검색)
     - [5.3.1. 환경변수를 통한 서비스 검색](#531-환경변수를-통한-서비스-검색)
     - [5.3.2. DNS 를 통한 서비스 검색](#532-dns-를-통한-서비스-검색)
+  - [5.4. 클러스터 외부에 있는 서비스 연결](#54-클러스터-외부에-있는-서비스-연결)
+    - [5.4.1. 서비스 엔드포인트 소개](#541-서비스-엔드포인트-소개)
+    - [5.4.2. 서비스 엔드포인트 수동 구성](#542-서비스-엔드포인트-수동-구성)
+    - [5.4.3. 외부 서비스를 위한 별칭 생성](#543-외부-서비스를-위한-별칭-생성)
+  - [5.5. 외부 클라이언트에 서비스 노출](#55-외부-클라이언트에-서비스-노출)
+    - [5.5.1. 노드포트 서비스 사용](#551-노드포트-서비스-사용)
 
 <br>
 
@@ -1345,4 +1351,195 @@ HOME=/root
 
 ### 5.3.2. DNS 를 통한 서비스 검색
 
-217p
+IP 대신 FQDN 으로 파드 내에서 서비스에 접근 할 수 있습니다.
+
+우선 `kubectl exec` 명령어를 사용해서 파드 내의 `bash` 를 실행행합니다.
+
+```sh
+$ kubectl exec -it kubia-5fdd95f6fd-pgwd7 -- bash
+root@kubia-5fdd95f6fd-pgwd7:/#
+```
+
+<br>
+
+이제 컨테이너 내부에서 `curl` 명령어를 사용해서 kubia 서비스에 접근할 수 있습니다.
+
+```sh
+# FQDN 으로 요청
+$ curl http://kubia.default.svc.cluster.local
+Youve hit kubia-5fdd95f6fd-pgwd7
+
+# 접미사인 svc.cluster.local 생략 가능
+$ curl http://kubia.default
+Youve hit kubia-5fdd95f6fd-pgwd7
+
+# 네임스페이스인 default 도 생략 가능
+$ curl http://kubia
+Youve hit kubia-5fdd95f6fd-pgwd7
+```
+
+<br>
+
+위 예시를 보면 결국 접미사와 네임스페이스를 다 생략하고 서비스 이름만 갖고 요청합니다.
+
+다 생략가능한 이유가 각 파드 컨테이너 내부에 DNS resolver 가 구성되어 있기 때문입니다.
+
+```sh
+# DNS resolver 확인
+$ cat /etc/resolv.conf
+
+search default.svc.cluster.local svc.cluster.local cluster.local asia-northeast2-a.c.kubia-334118.internal c.kubia-334118.internal google.internal
+nameserver 10.96.0.10
+options ndots:5
+```
+
+<br>
+
+## 5.4. 클러스터 외부에 있는 서비스 연결
+
+지금까지는 클러스터 내부에서 실행 중인 파드에서 서비스로 요청을 보냈습니다.
+
+하지만 클러스터 내부의 파드에서 외부에 있는 IP 에 요청을 보내고 싶을 수도 있습니다.
+
+여기서 한가지 헷갈리지 말아야 할 점은 "클러스터 내부 파드 -> 클러스터 내부 서비스 -> 외부 클러스터 서버" 가 가능하다는 점입니다.
+
+이 경우에 서비스 로드 밸런싱과 서비스 검색 모두 활용할 수 있습니다.
+
+<br>
+
+### 5.4.1. 서비스 엔드포인트 소개
+
+서비스의 엔드포인트는 연결된 파드의 IP 주소와 포트 목록입니다.
+
+`kubectl describe` 명령어를 사용하면 서비스의 엔드포인트를 확인할 수 있습니다.
+
+```sh
+$ kubectl describe svc kubia
+Name:              kubia
+Namespace:         default
+Labels:            <none>
+Annotations:       cloud.google.com/neg: {"ingress":true}
+Selector:          app=kubia
+Type:              ClusterIP
+IP Family Policy:  SingleStack
+IP Families:       IPv4
+IP:                10.96.6.96
+IPs:               10.96.6.96
+Port:              <unset>  80/TCP
+TargetPort:        8080/TCP
+Endpoints:         10.92.0.5:8080 # 여기가 엔드포인트
+Session Affinity:  None 
+Events:            <none>
+```
+
+<br>
+
+아니면 엔드포인트를 직접 조회해서 확인할 수도 있습니다.
+
+```sh
+$ kubectl get endpoints kubia
+
+NAME    ENDPOINTS        AGE
+kubia   10.92.0.5:8080   25h
+```
+
+<br>
+
+### 5.4.2. 서비스 엔드포인트 수동 구성
+
+원래 서비스를 생성하면 레이블 셀렉터에 의해 선택된 파드들이 자동으로 연결됩니다.
+
+하지만 레이블 셀렉터 없이 수동으로 엔드포인트를 만들어서 연결해줄 수 있습니다.
+
+엔드포인트 또한 서비스나 파드처럼 디스크립터를 통해 별도의 리소스로 실행 가능합니다.
+
+우선 레이블 셀렉터 없는 서비스를 하나 정의합니다.
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: external-service  # 서비스 이름은 엔드포인트 이름과 동일해야함
+spec: # 레이블 셀렉터가 존재하지 않음
+  ports:  
+  - port: 80
+```
+
+<br>
+
+이제 엔드포인트를 정의해서 특정 파드의 포트와 IP 에 연결해줍니다.
+
+```yaml
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: external-service  # 서비스의 이름과 동일
+subsets:  # 아래 정의된 ip, port 로 연결해줌
+  - addresses:
+    - ip: 11.11.11.11
+    - ip: 22.22.22.22
+    ports:
+    - port: 80 
+```
+
+<br>
+
+주석으로 강조했지만 서비스의 이름과 엔드포인트의 이름은 같아야 합니다.
+
+이제 클러스터 내부의 파드에서 서비스를 통해 외부 서버에 요청을 전달할 수 있습니다.
+
+![](images/screen_2022_01_11_05_22_06.png)
+
+<br>
+
+### 5.4.3. 외부 서비스를 위한 별칭 생성
+
+사실 위 방법보다 훨씬 간단한 방법이 있습니다.
+
+클러스터 외부에도 서버만 존재하는게 아니라 서비스가 존재합니다.
+
+쿠버네티스 서비스가 아니더라도 일반적으로 서버는 DNS 를 통해 요청을 받습니다.
+
+이런 경우에 해당 FQDN 을 사용해서 외부 서비스에 요청하는 서비스를 만들 수 있습니다.
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: external-service
+spec:
+  type: ExternalName  # 서비스 유형 설정
+  externalName: api.somecompany.com # 실제 서비스의 도메인 이름
+  ports:
+  - port: 8080
+```
+
+이제 파드는 external-service 라는 이름으로 외부 서비스에 연결 가능합니다.
+
+<br>
+
+## 5.5. 외부 클라이언트에 서비스 노출
+
+지금까지는 클러스터 내부에서 파드가 서비스에 요청하는 경우를 알아봤습니다.
+
+이번에는 외부 클라이언트에서 클러스터 내부의 파드에 접근 가능하도록 서비스를 노출하는 방법을 알아봅니다.
+
+![](images/screen_2022_01_11_05_34_21.png)
+
+<br>
+
+방법은 몇가지가 있습니다.
+
+1. 노드 포트로 서비스 유형 설정
+2. 서비스 유형을 노드포트 유형의 로드 밸런서로 설정
+3. 단일 IP 주소로 여러 서비스를 노출하는 인그레스 리소스 만들기
+
+<br>
+
+### 5.5.1. 노드포트 서비스 사용
+
+파드 세트를 외부 클라이언트에 노출시키는 첫 번째 방법은 노드포트 타입의 서비스를 생성하는 겁니다.
+
+노드포트 서비스를 만들면 쿠버네티스는 모든 노드에 동일한 특정 포트를 할당합니다.
+
+226p

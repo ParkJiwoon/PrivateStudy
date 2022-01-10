@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: external-service  # 서비스 이름은 엔드포인트 이름과 동일해야함
+spec: # 레이블 셀렉터가 존재하지 않음
+  ports:  
+  - port: 80

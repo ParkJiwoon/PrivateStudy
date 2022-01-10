@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: external-service
+spec:
+  type: ExternalName  # 서비스 유형 설정
+  externalName: api.somecompany.com # 실제 서비스의 도메인 이름
+  ports:
+  - port: 8080

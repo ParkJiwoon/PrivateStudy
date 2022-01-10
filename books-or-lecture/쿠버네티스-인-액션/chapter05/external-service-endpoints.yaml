@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: external-service  # 서비스의 이름과 동일
+subsets:  # 아래 정의된 ip, port 로 연결해줌
+  - addresses:
+    - ip: 11.11.11.11
+    - ip: 22.22.22.22
+    ports:
+    - port: 80 
