@@ -73,20 +73,33 @@
     - [4.6.1. 크론잡 생성하기](#461-크론잡-생성하기)
 - [5장 서비스: 클라이언트가 파드를 검색하고 통신할수 있게 함](#5장-서비스-클라이언트가-파드를-검색하고-통신할수-있게-함)
   - [5.1. 서비스 소개](#51-서비스-소개)
+    - [5.1.1. 서비스 타입](#511-서비스-타입)
   - [5.2. 서비스 생성](#52-서비스-생성)
     - [5.2.1. YAML 디스크립터를 통한 서비스 생성](#521-yaml-디스크립터를-통한-서비스-생성)
     - [5.2.2. 클러스터 내에서 서비스 테스트](#522-클러스터-내에서-서비스-테스트)
-    - [5.2.3. 동일한 서비스에서 여러 개의 포트 노출 (멀티 포트 서비스)](#523-동일한-서비스에서-여러-개의-포트-노출-멀티-포트-서비스)
+    - [5.2.3. MultiPort: 동일한 서비스에서 여러 개의 포트 노출](#523-multiport-동일한-서비스에서-여러-개의-포트-노출)
     - [5.2.4. 이름이 지정된 포트 사용](#524-이름이-지정된-포트-사용)
-  - [5.3. 서비스 검색](#53-서비스-검색)
+  - [5.3. Service Discovery: 서비스 검색](#53-service-discovery-서비스-검색)
     - [5.3.1. 환경변수를 통한 서비스 검색](#531-환경변수를-통한-서비스-검색)
     - [5.3.2. DNS 를 통한 서비스 검색](#532-dns-를-통한-서비스-검색)
-  - [5.4. 클러스터 외부에 있는 서비스 연결](#54-클러스터-외부에-있는-서비스-연결)
+  - [5.4. ExternalName: 클러스터 외부에 있는 서비스 연결](#54-externalname-클러스터-외부에-있는-서비스-연결)
     - [5.4.1. 서비스 엔드포인트 소개](#541-서비스-엔드포인트-소개)
     - [5.4.2. 서비스 엔드포인트 수동 구성](#542-서비스-엔드포인트-수동-구성)
     - [5.4.3. 외부 서비스를 위한 별칭 생성](#543-외부-서비스를-위한-별칭-생성)
   - [5.5. 외부 클라이언트에 서비스 노출](#55-외부-클라이언트에-서비스-노출)
-    - [5.5.1. 노드포트 서비스 사용](#551-노드포트-서비스-사용)
+    - [5.5.1. NodePort: 노드포트 서비스 사용](#551-nodeport-노드포트-서비스-사용)
+    - [5.5.2. LoadBalancer: 외부 로드밸런서로 서비스 노출](#552-loadbalancer-외부-로드밸런서로-서비스-노출)
+    - [5.5.3. 외부 연결의 특성 이해](#553-외부-연결의-특성-이해)
+  - [5.4. Ingress: 인그레스 리소스로 서비스 외부 노출](#54-ingress-인그레스-리소스로-서비스-외부-노출)
+    - [5.4.1. 인그레스로동작 방식](#541-인그레스로동작-방식)
+    - [5.4.2. 하나의 인그레스로 여러 서비스 노출](#542-하나의-인그레스로-여러-서비스-노출)
+  - [5.5. Readness probe: 파드가 연결을 수락할 준비가 됐을 때 신호 보내기](#55-readness-probe-파드가-연결을-수락할-준비가-됐을-때-신호-보내기)
+    - [5.5.1. 레디니스 프로브의 동작](#551-레디니스-프로브의-동작)
+    - [5.5.2. 파드에 레디니스 프로브 추가](#552-파드에-레디니스-프로브-추가)
+    - [5.5.3. 레디니스 상태 확인](#553-레디니스-상태-확인)
+    - [5.5.4. 준비된 파드 요청](#554-준비된-파드-요청)
+    - [5.5.5. 레디니스 프로브의 중요성](#555-레디니스-프로브의-중요성)
+  - [5.6. Headless Service: 헤드리스 서비스로 개별 파드 찾기](#56-headless-service-헤드리스-서비스로-개별-파드-찾기)
 
 <br>
 
@@ -1128,8 +1141,9 @@ spec:
 
 대부분의 파드는 요청을 받는 애플리케이션인데 클라이언트는 파드에 직접적으로 요청한다면 다음과 같은 문제가 있습니다.
 
-- 쿠버네티스는 파드를 생성할 때 IP 주소를 할당하기 때문에 클라이언트가 미리 파드의 IP 주소를 알 수 없습니다.
-- 수평 스케일링을 하면 여러 파드에서 같은 애플리케이션을 제공하기 때문에 특정 파드에 대해 요청하지 말고 단일 IP 로 요청 가능해야 합니다.
+- 파드는 에러 발생 등의 이유로 종료되고 새로운 파드가 생성되는데 **달라진 파드는 IP 가 변경**됨
+- 쿠버네티스는 파드를 생성할 때 IP 주소를 할당하기 때문에 **클라이언트가 파드의 IP 주소를 미리 알 수 없음**
+- 수평 스케일링을 하면 여러 파드에서 같은 애플리케이션을 제공하기 때문에 특정 파드에 대해 요청하지 말고 **단일 IP 로 요청 가능해야 함**
 
 위와 같은 이유 때문에 쿠버네티스는 서비스 (Service) 라는 리소스를 제공합니다.
 
@@ -1146,6 +1160,29 @@ spec:
 그래서 클라이언트는 계속 변경되는 (생성 및 삭제) 파드의 IP 와 포트를 몰라도 지속적으로 요청 가능합니다.
 
 ![](images/screen_2022_01_10_02_30_59.png)
+
+<br>
+
+### 5.1.1. 서비스 타입
+
+서비스의 타입에는 여러 종류가 있습니다.
+
+여기서는 간단히만 보고 아래에서 더 자세히 다룰 예정입니다.
+
+- ClusterIP (default)
+  - 이름 그대로 클러스터 내부에서 접근 가능한 서비스
+  - 외부에서 접근 가능한 External IP 가 할당되지 않기 때문에 외부에서 접근 불가능
+- ExternalName
+  - 클러스터 내부의 요청을 외부에 전달
+  - 보통 외부 DNS 로 지정함
+- NodePort
+  - 외부 클라이언트에서 파드에 접근할 수 있게 연결해주는 서비스
+  - 각 노드에 동일한 포트 번호를 부여해서 외부 요청을 받을 수 있게 함
+  - 각 노드에서 받은 요청을 다시 파드로 라우팅 하기 위한 ClusterIP 서비스가 자동으로 생성됨
+- LoadBalancer
+  - NodePort 와는 다르게 단일 External IP 와 Port 로 외부 요청을 받음
+  - 로드 밸런서에서 받은 요청들을 각 파드에 라우팅 하기 위해 NodePort 서비스와 ClusterIP 서비스를 자동 생성함
+
 
 <br>
 
@@ -1194,15 +1231,9 @@ kubia        ClusterIP   10.96.6.96   <none>        80/TCP    4s
 
 ### 5.2.2. 클러스터 내에서 서비스 테스트
 
-클러스터 내에서 서비스로 요청 보내는 방법은 총 세가지가 있습니다.
+클러스터 내에서 서비스로 요청을 보내봅시다.
 
-이 중에서 마지막 방법만 알아봅니다.
-
-1. 서비스의 클러스터 IP 로 요청을 보내고 응답 로그를 남기는 파드를 생성해서 확인
-2. 쿠버네티스 노드로 `ssh` 접속 후 `curl` 명령
-3. `kubectl exec` 명령어로 기존 파드에서 `curl` 명령어 실행
-
-<br>
+`kubectl exec` 명령어를 사용해 파드 내에서 `curl` 명령어를 실행합니다.
 
 ```sh
 # kubia-5fdd95f6fd-bpxmt 는 app=kubia 인 파드
@@ -1210,11 +1241,11 @@ $ kubectl exec kubia-5fdd95f6fd-bpxmt -- curl -s http://10.96.6.96
 You've hit kubia-5fdd95f6fd-bpxmt
 ```
 
+<br>
+
 `--` (더블 대시) 는 명령어 옵션의 끝을 의미합니다.
 
 파드 내에서 실행할 명령어의 옵션과 헷갈리지 않으려면 더블 대시를 이용해 반드시 `kubectl exec` 명령어의 끝을 나타내고 이후 명령어를 입력해야합니다.
-
-위 명령어는 지정한 파드의 컨테이너에서 서비스의 IP 로 요청을 보내는 겁니다.
 
 서비스는 연결된 임의의 파드에게 요청을 전달하는데, 저는 하나의 파드만 떠있어서 같은 파드로 다시 요청이 돌아왔습니다.
 
@@ -1222,13 +1253,13 @@ You've hit kubia-5fdd95f6fd-bpxmt
 
 <br>
 
-### 5.2.3. 동일한 서비스에서 여러 개의 포트 노출 (멀티 포트 서비스)
+### 5.2.3. MultiPort: 동일한 서비스에서 여러 개의 포트 노출
 
-서비스는 여러 포트를 지원 가능합니다.
+한 서비스에서 여러 포트를 지원하는 것도 가능합니다.
 
 예를 들어 8080, 8443 포트인 파드 두개가 존재합니다.
 
-하나의 서비스로 80 -> 8080 파드, 443 -> 8443 파드 이렇게 요청 전달 가능합니다.
+하나의 서비스로 80 -> 8080 파드, 443 -> 8443 파드 이렇게 각각의 요청을 다른 포트의 파드로 전달 가능합니다.
 
 ```yml
 apiVersion: v1
@@ -1292,9 +1323,16 @@ spec:
 
 <br>
 
-## 5.3. 서비스 검색
+## 5.3. Service Discovery: 서비스 검색
 
-클라이언트가 서비스의 IP 와 포트를 알아내는 방법에는 여러 가지가 존재합니다.
+서비스를 생성하면 쿠버네티스는 서비스의 IP 와 Port 를 생성합니다.
+
+동적으로 생성되는 서비스의 IP 주소를 클라이언트는 어떻게 알 수 있을까요?
+
+**서비스의 IP 와 포트를 알아내는 것을 서비스 검색 (Service Discovery)** 이라고 하며 크게 두 가지 방법이 존재합니다.
+
+- 환경 변수를 통한 검색
+- DNS 를 이용한 검색 (추천)
 
 <br>
 
@@ -1347,13 +1385,23 @@ HOME=/root
 
 우리가 띄운 서비스의 정보를 알려면 `KUBIA_SERVICE_HOST` 와 `KUBIA_SERVICE_PORT` 정보를 확인하면 됩니다.
 
+서비스 정보는 `[서비스이름]_SERVICE_HOST|PORT` 의 형식이며 서비스 이름에 있는 dash(`-`) 는 underbar(`_`) 로 변경됩니다.
+
 <br>
 
 ### 5.3.2. DNS 를 통한 서비스 검색
 
-IP 대신 FQDN 으로 파드 내에서 서비스에 접근 할 수 있습니다.
+좀더 쉬운 방법은 IP 대신 DNS (FQDN) 로 파드 내에서 서비스에 접근 하는 겁니다.
 
-우선 `kubectl exec` 명령어를 사용해서 파드 내의 `bash` 를 실행행합니다.
+서비스가 생성되면 `[서비스이름].[네임스페이스].svc.cluster.local` 형태로 쿠버네티스 내부 DNS 에 등록이 됩니다.
+
+클러스터 내부에서는 이 DNS 를 사용해서 서비스에 접근 가능하며 이 때의 IP 는 외부 IP (External IP) 가 아니라 내부 IP (Cluster IP) 입니다.
+
+<br>
+
+DNS 를 통해 클러스터 내부에서 간단하게 요청해보겠습니다.
+
+우선 `kubectl exec` 명령어를 사용해서 파드 내의 `bash` 를 실행합니다.
 
 ```sh
 $ kubectl exec -it kubia-5fdd95f6fd-pgwd7 -- bash
@@ -1362,7 +1410,7 @@ root@kubia-5fdd95f6fd-pgwd7:/#
 
 <br>
 
-이제 컨테이너 내부에서 `curl` 명령어를 사용해서 kubia 서비스에 접근할 수 있습니다.
+컨테이너 내부에서 `curl` 명령어를 사용해서 kubia 서비스에 접근할 수 있습니다.
 
 ```sh
 # FQDN 으로 요청
@@ -1395,19 +1443,21 @@ options ndots:5
 
 <br>
 
-## 5.4. 클러스터 외부에 있는 서비스 연결
+## 5.4. ExternalName: 클러스터 외부에 있는 서비스 연결
 
 지금까지는 클러스터 내부에서 실행 중인 파드에서 서비스로 요청을 보냈습니다.
 
 하지만 클러스터 내부의 파드에서 외부에 있는 IP 에 요청을 보내고 싶을 수도 있습니다.
 
-여기서 한가지 헷갈리지 말아야 할 점은 "클러스터 내부 파드 -> 클러스터 내부 서비스 -> 외부 클러스터 서버" 가 가능하다는 점입니다.
 
-이 경우에 서비스 로드 밸런싱과 서비스 검색 모두 활용할 수 있습니다.
 
 <br>
 
 ### 5.4.1. 서비스 엔드포인트 소개
+
+서비스는 파드와 직접적으로 연결되어 있지 않습니다.
+
+중간에 엔드포인트라는 오브젝트가 존재하며 서비스는 엔드포인트 정보만을 갖고 있습니다.
 
 서비스의 엔드포인트는 연결된 파드의 IP 주소와 포트 목록입니다.
 
@@ -1447,7 +1497,7 @@ kubia   10.92.0.5:8080   25h
 
 ### 5.4.2. 서비스 엔드포인트 수동 구성
 
-원래 서비스를 생성하면 레이블 셀렉터에 의해 선택된 파드들이 자동으로 연결됩니다.
+원래 서비스를 생성하면 레이블 셀렉터에 의해 선택된 파드들에 대해 자동으로 엔드포인트가 생성됩니다.
 
 하지만 레이블 셀렉터 없이 수동으로 엔드포인트를 만들어서 연결해줄 수 있습니다.
 
@@ -1494,13 +1544,9 @@ subsets:  # 아래 정의된 ip, port 로 연결해줌
 
 ### 5.4.3. 외부 서비스를 위한 별칭 생성
 
-사실 위 방법보다 훨씬 간단한 방법이 있습니다.
+수동으로 엔드포인트를 작성하는 것보다 훨씬 편한 방법이 있습니다.
 
-클러스터 외부에도 서버만 존재하는게 아니라 서비스가 존재합니다.
-
-쿠버네티스 서비스가 아니더라도 일반적으로 서버는 DNS 를 통해 요청을 받습니다.
-
-이런 경우에 해당 FQDN 을 사용해서 외부 서비스에 요청하는 서비스를 만들 수 있습니다.
+서버의 IP 대신 DNS 를 사용한 ExternalName 서비스를 생성하면 됩니다.
 
 ```yaml
 apiVersion: v1
@@ -1509,12 +1555,24 @@ metadata:
   name: external-service
 spec:
   type: ExternalName  # 서비스 유형 설정
-  externalName: api.somecompany.com # 실제 서비스의 도메인 이름
+  externalName: api.somecompany.com # 외부 API 도메인
   ports:
   - port: 8080
 ```
 
+<br>
+
 이제 파드는 external-service 라는 이름으로 외부 서비스에 연결 가능합니다.
+
+ExternalName 서비스는 내부로 포워딩 하는 서비스 프록시를 완전히 무시하고 외부 서비스에 직접 연결하기 때문에 ClusterIP (내부 IP) 가 존재하지 않습니다.
+
+```sh
+$ kubectl get svc
+NAME               TYPE           CLUSTER-IP   EXTERNAL-IP           PORT(S)    AGE
+external-service   ExternalName   <none>       api.somecompany.com   8080/TCP   5s
+kubernetes         ClusterIP      10.96.0.1    <none>                443/TCP    37d
+kubia              ClusterIP      10.96.6.96   <none>                80/TCP     30h
+```
 
 <br>
 
@@ -1530,16 +1588,411 @@ spec:
 
 방법은 몇가지가 있습니다.
 
-1. 노드 포트로 서비스 유형 설정
-2. 서비스 유형을 노드포트 유형의 로드 밸런서로 설정
-3. 단일 IP 주소로 여러 서비스를 노출하는 인그레스 리소스 만들기
+1. NodePort: 노드 포트로 서비스 유형 설정
+2. LoadBalancer: 서비스 유형을 노드포트 유형의 로드 밸런서로 설정
+3. Ingress: 단일 IP 주소로 여러 서비스를 노출하는 인그레스 리소스 만들기
 
 <br>
 
-### 5.5.1. 노드포트 서비스 사용
+### 5.5.1. NodePort: 노드포트 서비스 사용
 
-파드 세트를 외부 클라이언트에 노출시키는 첫 번째 방법은 노드포트 타입의 서비스를 생성하는 겁니다.
+노드포트 서비스를 생성하면 쿠버네티스는 모든 노드에 동일한 특정 포트를 할당합니다.
 
-노드포트 서비스를 만들면 쿠버네티스는 모든 노드에 동일한 특정 포트를 할당합니다.
+외부에서는 각 클러스터 노드의 IP 와 할당된 포트로 접근할 수 있습니다.
 
-226p
+우선 노드포트 서비스를 정의합니다.
+
+<br>
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: kubia-nodeport
+spec:
+  type: NodePort  # NodePort 타입으로 지정
+  ports:
+  - port: 80  # 서비스 내부 Cluster IP 포트
+    targetPort: 8080  # 서비스 대상 파드 포트
+    nodePort: 30123 # 각 노드에 동일하게 할당할 포트 (30000 ~ 32767)
+  selector:
+    app: kubia
+```
+
+노드 포트는 30000 ~ 32767 사이의 숫자로 지정할 수 있으며 생략하면 쿠버네티스가 임의의 값으로 세팅해줍니다.
+
+이제 `kubectl apply` 로 실행 후 조회해봅시다.
+
+<br>
+
+```sh
+$ kubectl get svc
+NAME               TYPE           CLUSTER-IP     EXTERNAL-IP           PORT(S)        AGE
+kubia-nodeport     NodePort       10.96.12.136   <none>                80:30123/TCP   3s
+```
+
+NodePort 서비스를 생성하면 내부에서 접근 가능한 ClusterIP 서비스가 자동으로 생성됩니다.
+
+외부 클라이언트에서 클러스터 내부의 파드까지 요청이 전달되는 과정은 다음과 같습니다.
+
+1. 외부 클라이언트에서 각 `<노드 IP>:30123` 에 요청
+2. 노드에서 ClusterIP 서비스로 전달
+3. ClusterIP 에서 각 파드에 전달
+
+<br>
+
+![](images/screen_2022_01_11_11_31_50.png)
+
+<br>
+
+### 5.5.2. LoadBalancer: 외부 로드밸런서로 서비스 노출
+
+AWS, GCP, Azure 등에서 실행되는 쿠버네티스 클러스터는 일반적으로 클라우드 인프라에서 로드 밸런서를 자동으로 프로비저닝하는 기능을 제공합니다.
+
+노드포트 대신 서비스 타입을 로드밸런서로 설정하기만 하면 됩니다.
+
+로드밸런서는 공개적으로 접근 가능한 고유의 IP 주소를 가지며 모든 연결을 서비스로 전달합니다.
+
+로드밸런서 서비스는 노드포트 서비스의 확장이기 때문에 노드포트 서비스와 ClusterIP 서비스를 자동으로 생성합니다.
+
+<br>
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: kubia-loadbalancer
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 8080
+  selector:
+    app: kubia
+```
+
+로드밸런서 서비스의 디스크립터를 정의합니다.
+
+<br>
+
+```sh
+# 로드밸런서 서비스 조회
+$ kubectl get svc kubia-loadbalancer
+NAME                 TYPE           CLUSTER-IP    EXTERNAL-IP   PORT(S)        AGE
+kubia-loadbalancer   LoadBalancer   10.96.2.135   34.97.110.6   80:31309/TCP   54s
+
+# External IP 로 요청하면 성공한다
+$ curl http://34.97.110.6
+You've hit kubia-5fdd95f6fd-pgwd7
+```
+
+`curl` 요청은 다음 순서로 라우팅됩니다.
+
+1. 로드 밸런서에 요청 전달
+2. 로드 밸런서에서 임의의 노드포트로 라우팅
+3. 노드에서 ClusterIP 로 전달
+4. ClusterIP 에서 각 파드에 전달
+
+처음에도 언급했지만 로드밸런서 서비스는 노드포트 서비스의 확장입니다.
+
+라우팅 과정을 보면 알수있지만 로드밸런서 서비스는 노드포트 서비스에 전달하기만 하고 이후 과정은 노드포트 서비스와 동일합니다.
+
+로드밸런서 서비스가 생성될 때 노드포트 서비스도 생성되는데 서비스 정보를 보면 알수있듯이 이번에는 31309 포트가 할당된 것을 볼 수 있습니다.
+
+![](images/screen_2022_01_11_12_12_46.png)
+
+<br>
+
+### 5.5.3. 외부 연결의 특성 이해
+
+노드포트 서비스는 그 특성상 요청을 받는 노드와 파드가 다를 수 있습니다.
+
+쉽게 설명하자면 A 노드/파드, B 노드/파드가 존재한다고 가정합니다.
+
+노드포트에 의해 A 노드에 요청이 들어오지만 서비스를 통해서 다시 각 파드로 분배되기 때문에 실제 요청을 받는 파드는 B 파드가 될 수 있습니다.
+
+만약 요청을 받은 노드의 파드로 보내고 싶다면 서비스에서 `spec.externalTrafficPolicy: Local` 설정을 추가하면 됩니다.
+
+이 설정을 추가하면 현재 요청을 받은 노드에 속한 파드로만 요청이 전달됩니다.
+  
+- 장점
+  - 파드를 다른 노드에 전달하는 추가적인 네트워크 홉(Hop) 이 사라짐
+  - 네트워크 주소 변환 (SNAT) 이 발생하지 않아 클라이언트의 IP 가 보존됨
+- 단점`
+  - 로컬 파드가 존재하지 않는 경우 연결이 중단
+  - 파드에 대한 로드 밸런싱이 되지 않기 때문에 노드에 파드 수가 적은 경우 트래픽이 몰릴 수 있음
+
+![](images/screen_2022_01_11_12_29_01.png)
+
+<br>
+
+## 5.4. Ingress: 인그레스 리소스로 서비스 외부 노출
+
+![](images/screen_2022_01_11_22_56_35.png)
+
+로드밸런서는 IP 주소 하나당 서비스 하나만 연결하지만, 인그레스는 한 IP 주소로 여러 서비스에 접근 가능하게 해줍니다.
+
+인그레스는 HTTP/HTTPS 기반에서만 동작하는 L7 컴포넌트입니다.
+
+<br>
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kubia
+spec:
+  rules:
+  - host: kubia.example.com # 인그레스는 kubia.example.com 도메인 이름을 서비스에 매핑
+    http:
+      paths:
+      - path: / # 모든 요청을 kubia-nodeport 서비스의 포트 80 으로 전달
+        pathType: Prefix
+        backend:
+          service:
+            name: kubia-nodeport
+            port: 
+              number: 80
+```
+
+조금 생소한 스펙은 `pathType` 입니다.
+
+- `ImplementationSpecific`: 이 경로 유형의 일치 여부는 IngressClass에 따라 달라진다. 이를 구현할 때 별도 pathType 으로 처리하거나, Prefix 또는 Exact 경로 유형과 같이 동일하게 처리할 수 있다.
+- `Exact`: URL 경로의 대소문자를 엄격하게 일치시킨다.
+- `Prefix`: URL 경로의 접두사를 / 를 기준으로 분리한 값과 일치시킨다. 일치는 대소문자를 구분하고, 요소별로 경로 요소에 대해 수행한다. 모든 p 가 요청 경로의 요소별 접두사가 p 인 경우 요청은 p 경로에 일치한다.
+
+클라이언트가 `kubia.example.com` 으로 인그레서 컨트롤러에 HTTP 요청하면 `kubia-nodeport` 의 80 포트 서비스로 전달해줍니다.
+
+<br>
+
+```sh
+$ kubectl get ingress
+NAME    CLASS    HOSTS               ADDRESS         PORTS   AGE
+kubia   <none>   kubia.example.com   34.149.155.46   80      41m
+```
+
+인그레스가 성공적으로 생성된 것을 확인할 수 있습니다.
+
+<br>
+
+로컬에서 테스트하기 위해선 `/etc/hosts` 에 IP 를 도메인에 매핑시키면 브라우저에서 curl 을 사용해서 서비스에 액세스 할 수 있습니다.
+
+```sh
+# vi /etc/hosts
+34.149.155.46 kubia.example.com
+
+# 서비스에 요청
+$ curl http://kubia.example.com
+You've hit kubia-5fdd95f6fd-pgwd7
+```
+
+<br>
+
+### 5.4.1. 인그레스로동작 방식
+
+![](images/screen_2022_01_12_01_19_56.png)
+
+1. 클라이언트는 DNS 서버에서 `kubia.example.com` 의 IP 를 가져옴
+2. 클라이언트는 인그레스 컨트롤러 IP 에 `Host: kubia.example.com` 헤더를 추가하여 요청
+3. 인그레스 컨트롤러는 헤더를 보고 인그레스를 통해 일치하는 **서비스에서 엔드포인트를 통해 파드의 정보를 받아옴**
+4. 인그레스 컨트롤러는 받아온 파드에 요청을 전달
+
+위 순서를 잘 보면 알수 있지만 인그레스 컨트롤러는 인그레스나 서비스로 요청을 넘기는게 아니라 파드의 정보만 얻어오는 데 사용합니다.
+
+그리고 인그레스 컨트롤러에서 파드로 직접 요청을 전달해줍니다.
+
+<br>
+
+### 5.4.2. 하나의 인그레스로 여러 서비스 노출
+
+인그레스를 사용하면 동일한 호스트의 여러 경로로 매핑할 수 있습니다.
+
+```yaml
+spec:
+  rules:
+  - host: kubia.example.com
+    http:
+      paths:
+      - path: /kubia  # kubia.example.com/kubia 로의 요청을 라우팅
+        pathType: Prefix
+        backend:
+          service:
+            name: kubia-nodeport
+            port: 
+              number: 80
+      - path: /bar  # kubia.example.com/bar 로의 요청을 라우팅
+        pathType: Prefix
+        backend:
+          service:
+            name: bar
+            port:
+              number: 80
+```
+
+<br>
+
+서로 다른 호스트로 다른 서비스에 매핑시켜줄 수도 있습니다.
+
+이 경우에는 두 DNS 모두 인그레스 컨트롤러의 IP 주소로 매핑시켜야 합니다.
+
+```yaml
+spec:
+  rules:
+  - host: foo.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: foo
+            port: 
+              number: 80
+    - host: bar.example.com
+      http:
+        paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: bar
+              port:
+                number: 80
+```
+
+<br>
+
+## 5.5. Readness probe: 파드가 연결을 수락할 준비가 됐을 때 신호 보내기
+
+4장에서는 파드의 상태를 지속적으로 확인하는 라이브니스 프로브 (Liveness Probe) 에 대해서 학습했습니다.
+
+이와 비슷하게 파드가 요청을 받을 준비가 되었는지 지속적으로 확인하는 레디니스 프로브 (Readiness Probe) 가 존재합니다.
+
+라이브니스 프로브는 파드가 죽은 경우를 대비해서 헬스 체크 하는 느낌이라면 레디니스 프로브는 아직 **파드 구성에 시간이 걸리거나 데이터 로드하는 시간이 오래 걸려서 요청을 받을 준비가 안된 경우를 파악**하기 위한 목적이 큽니다.
+
+레디니스 프로브는 간단한 GET 요청으로 확인할 수도 있고 전체적인 항목을 검사할 수도 있는데 이건 사용자가 작성하기에 따라 달라집니다.
+
+<br>
+
+### 5.5.1. 레디니스 프로브의 동작
+
+레디니스 프로브는 라이브니스 프로브와 다르게 파드가 준비되지 않았다고 해서 삭제하지 않습니다.
+
+단지 엔드포인트에서만 제거할 뿐이고, 이후에도 확인해서 파드가 준비되었다면 다시 엔드포인트에 추가합니다.
+
+![](images/screen_2022_01_12_02_42_50.png)
+
+<br>
+
+### 5.5.2. 파드에 레디니스 프로브 추가
+
+```yaml
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: kubia
+spec:
+  replicas: 3
+  selector:
+    app: kubia
+  template:
+    metadata:
+      labels:
+        app: kubia
+    spec:
+      containers:
+      - name: kubia
+        image: bcp0109/kubia
+        ports:
+        - name: http
+          containerPort: 8080
+        readinessProbe: # 파드의 컨테이너 별로 레디니스 프로브 정의 가능
+          exec:
+            command:
+            - ls
+            - /var/ready
+```
+
+레디니스 프로브는 컨테이너 내부에서 `ls /var/ready` 명령어를 주기적으로 수행합니다.
+
+`ls` 명령어는 파일이 존재하면 종료 코드 0 을 반환하고 아니면 다른 값을 반환합니다.
+
+파일이 존재하면 레디니스 프로브가 성공하고 아니면 실패합니다.
+
+<br>
+
+### 5.5.3. 레디니스 상태 확인
+
+```sh
+$ kubectl get po
+NAME                     READY   STATUS    RESTARTS   AGE
+kubia-bnwfb              0/1     Running   0          3m48s
+kubia-lwdjf              0/1     Running   0          3m48s
+kubia-qfckx              0/1     Running   0          3m48s
+```
+
+파드를 조회 후 READY 열을 보면 `0/1` 로 되어 있습니다.
+
+아직 준비된 컨테이너가 없다는 뜻이므로 파드 하나에 `/var/ready` 파일을 만들어서 레디니스 프로브를 성공시켜줍니다.
+
+<br>
+
+```sh
+# 파드 하나에 파일 생성
+$ kubectl exec kubia-bnwfb -- touch /var/ready
+
+# 파드 조회
+$ kubectl get po
+NAME                     READY   STATUS    RESTARTS   AGE
+kubia-bnwfb              1/1     Running   0          5m47s
+kubia-lwdjf              0/1     Running   0          5m47s
+kubia-qfckx              0/1     Running   0          5m47s
+```
+
+레디니스 프로브가 성공하여 파드가 정상적으로 준비된 것을 확인할 수 있습니다.
+
+<br>
+
+### 5.5.4. 준비된 파드 요청
+
+```sh
+# 파드의 IP 확인
+$ kubectl get po -o wide
+NAME                     READY   STATUS    RESTARTS   AGE   IP           NODE                                   NOMINATED NODE   READINESS GATES
+kubia-5fdd95f6fd-pgwd7   1/1     Running   0          46h   10.92.0.5    gke-kubia-default-pool-90ff6c74-h08l   <none>           <none>
+kubia-bnwfb              1/1     Running   0          10m   10.92.2.9    gke-kubia-default-pool-90ff6c74-4n8b   <none>           1/1
+kubia-lwdjf              0/1     Running   0          10m   10.92.2.10   gke-kubia-default-pool-90ff6c74-4n8b   <none>           1/1
+kubia-qfckx              0/1     Running   0          10m   10.92.1.5    gke-kubia-default-pool-90ff6c74-k0k4   <none>           1/1
+
+# 엔드포인트에 준비된 파드들만 추가되었는지 확인
+$ kubectl get endpoints kubia-loadbalancer
+NAME                 ENDPOINTS                       AGE
+kubia-loadbalancer   10.92.0.5:8080,10.92.2.9:8080   14h
+
+# 해당 서비스의 External IP 확인
+$ kubectl get svc kubia-loadbalancer
+NAME                 TYPE           CLUSTER-IP    EXTERNAL-IP   PORT(S)        AGE
+kubia-loadbalancer   LoadBalancer   10.96.2.135   34.97.110.6   80:31309/TCP   14h
+
+# HTTP 요청 파드에 전달
+$ curl http://34.97.110.6
+You've hit kubia-bnwfb
+```
+
+이전에 만들어둔 kubia-loadbalancer 서비스를 통해 테스트 해봤습니다.
+
+curl 명령어를 반복해서 날려도 endpoints 에 추가된 파드들에만 응답이 올겁니다.
+
+<br>
+
+### 5.5.5. 레디니스 프로브의 중요성
+
+레디니스 프로브느 항상 정의해두는게 좋습니다.
+
+레디니스 프로브가 없다면 파드는 시작하는 즉시 서비스 엔드포인트에 포함되는데, 파드가 구성되는 시간이 오래 걸린다면 클라이언트는 잘못된 응답을 받게 됩니다.
+
+<br>
+
+## 5.6. Headless Service: 헤드리스 서비스로 개별 파드 찾기
+
+252p

@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: kubia
+spec:
+  replicas: 3
+  selector:
+    app: kubia
+  template:
+    metadata:
+      labels:
+        app: kubia
+    spec:
+      containers:
+      - name: kubia
+        image: bcp0109/kubia
+        ports:
+        - name: http
+          containerPort: 8080
+        readinessProbe: # 파드의 컨테이너 별로 레디니스 프로브 정의 가능
+          exec:
+            command:
+            - ls
+            - /var/ready
