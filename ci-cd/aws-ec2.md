@@ -665,3 +665,67 @@ RDS 인스턴스로 이동해서 "수정" 버튼을 클릭합니다.
 <br>
 
 ![](images/screen_2022_01_17_04_20_08.png)
+
+<br>
+
+# 9. EC2 인스턴스에 Spring Boot 서버 띄우기
+
+배포 시스템 이런거 생략하고 진짜 단순하게 서버 띄우는 것만 확인해봅니다.
+
+가장 간단한 방법은 두가지가 있는데 1번으로 진행하겠습니다.
+
+1. jar 파일을 빌드하여 EC2 복사 후 실행
+2. EC2 에서 프로젝트 git clone 후 실행
+
+<br>
+
+## 9.1. JDK 설치
+
+```sh
+# EC2 인스턴스
+$ sudo apt-get update
+$ sudo apt-get install openjdk-11-jdk
+```
+
+`java -version` 으로 명령어로 설치 여부를 확인할 수 있습니다.
+
+<br>
+
+## 9.2. Spring Boot 프로젝트 빌드
+
+```sh
+# 프로젝트 파일로 이동 후
+$ gradle clean build
+
+BUILD SUCCESSFUL in 5s
+17 actionable tasks: 10 executed, 7 up-to-date
+
+
+# 빌드 파일 복사
+$ scp ./build/libs/api-0.0.1-SNAPSHOT.jar [호스트 이름]:/home/ubuntu
+```
+
+프로젝트를 빌드하면 `./build/libs` 디렉토리에 jar 파일이 생성됩니다.
+
+해당 파일을 EC2 서버로 복사합니다.
+
+호스트 이름에는 `ubuntu@[퍼블릭 IP]` 또는 `ubuntu@[퍼블릭 DNS]` 가 들어가야 하는데 만약 `~/.ssh/config` 에 호스트 이름을 등록해두었다면 간소화된 이름을 사용할 수 있습니다.
+
+퍼블릭 IP (탄력적 IP) 또는 퍼블릭 DNS 를 그대로 사용한다면 키 페어 파일 (.pem) 이 명령어를 사용하는 위치에 존재해야 합니다.
+
+<br>
+
+## 9.3. EC2 인스턴스에서 실행
+
+```sh
+# EC2 인스턴스
+$ nohup java -jar api-0.0.1-SNAPSHOT.jar &
+```
+
+`nohup` 명령어를 사용하면 로그를 `nohup.out` 파일에 남길 수 있습니다.
+
+<br>
+
+## 9.4. 퍼블릭 IP 또는 DNS 로 접근 확인
+
+http://[탄력적 IP]:8080 으로 접속하면 정상적으로 서버에 연결이 되는 걸 볼 수 있습니다.
