@@ -248,7 +248,7 @@ $ ssh -i "my-key.pem" ubuntu@3.37.206.248
 
 이제 우리는 SSH 로 EC2 인스턴스 서버에 접속할 수 있습니다.
 
-하지만 위에서 본 것처럼 매번 `ssh -i [키 페어 파일] [ubuntu]@[탄력적 IP]` 를 입력해야 합니다.
+하지만 위에서 본 것처럼 매번 `ssh -i {키 페어 파일} {ubuntu}@{탄력적 IP}` 를 입력해야 합니다.
 
 일일히 기억하기도 귀찮고 타이핑도 번거롭기 때문에 호스트로 등록해서 쉽게 접속할 수 있도록 변경해봅시다.
 
@@ -288,11 +288,11 @@ User 는 우분투를 선택했다면 ubuntu 고 그 외에는 전부 ec2-user �
 $ vi ~/.ssh/config
 
 # 아래는 파일 내용
-# ssh -i [키 페어 파일] [유저 이름]@[탄력적 IP]
-Host [원하는 호스트 이름]
-User [유저 이름]
-HostName [탄력적 IP]
-IdentityFile [키 페어 파일 위치]
+# ssh -i {키 페어 파일} {유저 이름}@{탄력적 IP}
+Host {원하는 호스트 이름}
+User {유저 이름}
+HostName {탄력적 IP}
+IdentityFile {키 페어 파일 위치}
 ```
 
 <br>
@@ -447,14 +447,14 @@ BUILD SUCCESSFUL in 5s
 
 
 # 빌드 파일 복사
-$ scp ./build/libs/api-0.0.1-SNAPSHOT.jar [호스트 이름]:/home/ubuntu
+$ scp ./build/libs/api-0.0.1-SNAPSHOT.jar {호스트 이름}:/home/ubuntu
 ```
 
 프로젝트를 빌드하면 `./build/libs` 디렉토리에 jar 파일이 생성됩니다.
 
 해당 파일을 EC2 서버로 복사합니다.
 
-호스트 이름에는 `ubuntu@[퍼블릭 IP]` 또는 `ubuntu@[퍼블릭 DNS]` 가 들어가야 하는데 만약 `~/.ssh/config` 에 호스트 이름을 등록해두었다면 간소화된 이름을 사용할 수 있습니다.
+호스트 이름에는 `ubuntu@{퍼블릭 IP}` 또는 `ubuntu@{퍼블릭 DNS}` 가 들어가야 하는데 만약 `~/.ssh/config` 에 호스트 이름을 등록해두었다면 간소화된 이름을 사용할 수 있습니다.
 
 퍼블릭 IP (탄력적 IP) 또는 퍼블릭 DNS 를 그대로 사용한다면 키 페어 파일 (.pem) 이 명령어를 사용하는 위치에 존재해야 합니다.
 
@@ -473,7 +473,7 @@ $ nohup java -jar api-0.0.1-SNAPSHOT.jar &
 
 ## 5.4. 퍼블릭 IP 또는 DNS 로 접근 확인
 
-http://[로 접속하면 정상적으로 서버에 연결이 되는 걸 볼 수 있습니다.
+`http://{탄력적 IP}`로 접속하면 정상적으로 서버에 연결이 되는 걸 볼 수 있습니다.
 
 <br>
 
