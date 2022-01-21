@@ -1,4 +1,4 @@
-# nohup 으로 백그라운드에서 프로세스 실행
+# nohup 으로 로그 남기면서 종료되지 않는 프로세스 실행
 
 # Overview
 
@@ -13,6 +13,8 @@ $ java -jar my-app.jar &
 하지만 위 명령어대로 하면 애플리케이션의 로그를 볼 수 없습니다.
 
 따라서 `nohup` 을 사용합니다.
+
+`nohup` 에 대한 자세한 설명과 & 와의 차이점은 https://joonyon.tistory.com/98 에 잘 정리되어 있습니다!
 
 <br>
 
@@ -54,3 +56,9 @@ $ bg
 $ jobs
 [1]+  Running                 nohup java -jar my-app.jar &
 ```
+
+<br>
+
+# Reference
+
+- [린아저씨의 잡학사전 - 쉽게 설명한 nohup 과 &(백그라운드) 명령어 사용법](https://joonyon.tistory.com/98)
