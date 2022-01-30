@@ -268,4 +268,4 @@ Collection 은 매번 List 를 반환하기 때문에 이미 연산됨
 # Reference
 
 - [Sequences by Kotlin Reference](https://kotlinlang.org/docs/sequences.html)
-- [Kotlin - Collections와 Sequences 의 차이점 by codechacha](https://kotlinlang.org/docs/sequences.html)
+- [Kotlin - Collections와 Sequences 의 차이점 by codechacha](https://codechacha.com/ko/kotlin-sequences/)
