@@ -1,4 +1,4 @@
-# Java 에서의 Call by Value, Call by Reference
+# Java 의 Call by Value, Call by Reference
 
 # Overview
 
@@ -62,9 +62,9 @@ Java 에서 변수를 선언하면 Stack 영역에 할당됩니다.
 
 <br>
 
-![](images/screen_2022_01_30_20_51_33.png)
+<img src="https://raw.githubusercontent.com/ParkJiwoon/PrivateStudy/master/java/images/screen_2022_01_30_20_51_33.png">
 
-그림으로 표현하면 이렇
+그림으로 표현하면 이렇습니다.
 
 원시 타입, 참조 타입을 생성할 때마다 동일한 방식으로 메모리에 할당됩니다.
 
@@ -118,7 +118,7 @@ public class PrimitiveTypeTest {
 
 <br>
 
-![](images/screen_2022_01_30_22_01_33.png)
+<img src="https://raw.githubusercontent.com/ParkJiwoon/PrivateStudy/master/java/images/screen_2022_01_30_22_01_33.png">
 
 그림으로 보면 한눈에 이해가기 쉽습니다.
 
@@ -197,7 +197,7 @@ public class ReferenceTypeTest {
 
 ## 5.1. 처음 변수 선언 시 메모리 상태
 
-![](images/screen_2022_01_30_22_44_00.png)
+<img src="https://raw.githubusercontent.com/ParkJiwoon/PrivateStudy/master/java/images/screen_2022_01_30_22_44_00.png">
 
 원시 타입과는 다르게 변수만 Stack 영역에 생성되고 실제 객체는 Heap 영역에 생성됩니다.
 
@@ -207,7 +207,7 @@ public class ReferenceTypeTest {
 
 ## 5.2. modify(a, b) 호출 시점의 메모리 상태
 
-![](images/screen_2022_01_30_22_50_06.png)
+<img src="https://raw.githubusercontent.com/ParkJiwoon/PrivateStudy/master/java/images/screen_2022_01_30_22_50_06.png">
 
 넘겨받은 파라미터는 Stack 영역에 생성되고 넘겨받은 주소값을 똑같이 바라봅니다.
 
@@ -215,7 +215,7 @@ public class ReferenceTypeTest {
 
 ## 5.3. modify(a, b) 수행 직후 메모리 상태
 
-![](images/screen_2022_01_30_23_12_16.png)
+<img src="https://raw.githubusercontent.com/ParkJiwoon/PrivateStudy/master/java/images/screen_2022_01_30_23_12_16.png">
 
 `test()` 영역과 `modify()` 영역에 존재하는 `a` 라는 변수들은 같은 객체인 `User01` 을 바라보고 있기 때문에 객체를 공유합니다.
 
@@ -227,7 +227,7 @@ public class ReferenceTypeTest {
 
 ## 5.4. test() 끝난 후 최종 메모리 상태
 
-![](images/screen_2022_01_30_23_15_36.png)
+<img src="https://raw.githubusercontent.com/ParkJiwoon/PrivateStudy/master/java/images/screen_2022_01_30_23_15_36.png">
 
 `modify(a, b)` 메서드를 빠져나오면 Stack 영역에 할당된 변수들은 사라집니다.
 
