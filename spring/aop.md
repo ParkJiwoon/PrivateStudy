@@ -261,6 +261,369 @@ JDK 동적 프록시는 인터페이스가 필수입니다.
 
 그래서 클래스만 있는 경우에 프록시를 생성해주는 CGLIB 라는 오픈소스를 사용합니다.
 
+<br>
+
+## 2. CGLIB: Code Generator Library
+
+CGLIB 는 바이트코드를 조작해서 동적으로 클래스를 생성하는 라이브러리입니다.
+
+CGLIB 를 사용하면 인터페이스 없이 구체 클래스만으로 동적 프록시를 만들어낼 수 있습니다.
+
+CGLIB 는 원래 외부 라이브러리지만 스프링 프레임워크가 스프링 내부 소스 코드에 포함해서 스프링에서는 별도 라이브러리를 추가하지 않아도 사용할 수 있습니다.
+
+<br>
+
+### ConcreteService
+
+```java
+public class ConcreteService {
+
+    public void call() {
+        System.out.println("ConcreteService 호출");
+    }
+}
+```
+
+비즈니스 로직을 가진 구체 클래스를 정의합니다.
+
+JDK 동적 프록시와 달리 인터페이스가 없어도 됩니다.
+
+<br>
+
+### MethodInterceptor
+
+```java
+public interface MethodInterceptor extends Callback {
+
+    /**
+     * CGLIB 에서 사용하는 Interceptor
+     *
+     * @param obj           CGLIB 가 적용된 객체
+     * @param method        호출한 메서드
+     * @param args          메서드를 호출할 때 전달한 파라미터
+     * @param proxy         메서드 호출에 사용
+     * @return              메서드 호출 결과
+     * @throws Throwable    발생 가능한 예외
+     */
+    Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable;
+}
+```
+
+JDK 동적 프록시가 `InvocationHandler` 를 제공했다면 CGLIB 는 `MethodInterceptor` 를 제공합니다.
+
+`org.springframework.cglib.proxy.MethodInterceptor` 에서 제공해주기 때문에 구현체만 만들어주면 됩니다.
+
+<br>
+
+### TimeMethodInterceptor
+
+```java
+public class TimeMethodInterceptor implements MethodInterceptor {
+
+    private static final Logger log = LoggerFactory.getLogger(TimeMethodInterceptor.class);
+    private final Object target;
+
+    public TimeMethodInterceptor(Object target) {
+        this.target = target;
+    }
+
+    @Override
+    public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
+        log.info("TimeProxy 실행");
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+
+        // method.invoke(target, args) 를 사용해도 되지만
+        // CGLIB 는 성능상 proxy 에서 호출하는 것을 권장함
+        Object result = proxy.invoke(target, args);
+
+        stopWatch.stop();
+        log.info("TimeProxy 종료 resultTime={}", stopWatch.getTotalTimeMillis());
+        return result;
+    }
+}
+```
+
+JDK 동적 프록시와 동일하게 시간을 측정하는 로직을 추가합니다.
+
+코드 구조는 이전과 크게 다를게 없습니다.
+
+다만 주석에 나와있는대로 `method.invoke()` 대신 `proxy.invoke()` 를 사용하는게 권장됩니다.
+
+<br>
+
+### CGLIB 테스트 코드
+
+```java
+// 비즈니스 로직을 가진 타겟
+ConcreteService target = new ConcreteService();
+
+// CGLIB 에서 프록시를 생성하기 위하 제공하는 객체
+Enhancer enhancer = new Enhancer();
+
+// CGLIB 는 구체 클래스를 상속 받아서 프록시 생성. 상속받을 SuperClass 설정
+enhancer.setSuperclass(ConcreteService.class);
+
+// 프록시에 적용할 공통 로직 (MethodInterceptor 가 Callback 을 상속받음)
+enhancer.setCallback(new TimeMethodInterceptor(target));
+
+ConcreteService proxy = (ConcreteService) enhancer.create();
+
+proxy.call();
+```
+
+실제 코드는 적지만 주석 때문에 조금 길어졌습니다.
+
+CGLIB 는 프록시 생성을 위한 `Enhancer` 를 제공합니다.
+
+SuperClass (비즈니스 로직) 와 Callback (공통 로직) 을 세팅하고 객체를 생성한 후에 호출하면 됩니다.
+
+<br>
+
+![](images/screen_2022_02_14_01_04_40.png)
+
+그림으로 나타내면 위와 같습니다.
+
+<br>
+
+### CGLIB 제약
+
+클래스 기반 프록시는 상속을 사용하기 때문에 몇가지 제약이 있습니다.
+
+- `ConcreteService` 에 기본 생성자가 필요 (자식 클래스를 동적으로 생성하기 위해)
+- 클래스에 `final` 키워드가 없어야함 (상속을 위해)
+- 메서드에 `final` 키워드가 없어야 함 (오버라이딩을 위해)
+
+<br>
+
+# 프록시 팩토리 (ProxyFactory)
+
+지금까지 JDK 동적 프록시와 CGLIB 프록시를 사용해서 인터페이스가 있을 때와 없을 때 각각 프록시를 동적으로 생성하는 방법을 알아보았습니다.
+
+각 케이스에 맞게 `InvocationHandler` 와 `MethodInterceptor` 를 개발자가 만들어야 한다면 귀찮을 겁니다.
+
+스프링에서는 둘을 통합해서 편리하게 만들어주는 `ProxyFactory` 를 제공합니다.
+
+<br>
+
+![](images/screen_2022_02_14_01_21_12.png)
+
+프록시 팩토리는 인터페이스가 있으면 JDK 동적 프록시를 사용하고 구체 클래스만 있으면 CGLIB 를 사용하며, 옵션으로 한 가지 방법만 사용하도록 설정할 수도 있습니다.
+
+<br>
+
+## 1. Advice
+
+JDK 동적 프록시는 `InvocationHandler` 를 사용하고 CGLIB 는 `MethodInterceptor` 를 사용합니다.
+
+프록시 팩토리가 상황에 맞게 프록시를 생성하려면 두 개를 모두 구현해야 합니다.
+
+스프링은 이 문제를 해결하기 위해 부가 기능을 공통화한 `Advice` 라는 개념을 도입했습니다.
+
+<br>
+
+![](images/screen_2022_02_14_01_30_52.png)
+
+어떤 프록시에서든 `Advice` 가 호출되어 공통된 로직이 적용됩니다.
+
+이전에는 각 Handler 또는 Interceptor 에 공통로직을 직접 구현했지만 이제는 `Advice` 에게 위임할 뿐입니다.
+
+<br>
+
+### MethodInterceptor
+
+```java
+public interface MethodInterceptor extends Interceptor {
+
+    /**
+     * Advice 구현을 위한 인터페이스
+     *
+     * @param invocation    메서드 정보, 현재 프록시 객체, 파라미터 등이 포함되어 있음
+     * @return              프록시 호출 결과
+     * @throws Throwable    발생 가능한 예외
+     */
+    Object invoke(MethodInvocation invocation) throws Throwable;
+}
+```
+
+`Advice` 를 만들기 위해 구현해야 하는 인터셉터입니다.
+
+CGLIB 에서 사용한 인터페이스와 이름이 같지만 이 인터페이스는 `org.aopalliance.intercept` 에서 제공하기 때문에 헷갈리지 말아야 합니다.
+
+<br>
+
+### TimeAdvice
+
+```java
+public class TimeAdvice implements MethodInterceptor {
+
+    private static final Logger log = LoggerFactory.getLogger(TimeAdvice.class);
+
+    @Override
+    public Object invoke(MethodInvocation invocation) throws Throwable {
+        log.info("TimeProxy 실행");
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+
+        Object result = invocation.proceed();
+
+        stopWatch.stop();
+        log.info("TimeProxy 종료 resultTime={}", stopWatch.getTotalTimeMillis());
+        return result;
+    }
+}
+```
+
+`Advice` 에서 타겟 메서드 호출은 단순합니다.
+
+`invocation.proceed()` 만 호출하면 결과를 알아서 전달해줍니다.
+
+<br>
+
+### Advice 테스트
+
+```java
+ConcreteService target = new ConcreteService();
+
+// target 인스턴스 정보로 프록시 생성 (인터페이스 존재 - JDK, 구체 클래스만 존재 - CGLIB)
+ProxyFactory proxyFactory = new ProxyFactory(target);
+// proxyFactory.setProxyTargetClass(true);
+
+// 프록시가 사용할 부가 기능 추가
+proxyFactory.addAdvice(new TimeAdvice());
+
+ConcreteService proxy = (ConcreteService) proxyFactory.getProxy();
+proxy.call();
+
+assertThat(AopUtils.isAopProxy(proxy)).isTrue();
+assertThat(AopUtils.isJdkDynamicProxy(proxy)).isFalse();
+assertThat(AopUtils.isCglibProxy(proxy)).isTrue();
+```
+
+위에서 사용했던 `ConcreteService` 를 재활용합니다.
+
+`ProxyFactory` 는 생성자 파라미터로 받는 `target` 객체의 정보를 갖고 프록시 생성 정책을 결정합니다.
+
+구체 클래스로 선언했어도 상위 인터페이스가 존재한다면 JDK 동적 프록시로 생성합니다.
+
+`addAdvice` 로 원하는 Advice (부가 기능) 을 추가하고 프록시를 생성하여 호출할 수 있습니다.
+
+주석 처리된 `setProxyTargetClass` 옵션을 `true` 로 주면 인터페이스가 존재해도 항상 CGLIB 로 프록시를 생성합니다.
+
+<br>
+
+## 2. Advisor (and Pointcut)
+
+**Advisor** 는 **어디(Pointcut)** 에 **부가 기능(Advice)** 을 추가할 지 갖고 있습니다.
+
+- PointCut
+  - 어디에 부가 기능을 적용할지 판단하는 필터링 로직
+  - 클래스와 메서드 이름으로 필터링
+- Advice
+  - 프록시가 호출하는 부가 기능
+- Advisor
+  - 포인트컷 1 + 어드바이스 1
+
+<br>
+
+### StoreService
+
+```java
+public class StoreService {
+
+    public void find() {
+        System.out.println("StoreService - find 호출");
+    }
+
+    public void save() {
+        System.out.println("StoreService - save 호출");
+    }
+}
+```
+
+Advisor 를 적용하기 위한 예제 클래스를 하나 생성한비다.
+
+<br>
+
+### Advisor 적용
+
+```java
+StoreService target = new StoreService();
+
+ProxyFactory proxyFactory = new ProxyFactory(target);
+
+// 스프링에서 제공하는 포인트컷으로 save 메서드에만 프록시 적용
+NameMatchMethodPointcut pointcut = new NameMatchMethodPointcut();
+pointcut.setMappedNames("save");
+
+// 생성자를 통해 하나의 포인트컷과 하나의 어드바이스를 넣어주면 됨
+DefaultPointcutAdvisor advisor = new DefaultPointcutAdvisor(pointcut, new TimeAdvice());
+proxyFactory.addAdvisor(advisor);
+
+// 프록시 객체 생성
+StoreService proxy = (StoreService) proxyFactory.getProxy();
+
+// 프록시 호출
+proxy.save();
+proxy.find();
+```
+
+스프링에서는 포인트컷을 쉽게 생성하는 방법을 제공합니다.
+
+포인트컷과 어드바이스를 사용해서 어드바이저를 생성하고 나면 프록시 팩토리에 추가합니다.
+
+이제 프록시 객체를 생성해서 각각 메서드를 호출하면 `save()` 메서드에만 프록시가 적용된 걸 볼 수 있습니다.
+
+<br>
+
+![](images/screen_2022_02_14_03_00_53.png)
+
+실제 동작은 위 그림과 같습니다.
+
+<br>
+
+### 여러 개의 Advisor 적용
+
+```java
+// advisor 두개 생성
+DefaultPointcutAdvisor advisor1 = new DefaultPointcutAdvisor(Pointcut.TRUE, new Advice1());
+DefaultPointcutAdvisor advisor2 = new DefaultPointcutAdvisor(Pointcut.TRUE, new Advice2());
+
+ServiceInterface target = new ServiceImpl();
+ProxyFactory proxyFactory = new ProxyFactory(target);
+
+// advisor 를 추가한 순서대로 실행됨
+proxyFactory.addAdvisor(advisor1);
+proxyFactory.addAdvisor(advisor2);
+ServiceInterface proxy = (ServiceInterface) proxyFactory.getProxy();
+
+// 실행
+proxy.call();
+```
+
+한 프록시에 여러 개의 부가 기능을 추가하고 싶다면 어드바이저를 여러개 만들면 됩니다.
+
+추가된 어드바이저는 순서대로 실행됩니다.
+
+위 코드는 `client -> proxy -> advisor1 -> advisor2 -> target` 순서대로 호출됩니다.
+
+우리가 한 객체에 여러 개의 프록시를 적용해도 프록시 객체는 오직 하나만 만들어지며 어드바이저가 여러개 적용된겁니다.
+
+<br>
+
+## 3. ProxyFactory 제약
+
+프록시 팩토리 덕분에 대상 객체를 신경쓰지 않고 편리하게 프록시를 생성할 수 있습니다.
+
+추가로 Advice, Pointcut, Advisor 라는 개념 덕분에 어디에 어떤 부가 기능을 적용할지도 편리하게 설정 가능합니다.
+
+하지만 프록시 팩토리만으로는 아직 문제가 있습니다.
+
+- `Bean` Config 파일이 너무 많아짐
+- 프록시 팩토리로 프록시를 생성해야 하기 때문에 컴포넌트 스캔 활용이 불가능함. 전부 Config 파일에 정의해야함
+
+<br>
+
 
 
 <br>
