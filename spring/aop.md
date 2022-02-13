@@ -121,6 +121,146 @@ Object result = method.invoke(target);
 
 ## 2. JDK 동적 프록시
 
+위에서 알아본 자바의 리플렉션을 활용해서 런타임에 동적으로 프록시를 만들어주는 기술입니다.
+
+JDK 동적 프록시는 인터페이스를 기반으로 만들어주기 때문에 꼭 인터페이스를 만들어야 합니다.
+
+우선 `SampleInterface` 와 이를 구현하는 `SampleImpl` 을 만듭니다.
+
+<br>
+
+### SampleInterface, SampleImpl
+
+```java
+// interface
+public interface SampleInterface {
+    void foo();
+}
+
+// impl
+public class SampleImpl implements SampleInterface {
+
+    @Override
+    public void foo() {
+        System.out.println("Foo 메서드 호출");
+    }
+}
+```
+
+가장 단순한 메서드 `foo()` 하나만 선언합니다.
+
+이제 JDK 동적 프록시를 적용해야 합니다.
+
+<br>
+
+### InvocationHandler
+
+```java
+public interface InvocationHandler {
+
+    /**
+     * JDK 동적 프록시가 제공하는 Handler
+     *
+     * @param proxy         프록시 자신
+     * @param method        호출한 메서드
+     * @param args          메서드를 호출할 때 전달한 파라미터
+     * @return              메서드 호출 결과
+     * @throws Throwable    발생 가능한 예외
+     */
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable;
+}
+```
+
+자바 리플렉션 패키지 `java.lang.reflect.InvocationHandler` 에서 제공하는 인터페이스입니다.
+
+JDK 동적 프록시가 제공하는 `InvocationHandler` 를 구현하는 Handler 를 하나 만들어야 합니다.
+
+<br>
+
+### TimeInvocationHandler
+
+```java
+public class TimeInvocationHandler implements InvocationHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(TimeInvocationHandler.class);
+
+    // 동적 프록시가 호출할 대상
+    private final Object target;
+
+    public TimeInvocationHandler(Object target) {
+        this.target = target;
+    }
+
+    @Override
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        log.info("TimeProxy 실행");
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+
+        // 비즈니스 로직
+        Object result = method.invoke(target, args);
+
+        stopWatch.stop();
+        log.info("TimeProxy 종료 resultTime={}", stopWatch.getTotalTimeMillis());
+        return result;
+    }
+}
+```
+
+외부에서 메서드를 호출할 객체 `target` 을 받습니다.
+
+그리고 `method.invoke(target, args)` 를 통해 원하는 메서드를 대신 호출합니다.
+
+호출하는 메서드 전후로 원하는 로직을 추가할 수 있습니다.
+
+여기서는 메서드의 실행시간을 측정하는 `StopWatch` 를 추가했습니다.
+
+<br>
+
+### JDK 동적 프록시 테스트 코드
+
+```java
+// 비즈니스 로직을 가진 객체
+SampleInterface target = new SampleImpl();
+
+// 공통 로직이 포함된 Handler
+InvocationHandler handler = new TimeInvocationHandler(target);
+
+// 프록시 객체 생성
+SampleInterface proxy = (SampleInterface) Proxy.newProxyInstance(
+        SampleInterface.class.getClassLoader(),
+        new Class[]{SampleInterface.class},
+        handler);
+
+// 프록시 메서드 호출
+proxy.foo();
+```
+
+별도의 프록시 클래스를 생성하지 않고도 이렇게 비즈니스 로직에 공통 로직을 적용할 수 있습니다.
+
+이제 더이상 프록시 로직만큼 클래스를 생성하지 않고 `InvocationHandler` 의 구현체만 더 만들면 됩니다.
+
+<br>
+
+![](images/screen_2022_02_13_21_01_29.png)
+
+실행 순서는 다음과 같습니다.
+
+1. 클라이언트가 JDK 동적 프록시의 `foo()` 메서드를 실행 (`proxy.foo()`)
+2. JDK 동적 프록시는 `InvocationHandler.invoke()` 를 호출 (여기서는 `TimeInvocationHandler`)
+3. 공통 로직이 수행된 후 `method.invoke(target, args)` 를 호출해서 `target` 의 실제 객체에 있는 로직을 호출
+4. `SampleImpl` 클래스의 `foo()` 메서드가 실행
+
+<br>
+
+### JDK 동적 프록시의 한계
+
+JDK 동적 프록시는 인터페이스가 필수입니다.
+
+그래서 항상 인터페이스를 추가로 만들어야 하기 때문에 비효율적입니다.
+
+그래서 클래스만 있는 경우에 프록시를 생성해주는 CGLIB 라는 오픈소스를 사용합니다.
+
 
 
 <br>
