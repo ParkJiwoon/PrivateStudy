@@ -1,8 +1,8 @@
-# JUnit 5 List 원소값 포함 여부 테스트
+# JUnit 에서 AssertJ 로 contains 포함 여부 테스트
 
 # 1. Overview
 
-Spring 에서 테스트 코드를 짤 때 특정 자료구조의 원소 값을 확인해야 하는 테스트가 있습니다.
+Java 에서 테스트 코드를 짤 때 특정 자료구조의 원소 값을 확인해야 하는 테스트가 있습니다.
 
 반복문을 돌면서 일일히 확인해야 하거나 그냥 코드 한줄 한줄 입력하는 방법도 있지만 `org.assertj.core.api.Assertions` 에서 제공하는 `assertThat().contains()` 를 사용하면 좀 더 깔끔하게 확인할 수 있습니다.
 
