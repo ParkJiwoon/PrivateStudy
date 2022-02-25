@@ -1,4 +1,4 @@
-# JUnit 5 List 원소값 포함 여부 테스트
+# JUnit 에서 AssertJ 로 contains 포함 여부 테스트
 
 # 1. Overview
 
