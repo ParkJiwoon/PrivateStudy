@@ -654,7 +654,21 @@ BeanPostProcessor (빈 후처리기) 란 생성된 Bean 객체를 Bean 저장소
 
 <br>
 
-# @AspectAOP
+# @Aspect AOP
+
+스프링 애플리케이션에 프록시를 적용하려면 `Advisor` (Pointcut + Advice) 를 만들어서 스프링 빈으로 등록하면 됩니다.
+
+스프링 빈으로 등록된 `Advisor` 를 빈 후처리기가 자동으로 처리해줍니다.
+
+`Advisor` 를 생성하는 방법 중 하나로 AspectJ 프로젝트에서 제공하는 `@Aspect` 어노테이션이 존재합니다.
+
+위에서 자동 프록시 생성기 (빈 후처리기) (`AnnotationAwareAspectJAutoProxyCreator`) 가 `Advisor` 를 자동으로 찾아와서 생성하고 필요한 곳에 적용해준다고 했습니다.
+
+여기서 `Advisor` 로 만드는게 `@Aspect` 로 등록된 빈입니다.
+
+![](images/screen_2022_02_28_02_46_03.png)
+
+<br><br>
 
 <br>
 
