@@ -48,3 +48,11 @@
 - 개발 편의성
   - 메시지를 전송하는 프로듀서 (producer) 와 메시지를 가져오는 컨슈머 (consumer) 가 완벽하게 분리됨
   - 서로 영향을 주지 않기 때문에 각각 개발 가능
+
+<br>
+
+# 2장 카프카 환경 구성
+
+책에서는 AWS 상에서 환경 구성을 진행한다고 합니다.
+
+AWS EC2 를 생성하면 과금이 되니 [Docker 를 사용해서 Kafka 세팅](https://github.com/ParkJiwoon/PrivateStudy/blob/master/kafka/kafka-docker-setup.md) 해봅니다.
