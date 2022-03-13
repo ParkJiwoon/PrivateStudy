@@ -36,6 +36,29 @@
 
 # 2. 인덱스 종류
 
+인덱스 종류는 어떤 자료구조를 사용하냐에 따라 나눌수도 있고, 데이터 저장 방식에 따라 클러스티드 (Clustered) 인덱스와 넌클러스티드 (Non Clustered) 인덱스로 나누기도 합니다.
+
+<br>
+
+## 2.1. Clustered Index vs Non-Clustered Index
+
+- **Clustered Index**
+  - 이름 그대로 인접한 데이터들을 한곳으로 모았다는 뜻
+  - PK 설정 시 자동으로 클러스터드 인덱스로 만들어짐
+  - 테이블당 1개씩만 허용
+  - 물리적인 데이터를 갖고 있음
+  - 항상 정렬된 상태를 유지하고 노드 내에서도 정렬되어 있음
+  - Non Clustered 인덱스에 비해 조회 속도가 빠르지만 삽입/수정/삭제는 더 느림
+- **Non Clustered Index**
+  - 테이블당 약 240 개의 인덱스를 만들 수 있음
+  - UNIQUE 로 설정된 컬럼에 자동으로 생성됨
+  - 인덱스 페이지는 로그 파일에 저장됨
+  - 레코드의 원본은 정렬되지 않고 인덱스 페이지만 정렬됨
+
+<br>
+
+## 2.2. 자료구조에 따른 분류
+
 - B-Tree 인덱스
   - 가장 많이 사용되는 구조
 - Hash 인덱스
@@ -166,6 +189,23 @@ B-Tree 는 최상위에 루트 (Root) 노드가 존재하고 하위에 브랜치
 
 <br>
 
+# 6. InnoDB Adaptive Hash Index
+
+MySQL 은 기본으로 InnoDB 를 사용하고 InnoDB 는 B-Tree 를 사용합니다.
+
+PK 가 아닌 컬럼으로 인덱스를 지정하면 Secondary Index 가 생성됩니다.
+
+그래서 인덱스로 컬럼을 조회하면 Secondary 인덱스를 기반으로 PK 를 찾은 뒤 다시 Primary Index 로 데이터를 찾아냅니다.
+
+인덱스를 두번 타기 때문에 `2 * O(log n)` 비용이 듭니다.
+
+그래서 **자주 사용되는 컬럼을 해시로 정의**해서 B-Tree 를 타지 않고 바로 데이터에 접근할 수 있게 하는 걸 Adaptive Hash Index 라고 합니다.
+
+미리 캐싱한 해시값으로 조회하기 때문애 O(1) 의 속도를 보여주지만 어떤 값을 해싱할지는 옵티마이저가 판단하기 때문에 제어할 수 없다는 약점이 있습니다.
+
+<br>
+
 # Reference
 
 - [[Real MySQL] B-Tree 인덱스](https://12bme.tistory.com/138)
+- [MySQL InnoDB의 Adaptive Hash Index 활용](https://tech.kakao.com/2016/04/07/innodb-adaptive-hash-index/)
