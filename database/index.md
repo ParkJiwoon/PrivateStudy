@@ -243,6 +243,26 @@ PK 가 아닌 컬럼으로 인덱스를 지정하면 Secondary Index 가 생성�
 
 <br>
 
+# 7. Covering Index
+
+일반적으로 인덱스를 설계할 때는 `WHERE` 절에 대해서만 이야기하지만 사실 쿼리 전체에 대해 인덱스 설계가 필요합니다.
+
+인덱스를 사용하면 특정 컬럼 값을 키로 하여 데이터의 주소값을 구한 뒤 해당 주소값으로 다시 테이블에 접근해서 최종 데이터를 구합니다.
+
+커버링 인덱스란 **인덱스에 이미 필요한 데이터가 전부 존재해서 테이블에 접근할 필요가 없는 인덱스**를 의미합니다.
+
+예를 들어 (A, B) 컬럼으로 인덱스를 구성한 경우 `SELECT * FROM table WHERE A = ?` 와 같은 형식으로 쿼리를 사용하면 인덱스를 탄 후에 전체 컬럼값을 모두 구하기 위해 테이블에 접근합니다.
+
+하지만 `SELECT A, B FROM table WHERE A = ?` 와 같이 구하려는 컬럼값이 모두 인덱스에 이미 존재한다면 테이블에 다시 접근할 필요가 없습니다.
+
+인덱스는 기본적으로 Non Clustered Index 에서 먼저 값을 구하고 Clustered Index 에서 다시 데이터를 구합니다.
+
+여기서 커버링 인덱스가 사용되었다는건 Clustered Index 까지 통하지 않고 Non Clustered Index 만으로도 데이터를 구할 수 있다는 뜻입니다.
+
+커버링 인덱스가 적용되면 EXPLAIN 실행 시 Extra 필드에 `Using index` 라고 표시됩니다.
+
+<br>
+
 # Reference
 
 - [[Real MySQL] B-Tree 인덱스](https://12bme.tistory.com/138)
