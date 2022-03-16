@@ -49,12 +49,6 @@ Spring WebFlux 에서 외부 API 를 호출할 때는 `WebClient` 를 사용합�
 
 ## 1.1. 외부 API 서버 만들기
 
-API 요청을 받아 5초 뒤에 응답해주는 서버를 만들어봅니다.
-
-<br>
-
-### 1.1.1. Server Code
-
 ```kotlin
 @SpringBootApplication
 class ServerMvcApplication
@@ -78,6 +72,8 @@ class BlockController {
 }
 ```
 
+API 요청을 받아 5초 뒤에 응답해주는 서버입니다.
+
 일반적인 상황을 위해 외부 서버는 Spring Boot WebMVC 로 만들었습니다.
 
 로컬에서 동시에 띄우기 위해 포트를 8181 로 변경하였고 `/block/{id}` API 를 요청하면 쓰레드를 5초동안 슬립시킨 후에 응답합니다.
@@ -86,17 +82,7 @@ MVC 모델은 요청마다 쓰레드를 하나씩 할당해서 처리하기 때�
 
 <br>
 
-### 1.1.2. Thread Count
-
-![](images/screen_2022_03_17_04_39_08.png)
-
-Debug 모드로 실행 후에 쓰레드 갯수를 확인해보니 10 개가 정상적으로 떠있는 걸 볼 수 있습니다.
-
-<br>
-
-### 1.1.3. Log
-
-![](images/screen_2022_03_17_04_44_05.png)
+<img src="https://github.com/ParkJiwoon/PrivateStudy/blob/master/spring/images/screen_2022_03_17_04_44_05.png?raw=true">
 
 크롬 브라우저와 시크릿 브라우저에서 요청하면 별도 쓰레드에서 각각 요청을 처리하는 걸 볼 수 있습니다.
 
@@ -170,7 +156,7 @@ class RouterHandler {
 
 ### 1.2.2. Thread Count
 
-![](images/screen_2022_03_17_06_27_38.png)
+<img src="https://github.com/ParkJiwoon/PrivateStudy/blob/master/spring/images/screen_2022_03_17_06_27_38.png?raw=true">
 
 실제로 쓰레드가 한 개만 뜬 것을 확인할 수 있습니다.
 
@@ -180,7 +166,7 @@ class RouterHandler {
 
 ### 1.2.3. Log
 
-![](images/screen_2022_03_17_06_30_27.png)
+<img src="https://github.com/ParkJiwoon/PrivateStudy/blob/master/spring/images/screen_2022_03_17_06_30_27.png?raw=true">
 
 쓰레드 하나로만 처리하는데도 Block 되지 않고 각각 5초만에 응답을 리턴합니다.
 
@@ -242,7 +228,7 @@ class RouterHandler {
 
 ## 2.2. Log
 
-![](images/screen_2022_03_17_06_46_26.png)
+<img src="https://github.com/ParkJiwoon/PrivateStudy/blob/master/spring/images/screen_2022_03_17_06_46_26.png?raw=true">
 
 위와 마찬가지로 쓰레드는 하나만 사용했습니다.
 
@@ -252,9 +238,9 @@ class RouterHandler {
 
 ## 2.3. Response Time
 
-![](images/screen_2022_03_17_06_49_49.png)
+<img src="https://github.com/ParkJiwoon/PrivateStudy/blob/master/spring/images/screen_2022_03_17_06_49_49.png?raw=true">
 
-![](images/screen_2022_03_17_06_48_34.png)
+<img src="https://github.com/ParkJiwoon/PrivateStudy/blob/master/spring/images/screen_2022_03_17_06_48_34.png?raw=true">
 
 `id=1` 인 요청은 5초만에 응답했지만 `id=2` 인 경우에는 앞의 연산 때문에 지연되어 9초나 걸린 것을 확인할 수 있습니다.
 
