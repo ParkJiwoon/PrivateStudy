@@ -174,6 +174,42 @@ class RouterHandler {
 
 <br>
 
+# 1.3. WebClient 대신 RestTemplate 을 사용하면?
+
+```kt
+@Controller
+class RouterHandler {
+    val log: Logger = LoggerFactory.getLogger(RouterHandler::class.java)
+
+    fun rest(request: ServerRequest): Mono<ServerResponse> {
+        val id = request.pathVariable("id")
+        log.info("block request $id by restTemplate")
+
+        // 블로킹 로직이기 때문에 BlockHound.install() 코드를 주석처리 해야함
+        val restTemplate = RestTemplate()
+        val response = restTemplate.getForObject("http://localhost:8181/block/$id", String::class.java)
+
+        return ServerResponse.ok().json().body(
+            Mono.just(response!!)
+        )
+    }
+}
+```
+
+테스트 하는 김에 `RestTemplate` 으로도 테스트 해봤습니다.
+
+어느 정도 예상한대로 쓰레드 1개만 사용하면 당연히 블록됩니다.
+
+게다가 블로킹 코드가 감지되기 때문에 `/rest/{id}` API 를 호출하려면 게다가 `main` 에 선언해둔 `BlockHound.install()` 코드를 주석 처리해야 합니다.
+
+<br>
+
+<img src="https://github.com/ParkJiwoon/PrivateStudy/blob/master/spring/images/screen_2022_03_18_22_42_46.png?raw=true">
+
+일반 브라우저와 시크릿 브라우저에서 동시에 호출해도 순서대로 처리되는 걸 볼 수 있습니다.
+
+<br>
+
 # 2. 무거운 연산을 수행하는 경우에는 어떻게 될까?
 
 API 요청은 논블로킹으로 처리하는데 무거운 연산을 쓰레드가 직접 수행하는 경우에는 어떻게 되는지 확인해봤습니다.
