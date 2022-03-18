@@ -99,31 +99,25 @@ MVC 모델은 요청마다 쓰레드를 하나씩 할당해서 처리하기 때�
 ### 1.2.1. Server Code
 
 ```kt
-@SpringBootApplication
-class ServerWebfluxApplication
-
-fun main(args: Array<String>) {
-    BlockHound.install()    // Blocking 로직 감지
-    System.setProperty("reactor.netty.ioWorkerCount", "1")
-    runApplication<ServerWebfluxApplication>(*args)
-}
-
 @Configuration
 class RouterConfig {
     val log: Logger = LoggerFactory.getLogger(RouterConfig::class.java)
 
     @Bean
     fun route(handler: RouterHandler) = router {
-        GET("/call/{id}", handler::call)
+        "v1".nest {
+            GET("/call/{id}", handler::call)
 
-        before { request ->
-            log.info("Before Filter ${request.pathVariable("id")}")
-            request
-        }
+            before { request ->
+                log.info("Before Filter ${request.pathVariable("id")}")
+                log.info("$request")
+                request
+            }
 
-        after { request, response ->
-            log.info("After Filter ${request.pathVariable("id")}")
-            response
+            after { request, response ->
+                log.info("After Filter ${request.pathVariable("id")}")
+                response
+            }
         }
     }
 }
@@ -135,7 +129,6 @@ class RouterHandler {
 
     fun call(request: ServerRequest): Mono<ServerResponse> {
         val id = request.pathVariable("id")
-        log.info("block request $id")
 
         return webClient.get()
             .uri("/block/$id")
@@ -150,7 +143,7 @@ class RouterHandler {
 }
 ```
 
-`/call/{id}` 요청을 받으면 `http://localhost:8181/block/{id}` 를 호출한 결과값을 응답하는 API 입니다.
+`/v1/call/{id}` 요청을 받으면 `http://localhost:8181/block/{id}` 호출한 결과값을 응답하는 API 입니다.
 
 쓰레드 블록 여부를 판단해야 하기 때문에 워커 쓰레드 갯수를 1 개로 세팅합니다.
 
@@ -168,7 +161,7 @@ class RouterHandler {
 
 ### 1.2.3. Log
 
-<img src="https://github.com/ParkJiwoon/PrivateStudy/blob/master/spring/images/screen_2022_03_17_06_30_27.png?raw=true">
+<img src="https://github.com/ParkJiwoon/PrivateStudy/blob/master/spring/images/screen_2022_03_19_00_16_00.png?raw=true">
 
 쓰레드 하나로만 처리하는데도 Block 되지 않고 각각 5초만에 응답을 리턴합니다.
 
@@ -179,13 +172,9 @@ class RouterHandler {
 ```kt
 @Controller
 class RouterHandler {
-    val log: Logger = LoggerFactory.getLogger(RouterHandler::class.java)
 
     fun rest(request: ServerRequest): Mono<ServerResponse> {
         val id = request.pathVariable("id")
-        log.info("block request $id by restTemplate")
-
-        // 블로킹 로직이기 때문에 BlockHound.install() 코드를 주석처리 해야함
         val restTemplate = RestTemplate()
         val response = restTemplate.getForObject("http://localhost:8181/block/$id", String::class.java)
 
@@ -198,13 +187,13 @@ class RouterHandler {
 
 테스트 하는 김에 `RestTemplate` 으로도 테스트 해봤습니다.
 
-어느 정도 예상한대로 쓰레드 1개만 사용하면 당연히 블록됩니다.
+`/v1/rest/{id}` 를 호출하면 쓰레드 1개를 블록시키기 때문에 요청이 순차적으로 처리됩니다.
 
-게다가 블로킹 코드가 감지되기 때문에 `/rest/{id}` API 를 호출하려면 게다가 `main` 에 선언해둔 `BlockHound.install()` 코드를 주석 처리해야 합니다.
+게다가 블로킹 코드가 감지되기 때문에 `/v1/rest/{id}` API 를 호출하려면 게다가 `main` 에 선언해둔 `BlockHound.install()` 코드를 주석 처리해야 합니다.
 
 <br>
 
-<img src="https://github.com/ParkJiwoon/PrivateStudy/blob/master/spring/images/screen_2022_03_18_22_42_46.png?raw=true">
+<img src="https://github.com/ParkJiwoon/PrivateStudy/blob/master/spring/images/screen_2022_03_19_00_18_59.png?raw=true">
 
 일반 브라우저와 시크릿 브라우저에서 동시에 호출해도 순서대로 처리되는 걸 볼 수 있습니다.
 
@@ -219,33 +208,12 @@ API 요청은 논블로킹으로 처리하는데 무거운 연산을 쓰레드�
 ## 2.1. Server Code
 
 ```kt
-@Configuration
-class RouterConfig {
-    val log: Logger = LoggerFactory.getLogger(RouterConfig::class.java)
-
-    @Bean
-    fun route(handler: RouterHandler) = router {
-        GET("/heavy/{id}", handler::heavy)
-
-        before { request ->
-            log.info("Before Filter ${request.pathVariable("id")}")
-            request
-        }
-
-        after { request, response ->
-            log.info("After Filter ${request.pathVariable("id")}")
-            response
-        }
-    }
-}
-
 @Controller
 class RouterHandler {
     val log: Logger = LoggerFactory.getLogger(RouterHandler::class.java)
 
     fun heavy(request: ServerRequest): Mono<ServerResponse> {
         val id = request.pathVariable("id")
-        log.info("heavy request $id")
 
         (0..1_000_000_000).forEach {
             if (it % 100_000_000 == 0) {
@@ -266,7 +234,7 @@ class RouterHandler {
 
 ## 2.2. Log
 
-<img src="https://github.com/ParkJiwoon/PrivateStudy/blob/master/spring/images/screen_2022_03_17_06_46_26.png?raw=true">
+<img src="https://github.com/ParkJiwoon/PrivateStudy/blob/master/spring/images/screen_2022_03_19_00_21_38.png?raw=true">
 
 위와 마찬가지로 쓰레드는 하나만 사용했습니다.
 
