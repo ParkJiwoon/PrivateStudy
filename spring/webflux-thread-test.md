@@ -99,6 +99,15 @@ MVC 모델은 요청마다 쓰레드를 하나씩 할당해서 처리하기 때�
 ### 1.2.1. Server Code
 
 ```kt
+@SpringBootApplication
+class ServerWebfluxApplication
+
+fun main(args: Array<String>) {
+    // 쓰레드 1개만 사용
+    System.setProperty("reactor.netty.ioWorkerCount", "1")
+    runApplication<ServerWebfluxApplication>(*args)
+}
+
 @Configuration
 class RouterConfig {
     val log: Logger = LoggerFactory.getLogger(RouterConfig::class.java)
@@ -188,8 +197,6 @@ class RouterHandler {
 테스트 하는 김에 `RestTemplate` 으로도 테스트 해봤습니다.
 
 `/v1/rest/{id}` 를 호출하면 쓰레드 1개를 블록시키기 때문에 요청이 순차적으로 처리됩니다.
-
-게다가 블로킹 코드가 감지되기 때문에 `/v1/rest/{id}` API 를 호출하려면 게다가 `main` 에 선언해둔 `BlockHound.install()` 코드를 주석 처리해야 합니다.
 
 <br>
 
