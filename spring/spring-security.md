@@ -36,7 +36,6 @@ JWT 와 같이 소개되는 경우가 많은데 스프링 시큐리티는 원래
 
 ```java
 // build.gradle
-
 plugins {
     id 'org.springframework.boot' version '2.4.3'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
@@ -605,18 +604,21 @@ Access Token 과 Refresh Token 을 함께 사용하기 때문에 저장이 필�
 public class RefreshToken {
 
     @Id
+    @Column(name = "rt_key")
     private String key;
-    private String value;
 
-    public RefreshToken updateValue(String token) {
-        this.value = token;
-        return this;
-    }
+    @Column(name = "rt_value")
+    private String value;
 
     @Builder
     public RefreshToken(String key, String value) {
         this.key = key;
         this.value = value;
+    }
+
+    public RefreshToken updateValue(String token) {
+        this.value = token;
+        return this;
     }
 }
 ```
