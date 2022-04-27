@@ -51,7 +51,7 @@ Pull Request 를 올렸을 때 자동으로 빌드 및 테스트를 수행하여
 
 ## 3.1. Workflow 선택
 
-![](images/screen_2022_04_22_19_40_20.png)
+<img src="https://raw.githubusercontent.com/ParkJiwoon/PrivateStudy/master/ci-cd/images/screen_2022_04_22_19_40_20.png">
 
 Github Repository 로 이동해서 Actions 탭에서 새로운 Workflow 를 추가할 수 있습니다.
 
@@ -113,7 +113,7 @@ jobs:
 
 ## 3.3. Pull Request 작성
 
-![](images/screen_2022_04_22_21_34_45.png)
+<img src="https://raw.githubusercontent.com/ParkJiwoon/PrivateStudy/master/ci-cd/images/screen_2022_04_22_21_34_45.png">
 
 이제 PR 을 작성하면 자동으로 Github Actions 가 동작하여 빌드를 실행합니다.
 
@@ -121,7 +121,7 @@ jobs:
 
 ### 3.3.1. Workflow 실패
 
-![](images/screen_2022_04_22_21_39_56.png)
+<img src="https://raw.githubusercontent.com/ParkJiwoon/PrivateStudy/master/ci-cd/images/screen_2022_04_22_21_39_56.png">
 
 Github Actions 이 실패하면 이렇게 실패했다고 알려줍니다.
 
@@ -131,7 +131,7 @@ Github Actions 이 실패하면 이렇게 실패했다고 알려줍니다.
 
 ### 3.3.2. Workflow 성공
 
-![](images/screen_2022_04_22_21_50_21.png)
+<img src="https://raw.githubusercontent.com/ParkJiwoon/PrivateStudy/master/ci-cd/images/screen_2022_04_22_21_50_21.png">
 
 모든 워크플로우가 성공하면 이렇게 녹색으로 성공 여부를 알려줍니다.
 
