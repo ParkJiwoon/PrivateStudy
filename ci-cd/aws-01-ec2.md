@@ -22,6 +22,8 @@ AWS EC2 인스턴스를 생성하고 Spring Boot 서버를 띄워보는 것까�
 
 2022년 1월 16일 기준으로 작성되었으며 이후에 홈페이지 인터페이스가 변경될 수 있습니다.
 
+**2022년 4월 29일 기준으로 AWS EC2 인스턴스 생성 UI 가 바뀌어서 이부분을 수정합니다.**
+
 <br>
 
 ## 1.1. AWS Region 설정
@@ -52,31 +54,51 @@ AWS EC2 인스턴스를 생성하고 Spring Boot 서버를 띄워보는 것까�
 
 <br>
 
-## 1.4. Amazon MAchine Image(AMI) 선택
+## 1.4. Amazon Machine Image(AMI) 및 인스턴스 유형 선택
 
-<img src="https://github.com/ParkJiwoon/PrivateStudy/raw/master/ci-cd/images/screen_2022_01_16_18_43_28.png">
+<img src="https://github.com/ParkJiwoon/PrivateStudy/raw/master/ci-cd/images/screen_2022_04_30_03_12_44.png" width="70%">
 
-어떤 서버로 구성할지 선택하는 겁니다.
+AMI 는 어떤 서버로 구성할지 선택하는 겁니다.
 
 여러 종류가 있어서 원하는 걸 선택하면 되고, 저는 프리 티어에 Ubuntu LTS 버전을 선택했습니다.
 
-<br>
-
-## 1.5. 인스턴스 유형 성택
-
-<img src="https://github.com/ParkJiwoon/PrivateStudy/raw/master/ci-cd/images/screen_2022_01_16_18_45_04.png">
-
-프리티어는 사실 선택권이 없습니다.
+인스턴스 유형은 프리 티어를 사용한다면 다른 선택권이 없습니다.
 
 스펙이 좋을수록 과금이 더 많이 되기 때문에 처음부터 좋은걸 고르기보다는 작게 시작했다가 스케일업 해나가는 걸 추천드립니다.
 
-인스턴스 유형 선택 후 세부 구성은 아직 설정할게 없으므로 "스토리지 추가" 로 넘어갑니다.
+<br>
+
+## 1.5. 키 페어 생성
+
+<img src="https://github.com/ParkJiwoon/PrivateStudy/raw/master/ci-cd/images/screen_2022_04_30_03_29_30.png" width="70%">
+
+키 페어는 EC2 서버에 SSH 접속을 하기 위해 필수라서 생성해야 합니다.
+
+"새 키 페어 생성" 을 눌러 원하는 이름을 적고 생성합니다.
+
+위 그림처럼 설정 후 생성하면 자동으로 `my-key.pem` 파일이 다운되며, SSH 환경에 접속하기 위해서는 해당 키 파일이 존재하는 위치로 가서 `ssh` 명령어를 실행하면 됩니다.
+
+한번 다운받은 후에는 재다운 받을 수 없기 때문에 안전한 곳에 저장해둡니다.
 
 <br>
 
-## 1.6. 스토리지 추가
+<img src="https://github.com/ParkJiwoon/PrivateStudy/raw/master/ci-cd/images/screen_2022_04_30_03_34_29.png" width="70%">
 
-<img src="https://github.com/ParkJiwoon/PrivateStudy/raw/master/ci-cd/images/screen_2022_01_16_18_55_24.png">
+생성한 후에는 이렇게 키 페어를 선택하면 됩니다.
+
+<br>
+
+## 1.6. 네트워크 및 스토리지 선택
+
+<img src="https://github.com/ParkJiwoon/PrivateStudy/raw/master/ci-cd/images/screen_2022_04_30_03_39_54.png" width="70%">
+
+네트워크 설정은 EC2 에 접속을 허용하는 ACL 을 생각하면 됩니다.
+
+나중에 "보안 그룹" 이라는 걸로 별도 설정을 할 예정이기 때문에 SSH 트래픽만 허용해줍니다.
+
+위 설정대로 하면 SSH 트래픽 접속 가능한 IP 가 내 IP 로 자동 설정 됩니다.
+
+<br>
 
 프리티어는 최대 30 까지 지원하기 때문에 해당 부분만 변경해줍니다.
 
@@ -84,19 +106,15 @@ AWS EC2 인스턴스를 생성하고 Spring Boot 서버를 띄워보는 것까�
 
 만약 Provisioned IOPS SSD (프로비저닝된 IOPS SSD) 를 선택한다면 사용하지 않아도 활성화한 기간만큼 계속 비용이 발생하게 됩니다.
 
-스토리지까지 설정했다면 이후에 있는 태그와 보안 그룹은 아직 설정하지 않아도 되기 때문에 "검토 및 시작" 을 선택합니다.
-
 <br>
 
-## 1.7. 키 페어 생성
+## 1.7. 인스턴스 설정 요약
 
-<img src="https://github.com/ParkJiwoon/PrivateStudy/raw/master/ci-cd/images/screen_2022_01_16_19_14_27.png" width="70%">
+<img src="https://github.com/ParkJiwoon/PrivateStudy/raw/master/ci-cd/images/screen_2022_04_30_03_53_57.png" width="70%">
 
-EC2 서버에 SSH 접속을 하기 위해선 키가 필요합니다.
+다 설정하면 우측에 간단하게 지금까지 설정한 인스턴스 요약이 뜹니다.
 
-키 이름을 정한 후 "키 페어 다운로드" 를 눌러 내 로컬 PC 에 저장합니다.
-
-한번 다운받은 후에는 재다운 받을 수 없기 때문에 안전한 곳에 저장해두면 됩니다.
+이상한 부분이 없다면 인스턴스 시작을 눌러서 생성하면 됩니다.
 
 <br>
 
