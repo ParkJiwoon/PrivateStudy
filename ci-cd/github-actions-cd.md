@@ -396,7 +396,188 @@ Github Secrets 에 저장한다고 해도 값을 직접 확인할 수 없기 때
 
 <br>
 
-## Trouble Shooting
+# 6. AppSpec 파일 작성
+
+지금까지 우리는 **서버를 띄울 EC2, 배포할 결과물을 저장할 S3, 배포를 도와줄 CodeDeploy** 이렇게 총 세 가지 AWS 서비스를 만들었습니다.
+
+이제 CodeDeploy 에서 배포를 위해 참조할 [AppSpec 파일](https://docs.aws.amazon.com/ko_kr/codedeploy/latest/userguide/application-specification-files.html)을 작성합니다.
+
+AppSpec 파일을 사용해서 우리는 **프로젝트의 어떤 파일들을 EC2 의 어떤 경로에 복사할지 설정** 가능하고, **배포 프로세스 이후에 수행할 스크립트를 지정**하여 자동으로 서버를 띄울 수도 있습니다.
+
+AppSpec 파일은 기본적으로 [루트 디렉터리에 위치](https://docs.aws.amazon.com/ko_kr/codedeploy/latest/userguide/reference-appspec-file-validate.html)해야 합니다.
+
+<br>
+
+```yml
+version: 0.0
+os: linux
+
+files:
+  - source:  /
+    destination: /home/ubuntu/app
+    overwrite: yes
+
+permissions:
+  - object: /
+    pattern: "**"
+    owner: ubuntu
+    group: ubuntu
+
+hooks:
+  AfterInstall:
+    - location: scripts/stop.sh
+      timeout: 60
+      runas: ubuntu
+  ApplicationStart:
+    - location: scripts/start.sh
+      timeout: 60
+      runas: ubuntu
+```
+
+전체 파일은 위와 같으며 각 섹션별로 조금씩만 살펴보겠습니다.
+
+<br>
+
+## 6.1. files 섹션
+
+```yml
+files:
+  - source:  /
+    destination: /home/ubuntu/app
+    overwrite: yes
+```
+
+배포 파일에 대한 설정입니다.
+
+- source: 인스턴스에 복사할 디렉터리 경로
+- destination: 인스턴스에서 파일이 복사되는 위치
+- overwrite: 복사할 위치에 파일이 있는 경우 대체
+
+[AppSpec "files" 섹션 문서](https://docs.aws.amazon.com/ko_kr/codedeploy/latest/userguide/reference-appspec-file-structure-files.html)를 참고하면 더 자세한 내용을 알 수 있습니다.
+
+<br>
+
+## 6.2. permissions 섹션
+
+```yml
+permissions:
+  - object: /
+    pattern: "**"
+    owner: ubuntu
+    group: ubuntu
+```
+
+files 섹션에서 복사한 파일에 대한 권한 설정입니다.
+
+- object: 권한이 지정되는 파일 또는 디렉터리
+- pattern (optional): 매칭되는 패턴에만 권한 부여
+- owner (optional): object 의 소유자
+- group (optional): object 의 그룹 이름
+
+[AppSpec "permissions" 섹션 문서](https://docs.aws.amazon.com/ko_kr/codedeploy/latest/userguide/reference-appspec-file-structure-permissions.html)를 참고하면 더 자세한 내용을 알 수 있습니다.
+
+<br>
+
+## 6.3. hooks 섹션
+
+```yml
+hooks:
+  AfterInstall:
+    - location: scripts/stop.sh
+      timeout: 60
+      runas: ubuntu
+  ApplicationStart:
+    - location: scripts/start.sh
+      timeout: 60
+      runas: ubuntu
+```
+
+배포 이후에 수행할 스크립트를 지정할 수 있습니다.
+
+일련의 라이프사이클이 존재하기 때문에 적절한 Hook 을 찾아 실행할 스크립트를 지정하면 됩니다.
+
+위 코드에서는 파일을 설치한 후 `AfterInstall` 에서 기존에 실행중이던 애플리케이션을 종료시키고 `ApplicationStart` 에서 새로운 애플리케이션을 실행합니다.
+
+- location: hooks 에서 실행할 스크립트 위치
+- timeout (optional): 스크립트 실행에 허용되는 최대 시간이며, 넘으면 배포 실패로 간주됨
+- runas (optional): 스크립트를 실행하는 사용자
+
+[AppSpec "hooks" 섹션 문서](https://docs.aws.amazon.com/ko_kr/codedeploy/latest/userguide/reference-appspec-file-structure-hooks.html)를 참고하면 더 자세한 내용을 알 수 있습니다.
+
+<br>
+
+# 7. 배포 스크립트 작성
+
+바로 위 AppSpec Hooks 에서 실행할 스크립트 `stop.sh` 와 `start.sh` 를 설정했습니다.
+
+이제 수행할 스크립트 파일을 작성합니다.
+
+<br>
+
+## 7.1. `stop.sh`
+
+```sh
+#!/usr/bin/env bash
+
+PROJECT_ROOT="/home/ubuntu/app"
+JAR_FILE="$PROJECT_ROOT/spring-webapp.jar"
+
+DEPLOY_LOG="$PROJECT_ROOT/deploy.log"
+
+TIME_NOW=$(date +%c)
+
+# 현재 구동 중인 애플리케이션 pid 확인
+CURRENT_PID=$(pgrep -f $JAR_FILE)
+
+# 프로세스가 켜져 있으면 종료
+if [ -z $CURRENT_PID ]; then
+  echo "$TIME_NOW > 현재 실행중인 애플리케이션이 없습니다" >> $DEPLOY_LOG
+else
+  echo "$TIME_NOW > 실행중인 $CURRENT_PID 애플리케이션 종료 " >> $DEPLOY_LOG
+  kill -15 $CURRENT_PID
+fi
+```
+
+애플리케이션이 이미 떠있으면 종료하는 스크립트입니다.
+
+간단히 주석으로 설명을 달아두었으니 쉘 스크립트를 작성할 줄 안다면 보기에 어려움은 없을 겁니다.
+
+<br>
+
+
+## 7.2. `start.sh`
+
+```sh
+#!/usr/bin/env bash
+
+PROJECT_ROOT="/home/ubuntu/app"
+JAR_FILE="$PROJECT_ROOT/spring-webapp.jar"
+
+APP_LOG="$PROJECT_ROOT/application.log"
+ERROR_LOG="$PROJECT_ROOT/error.log"
+DEPLOY_LOG="$PROJECT_ROOT/deploy.log"
+
+TIME_NOW=$(date +%c)
+
+# build 파일 복사
+echo "$TIME_NOW > $JAR_FILE 파일 복사" >> $DEPLOY_LOG
+cp $PROJECT_ROOT/build/libs/*.jar $JAR_FILE
+
+# jar 파일 실행
+echo "$TIME_NOW > $JAR_FILE 파일 실행" >> $DEPLOY_LOG
+nohup java -jar $JAR_FILE > $APP_LOG 2> $ERROR_LOG &
+
+CURRENT_PID=$(pgrep -f $JAR_FILE)
+echo "$TIME_NOW > 실행된 프로세스 아이디 $CURRENT_PID 입니다." >> $DEPLOY_LOG
+```
+
+애플리케이션을 실행하는 스크립트입니다.
+
+Github Actions 워크플로우에서 이미 빌드는 마쳤기 때문에 JAR 파일만 복사 후 실행합니다.
+
+<br>
+
+## 7.3. `build.gradle` 파일 수정
 
 Spring Boot 2.5 버전부터는 빌드 시 `-plain.jar` 파일이 만들어지기 때문에 `build.gradle` 수정 필요
 
@@ -405,6 +586,171 @@ jar {
     enabled = false
 }
 ```
+
+<br>
+
+# 8. Github Actions Workflow 작성
+
+이제 필요한 사전 작업은 모두 끝났으니 Github Actions 워크 플로우만 작성하면 됩니다.
+
+<br>
+
+## 8.1. Sample Workflow 선택
+
+![](images/screen_2022_05_03_17_25_11.png)
+
+[Github Actions CI 편](https://bcp0109.tistory.com/362)에서는 기본적으로 제공되는 gradle 샘플을 수정했지만 배포 플로우는 거의 다 수정해야 하므로 그냥 가장 심플한 워크 플로우를 선택합니다.
+
+<br>
+
+## 8.2. `deploy.yml` 파일 작성
+
+```yml
+name: Deploy to Amazon EC2
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  AWS_REGION: ap-northeast-2
+  S3_BUCKET_NAME: my-github-actions-s3-bucket
+  CODE_DEPLOY_APPLICATION_NAME: my-codedeploy-app
+  CODE_DEPLOY_DEPLOYMENT_GROUP_NAME: my-codedeploy-deployment-group
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+    # (1) 기본 체크아웃
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    # (2) JDK 11 세팅
+    - name: Set up JDK 11
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '11'
+
+    # (3) Gradle build (Test 제외)
+    - name: Build with Gradle
+      uses: gradle/gradle-build-action@0d13054264b0bb894ded474f08ebb30921341cee
+      with:
+        arguments: clean build -x test
+
+    # (4) AWS 인증 (IAM 사용자 Access Key, Secret Key 활용)
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    # (5) 빌드 결과물을 S3 버킷에 업로드
+    - name: Upload to AWS S3
+      run: |
+        aws deploy push \
+          --application-name ${{ env.CODE_DEPLOY_APPLICATION_NAME }} \
+          --ignore-hidden-files \
+          --s3-location s3://$S3_BUCKET_NAME/$GITHUB_SHA.zip \
+          --source .
+
+    # (6) S3 버킷에 있는 파일을 대상으로 CodeDeploy 실행
+    - name: Deploy to AWS EC2 from S3
+      run: |
+        aws deploy create-deployment \
+          --application-name ${{ env.CODE_DEPLOY_APPLICATION_NAME }} \
+          --deployment-config-name CodeDeployDefault.AllAtOnce \
+          --deployment-group-name ${{ env.CODE_DEPLOY_DEPLOYMENT_GROUP_NAME }} \
+          --s3-location bucket=$S3_BUCKET_NAME,key=$GITHUB_SHA.zip,bundleType=zip
+```
+
+전체 파일은 위와 같으며 스텝 별로 간단한 주석을 달아두었습니다.
+
+결국 프로젝트를 빌드한 후 AWS S3 버킷에 푸시 후 CodeDeploy 를 수행하는 겁니다.
+
+(4), (5), (6) 에 대해서만 간략한 설명을 덧붙이겠습니다.
+
+<br>
+
+### 8.2.1. (4) AWS 인증
+
+```yml
+# (4) AWS 인증 (IAM 사용자 Access Key, Secret Key 활용)
+- name: Configure AWS credentials
+  uses: aws-actions/configure-aws-credentials@v1
+  with:
+    aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+    aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    aws-region: ${{ env.AWS_REGION }}
+```
+
+AWS 에 접근하기 위해 인증하는 스텝입니다.
+
+우리는 위에서 IAM 사용자를 만든 후 Access Key, Secret Key 를 Github 레포에 저장했습니다.
+
+그러면 `secrets` 변수를 통해 우리가 저장한 키 값들을 가져와서 사용할 수 있습니다.
+
+필요한 Access Key, Secret Key 등을 프로젝트 코드에 노출시키지 않은 채로 사용할 수 있다는 편리함이 있습니다.
+
+<br>
+
+### 8.2.2. (5) AWS S3 에 업로드
+
+```yml
+# (5) 빌드 결과물을 S3 버킷에 업로드
+- name: Upload to AWS S3
+  run: |
+    aws deploy push \
+      --application-name ${{ env.CODE_DEPLOY_APPLICATION_NAME }} \
+      --s3-location s3://$S3_BUCKET_NAME/$GITHUB_SHA.zip \
+      --ignore-hidden-files \
+      --source .
+```
+
+원하는 파일들을 압축해서 AWS S3 에 업로드 하는 스텝입니다.
+
+[공식 문서](https://docs.aws.amazon.com/ko_kr/codedeploy/latest/userguide/application-revisions-push.html)를 참고하면 더 자세한 정보를 알 수 있습니다.
+
+- `--application-name`: CodeDeploy 애플리케이션 이름
+- `--s3-location`: 압축 파일을 업로드 할 S3 버킷 정보
+- `--ignore-hidden-files` (optional): 숨겨진 파일까지 번들링할지 여부
+
+`$GITHUB_SHA` 라는 변수가 보이는데 간단하게 생각해서 Github 자체에서 커밋마다 생성하는 랜덤한 변수값입니다. (자세한 정보는 [Github Context](https://docs.github.com/en/actions/learn-github-actions/contexts#github-context) 참조)
+
+이렇게 랜덤한 값을 사용하면 파일 업로드 시에 이름 중복으로 충돌날 일이 없습니다.
+
+<br>
+
+### 8.2.3. (6) AWS EC2 에 배포
+
+```yml
+# (6) S3 버킷에 있는 파일을 대상으로 CodeDeploy 실행
+- name: Deploy to AWS EC2 from S3
+  run: |
+    aws deploy create-deployment \
+      --application-name ${{ env.CODE_DEPLOY_APPLICATION_NAME }} \
+      --deployment-config-name CodeDeployDefault.AllAtOnce \
+      --deployment-group-name ${{ env.CODE_DEPLOY_DEPLOYMENT_GROUP_NAME }} \
+      --s3-location bucket=$S3_BUCKET_NAME,key=$GITHUB_SHA.zip,bundleType=zip
+```
+
+위 스텝에서 S3 에 저장한 파일을 EC2 에서 땡겨온 후 압축을 풀고 스크립트를 실행합니다.
+
+[공식 문서](https://docs.aws.amazon.com/ko_kr/codedeploy/latest/userguide/application-revisions-push.html)를 참고하면 더 자세한 정보를 알 수 있습니다.
+
+- `--application-name`: CodeDeploy 애플리케이션 이름
+- `--deployment-config-name`: 배포 방식인데 기본값을 사용
+- `--deployment-group-name`: CodeDeploy 배포 그룹 이름
+- `--s3-location`: 버킷 이름, 키 값, 번들타입
 
 <br>
 
