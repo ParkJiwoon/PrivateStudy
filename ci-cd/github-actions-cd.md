@@ -829,4 +829,5 @@ EC2 서버에 접속해서 확인 해보면 Spring Boot 프로젝트 코드가 �
 
 # Reference
 
+- [Github 전체 코드](https://github.com/ParkJiwoon/practice-github-action)
 - [CodeDeploy 를 위한 EC2 인스턴스 생성](https://docs.aws.amazon.com/ko_kr/codedeploy/latest/userguide/instances-ec2-create.html)
