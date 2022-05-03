@@ -80,7 +80,7 @@ CodeDeploy 를 생성할 때 어떤 인스턴스에서 수행할 지 구분하�
 
 ### 2.1.1. EC2 설정에서 태그 관리 선택
 
-![](images/screen_2022_05_02_03_47_07.png)
+<img src="https://raw.githubusercontent.com/ParkJiwoon/PrivateStudy/master/ci-cd/images/screen_2022_05_02_03_47_07.png">
 
 EC2 인스턴스 정보에 들어가 태그 관리를 선택합니다.
 
@@ -88,7 +88,7 @@ EC2 인스턴스 정보에 들어가 태그 관리를 선택합니다.
 
 ### 2.1.2. 태그 추가
 
-![](images/screen_2022_05_02_03_48_22.png)
+<img src="https://raw.githubusercontent.com/ParkJiwoon/PrivateStudy/master/ci-cd/images/screen_2022_05_02_03_48_22.png">
 
 원하는 키 값을 입력하고 저장을 누릅니다.
 
@@ -96,7 +96,7 @@ EC2 인스턴스 정보에 들어가 태그 관리를 선택합니다.
 
 ### 2.1.3. 태그 확인
 
-![](images/screen_2022_05_02_03_49_50.png)
+<img src="https://raw.githubusercontent.com/ParkJiwoon/PrivateStudy/master/ci-cd/images/screen_2022_05_02_03_49_50.png">
 
 다시 EC2 인스턴스 정보에서 태그가 등록되었는지 확인할 수 있습니다.
 
@@ -110,7 +110,7 @@ EC2 인스턴스에서 S3 에 올려놓은 파일에 접근할 수 있도록 권
 
 ### 2.2.1. IAM 역할 관리 페이지로 이동
 
-![](images/screen_2022_05_02_03_24_55.png)
+<img src="https://raw.githubusercontent.com/ParkJiwoon/PrivateStudy/master/ci-cd/images/screen_2022_05_02_03_24_55.png">
 
 기본적으로 존재하는 역할들이 있는데 신경쓰지 말고 새로운 역할 만들기를 선택합니다.
 
@@ -118,7 +118,7 @@ EC2 인스턴스에서 S3 에 올려놓은 파일에 접근할 수 있도록 권
 
 ### 2.2.2. EC2 엔티티 선택
 
-![](images/screen_2022_05_03_12_46_41.png)
+<img src="https://raw.githubusercontent.com/ParkJiwoon/PrivateStudy/master/ci-cd/images/screen_2022_05_03_12_46_41.png">
 
 IAM 역할을 연결할 서비스를 선택합니다.
 
@@ -126,7 +126,7 @@ IAM 역할을 연결할 서비스를 선택합니다.
 
 ### 2.2.3. S3 접근 권한 추가
 
-![](images/screen_2022_05_03_12_57_52.png)
+<img src="https://raw.githubusercontent.com/ParkJiwoon/PrivateStudy/master/ci-cd/images/screen_2022_05_03_12_57_52.png">
 
 EC2 인스턴스에서 S3 접근할 수 있도록 `AmazonS3FullAccess` 권한을 추가합니다.
 
@@ -134,7 +134,7 @@ EC2 인스턴스에서 S3 접근할 수 있도록 `AmazonS3FullAccess` 권한을
 
 ### 2.2.4. 이름 설정
 
-![](images/screen_2022_05_03_12_59_03.png)
+<img src="https://raw.githubusercontent.com/ParkJiwoon/PrivateStudy/master/ci-cd/images/screen_2022_05_03_12_59_03.png">
 
 마지막으로 원하는 이름을 입력한 뒤 생성을 완료합니다.
 
@@ -142,13 +142,13 @@ EC2 인스턴스에서 S3 접근할 수 있도록 `AmazonS3FullAccess` 권한을
 
 ### 2.2.5. EC2 인스턴스에서 IAM 연결
 
-![](images/screen_2022_05_03_13_00_32.png)
+<img src="https://raw.githubusercontent.com/ParkJiwoon/PrivateStudy/master/ci-cd/images/screen_2022_05_03_13_00_32.png">
 
 EC2 인스턴스 관리 페이지로 이동해서 "작업 > 보안 > IAM 역할 수정" 을 선택합니다.
 
 <br>
 
-![](images/screen_2022_05_03_13_01_48.png)
+<img src="https://raw.githubusercontent.com/ParkJiwoon/PrivateStudy/master/ci-cd/images/screen_2022_05_03_13_01_48.png">
 
 방금 만든 EC2 전용 IAM 역할을 선택한 뒤 저장을 누르면 연결이 완료됩니다.
 
@@ -173,7 +173,7 @@ EC2 환경이 Ubuntu 가 아니거나 버전이 다르다면 공식 문서를 �
 
 <br>
 
-![](images/screen_2022_05_03_05_31_45.png)
+<img src="https://raw.githubusercontent.com/ParkJiwoon/PrivateStudy/master/ci-cd/images/screen_2022_05_03_05_31_45.png">
 
 정상적으로 설치가 완료되면 이런 응답이 와야 합니다.
 
@@ -189,7 +189,7 @@ EC2 환경이 Ubuntu 가 아니거나 버전이 다르다면 공식 문서를 �
 
 ## 3.1. S3 메뉴에서 버킷 생성
 
-![](images/screen_2022_05_01_23_59_42.png)
+<img src="https://raw.githubusercontent.com/ParkJiwoon/PrivateStudy/master/ci-cd/images/screen_2022_05_01_23_59_42.png">
 
 S3 메뉴로 이동해서 "버킷 만들기" 를 누릅니다.
 
@@ -197,7 +197,7 @@ S3 메뉴로 이동해서 "버킷 만들기" 를 누릅니다.
 
 ## 3.2. 일반 구성과 객체 소유권 설정
 
-![](images/screen_2022_05_02_00_42_47.png)
+<img src="https://raw.githubusercontent.com/ParkJiwoon/PrivateStudy/master/ci-cd/images/screen_2022_05_02_00_42_47.png">
 
 원하는 버킷 이름과 리전을 선택합니다.
 
@@ -207,7 +207,7 @@ ACL 은 기본값을 선택해서 비활성화 합니다.
 
 ## 3.3. 액세스, 버킷 버전, 암호화 비활성화
 
-![](images/screen_2022_05_02_00_30_41.png)
+<img src="https://raw.githubusercontent.com/ParkJiwoon/PrivateStudy/master/ci-cd/images/screen_2022_05_02_00_30_41.png">
 
 나머지 설정을 마저 합니다.
 
@@ -217,7 +217,7 @@ ACL 은 기본값을 선택해서 비활성화 합니다.
 
 ## 3.4. S3 버킷 생성 완료
 
-![](images/screen_2022_05_02_00_44_58.png)
+<img src="https://raw.githubusercontent.com/ParkJiwoon/PrivateStudy/master/ci-cd/images/screen_2022_05_02_00_44_58.png">
 
 버킷 생성이 완료되면 이렇게 나타납니다.
 
@@ -237,7 +237,7 @@ CodeDeploy 를 사용하기 위해선 IAM 에서 역할을 만들어야 합니�
 
 ### 4.1.1. IAM 메뉴에서 역할 선택
 
-![](images/screen_2022_05_02_03_24_55.png)
+<img src="https://raw.githubusercontent.com/ParkJiwoon/PrivateStudy/master/ci-cd/images/screen_2022_05_02_03_24_55.png">
 
 IAM 서비스로 이동해서 역할 만들기를 선택합니다.
 
@@ -245,7 +245,7 @@ IAM 서비스로 이동해서 역할 만들기를 선택합니다.
 
 ### 4.1.2. CodeDeploy 엔티티 선택
 
-![](images/screen_2022_05_03_04_16_45.png)
+<img src="https://raw.githubusercontent.com/ParkJiwoon/PrivateStudy/master/ci-cd/images/screen_2022_05_03_04_16_45.png">
 
 기본적으로 제공되는 AWS 서비스에서 `CodeDeploy` 를 검색한 후 가장 기본적인 걸 선택합니다.
 
@@ -253,7 +253,7 @@ IAM 서비스로 이동해서 역할 만들기를 선택합니다.
 
 ### 4.1.3. IAM 이름 설정
 
-![](images/screen_2022_05_03_04_21_12.png)
+<img src="https://raw.githubusercontent.com/ParkJiwoon/PrivateStudy/master/ci-cd/images/screen_2022_05_03_04_21_12.png">
 
 나머지는 건들 필요 없고 이름만 새로 추가합니다.
 
@@ -269,13 +269,13 @@ IAM 서비스로 이동해서 역할 만들기를 선택합니다.
 
 <br>
 
-![](images/screen_2022_05_03_04_26_09.png)
+<img src="https://raw.githubusercontent.com/ParkJiwoon/PrivateStudy/master/ci-cd/images/screen_2022_05_03_04_26_09.png">
 
 메뉴에서 생성 버튼을 누릅니다.
 
 <br>
 
-![](images/screen_2022_05_03_04_27_15.png)
+<img src="https://raw.githubusercontent.com/ParkJiwoon/PrivateStudy/master/ci-cd/images/screen_2022_05_03_04_27_15.png">
 
 원하는 이름을 입력 후 컴퓨팅 플랫폼은 `EC2/온프레미스` 를 선택합니다.
 
@@ -289,7 +289,7 @@ CodeDeploy 애플리케이션에서 사용하는 배포 그룹을 생성합니�
 
 ### 4.3.1. 메뉴에서 선택
 
-![](images/screen_2022_05_03_04_29_39.png)
+<img src="https://raw.githubusercontent.com/ParkJiwoon/PrivateStudy/master/ci-cd/images/screen_2022_05_03_04_29_39.png">
 
 방금 만든 애플리케이션에서 배포 그룹 생성을 누릅니다.
 
@@ -297,7 +297,7 @@ CodeDeploy 애플리케이션에서 사용하는 배포 그룹을 생성합니�
 
 ### 4.3.2. 이름, 역할, 유형 선택
 
-![](images/screen_2022_05_03_04_31_04.png)
+<img src="https://raw.githubusercontent.com/ParkJiwoon/PrivateStudy/master/ci-cd/images/screen_2022_05_03_04_31_04.png">
 
 원하는 배포 그룹 이름, 역할, 유형을 설정합니다.
 
@@ -307,7 +307,7 @@ CodeDeploy 애플리케이션에서 사용하는 배포 그룹을 생성합니�
 
 ### 4.3.3. EC2 인스턴스 선택
 
-![](images/screen_2022_05_03_04_33_28.png)
+<img src="https://raw.githubusercontent.com/ParkJiwoon/PrivateStudy/master/ci-cd/images/screen_2022_05_03_04_33_28.png">
 
 어떤 인스턴스에서 동작할 지 선택합니다.
 
@@ -319,7 +319,7 @@ EC2 인스턴스에서 태그를 추가해야 선택할 수 있습니다.
 
 ### 4.3.4. 나머지 설정 후 배포 그룹 생성
 
-![](images/screen_2022_05_03_04_42_44.png)
+<img src="https://raw.githubusercontent.com/ParkJiwoon/PrivateStudy/master/ci-cd/images/screen_2022_05_03_04_42_44.png">
 
 AWS Systems Manager 는 크게 중요한거 같지 않으니 적당히 선택하고 로드 밸런싱을 사용하지 않으니 체크만 해제합니다.
 
@@ -337,7 +337,7 @@ AWS 를 Github Actions 워크 플로우에서 접근하려면 권한이 필요�
 
 ## 5.1. IAM 사용자 메뉴로 이동
 
-![](images/screen_2022_05_03_04_51_25.png)
+<img src="https://raw.githubusercontent.com/ParkJiwoon/PrivateStudy/master/ci-cd/images/screen_2022_05_03_04_51_25.png">
 
 IAM 메뉴에서 사용자 추가를 선택합니다.
 
@@ -345,7 +345,7 @@ IAM 메뉴에서 사용자 추가를 선택합니다.
 
 ## 5.2. IAM 사용자 이름 및 액세스 유형 설정
 
-![](images/screen_2022_05_03_04_53_30.png)
+<img src="https://raw.githubusercontent.com/ParkJiwoon/PrivateStudy/master/ci-cd/images/screen_2022_05_03_04_53_30.png">
 
 사용자 이름을 추가하고 액세스 유형을 선택합니다.
 
@@ -355,7 +355,7 @@ IAM 메뉴에서 사용자 추가를 선택합니다.
 
 ## 5.3. 접근이 필요한 권한 추가
 
-![](images/screen_2022_05_03_04_55_46.png)
+<img src="https://raw.githubusercontent.com/ParkJiwoon/PrivateStudy/master/ci-cd/images/screen_2022_05_03_04_55_46.png">
 
 이 사용자에게 추가할 접근 권한을 고릅니다.
 
@@ -368,7 +368,7 @@ IAM 메뉴에서 사용자 추가를 선택합니다.
 
 ## 5.4. 사용자 만들기 완료
 
-![](images/screen_2022_05_03_05_50_32.png)
+<img src="https://raw.githubusercontent.com/ParkJiwoon/PrivateStudy/master/ci-cd/images/screen_2022_05_03_05_50_32.png">
 
 태그는 필요 없기 때문에 생략하고 잘못된 설정이 없는지 마지막으로 확인 후 사용자를 만듭니다.
 
@@ -376,7 +376,7 @@ IAM 메뉴에서 사용자 추가를 선택합니다.
 
 ## 5.5. Access Key 및 Secret Key 확인
 
-![](images/screen_2022_05_03_05_50_59.png)
+<img src="https://raw.githubusercontent.com/ParkJiwoon/PrivateStudy/master/ci-cd/images/screen_2022_05_03_05_50_59.png">
 
 사용자를 만들고 나면 "액세스 키 ID" 와 "비밀 액세스 키" 가 존재합니다.
 
@@ -388,7 +388,7 @@ IAM 메뉴에서 사용자 추가를 선택합니다.
 
 ## 5.6. Github Repository 의 Secrets 추가
 
-![](images/screen_2022_05_03_05_10_59.png)
+<img src="https://raw.githubusercontent.com/ParkJiwoon/PrivateStudy/master/ci-cd/images/screen_2022_05_03_05_10_59.png">
 
 Github Actions 을 적용하려는 `Github > Repository > Settings > Secrets` 로 이동해서 위 키 값들을 등록합니다.
 
@@ -613,7 +613,7 @@ tasks.getByName<Jar>("jar") {
 
 ## 8.1. Sample Workflow 선택
 
-![](images/screen_2022_05_03_17_25_11.png)
+<img src="https://raw.githubusercontent.com/ParkJiwoon/PrivateStudy/master/ci-cd/images/screen_2022_05_03_17_25_11.png">
 
 [Github Actions CI 편](https://bcp0109.tistory.com/362)에서는 기본적으로 제공되는 gradle 샘플을 수정했지만 배포 플로우는 거의 다 수정해야 하므로 그냥 가장 심플한 워크 플로우를 선택합니다.
 
@@ -782,13 +782,13 @@ yaml 파일로 설정한 것처럼 main 브랜치에 push 되는 경우 Github A
 
 ## 9.1. Github Repo 에서 확인
 
-![](images/screen_2022_05_04_02_05_36.png)
+<img src="https://raw.githubusercontent.com/ParkJiwoon/PrivateStudy/master/ci-cd/images/screen_2022_05_04_02_05_36.png">
 
 워크 플로우가 정상적으로 수행되면 이렇게 커밋에 체크 표시가 생깁니다.
 
 <br>
 
-![](images/screen_2022_05_04_02_06_51.png)
+<img src="https://raw.githubusercontent.com/ParkJiwoon/PrivateStudy/master/ci-cd/images/screen_2022_05_04_02_06_51.png">
 
 "Details" 를 눌러보거나 "Actions" 탭으로 이동하면 수행한 스텝이 나옵니다.
 
@@ -798,7 +798,7 @@ yaml 파일로 설정한 것처럼 main 브랜치에 push 되는 경우 Github A
 
 ## 9.2. CodeDeploy 에서 배포 내역 확인
 
-![](images/screen_2022_05_04_03_48_36.png)
+<img src="https://raw.githubusercontent.com/ParkJiwoon/PrivateStudy/master/ci-cd/images/screen_2022_05_04_03_48_36.png">
 
 AWS CodeDeploy 메뉴로 이동하면 배포 내역을 확인인할 수 있습니다.
 
@@ -806,7 +806,7 @@ AWS CodeDeploy 메뉴로 이동하면 배포 내역을 확인인할 수 있습�
 
 ## 9.3. EC2 서버에서 애플리케이션 실행 확인
 
-![](images/screen_2022_05_04_05_52_38.png)
+<img src="https://raw.githubusercontent.com/ParkJiwoon/PrivateStudy/master/ci-cd/images/screen_2022_05_04_05_52_38.png">
 
 EC2 서버에 접속해서 확인 해보면 Spring Boot 프로젝트 코드가 있으며 서버도 정상적으로 떠있는 것을 확인할 수 있습니다.
 
