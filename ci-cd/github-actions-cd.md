@@ -136,7 +136,7 @@ EC2 인스턴스에서 S3 접근할 수 있도록 `AmazonS3FullAccess` 권한을
 
 ![](images/screen_2022_05_03_12_59_03.png)
 
-마지막으로 적당한 이름을 입력한 뒤 생성을 완료합니다.
+마지막으로 원하는 이름을 입력한 뒤 생성을 완료합니다.
 
 <br>
 
@@ -167,7 +167,7 @@ $ sudo ./install auto > /tmp/logfile
 $ sudo service codedeploy-agent status
 ```
 
-[CodeDeploy Agent 설치](https://docs.aws.amazon.com/ko_kr/codedeploy/latest/userguide/codedeploy-agent-operations-install-ubuntu.html) 를 보고 명령어를 따라 치기만 히면 됩니다.
+[CodeDeploy Agent 설치](https://docs.aws.amazon.com/ko_kr/codedeploy/latest/userguide/codedeploy-agent-operations-install-ubuntu.html) 를 보고 명령어를 따라 치기만 하면 됩니다.
 
 EC2 환경이 Ubuntu 가 아니거나 버전이 다르다면 공식 문서를 참고해주세요.
 
@@ -181,7 +181,9 @@ EC2 환경이 Ubuntu 가 아니거나 버전이 다르다면 공식 문서를 �
 
 # 3. AWS S3 생성
 
-빌드한 프로젝트 결과물을 어딘가에 저장해두기 위해 S3 버킷을 생성해야 합니다.
+[AWS S3](https://aws.amazon.com/ko/s3/) 버킷이란 이미지 또는 zip 파일을 저장하기 위한 스토리지 서비스입니다.
+
+빌드한 프로젝트 코드를 압축해서 S3 에 저장한 후 EC2 서버에서 S3 에 접근해서 압축한 파일을 가져오기 위해 사용합니다.
 
 <br>
 
@@ -579,10 +581,24 @@ Github Actions 워크플로우에서 이미 빌드는 마쳤기 때문에 JAR �
 
 ## 7.3. `build.gradle` 파일 수정
 
-Spring Boot 2.5 버전부터는 빌드 시 `-plain.jar` 파일이 만들어지기 때문에 `build.gradle` 수정 필요
+위 스크립트를 보면 `/build/libs/*.jar` 파일을 `$JAR_FILE` 파일로 복사합니다.
 
-```gradle
+그런데 Spring Boot 2.5 버전부터는 빌드 시 일반 jar 파일 하나와 `-plain.jar` 파일 하나가 함께 만들어집니다.
+
+그래서 빌드 시 plain jar 파일은 만들어지지 않도록 `build.gradle` 파일에 다음 내용을 추가해야 합니다.
+
+```json
 jar {
+    enabled = false
+}
+```
+
+<br>
+
+`build.gradle.kts` 파일은 이렇게 작성하시면 됩니다.
+
+```kt
+tasks.getByName<Jar>("jar") {
     enabled = false
 }
 ```
@@ -613,6 +629,8 @@ on:
     branches:
       - main
 
+# 본인이 설정한 값을 여기서 채워넣습니다.
+# 리전, 버킷 이름, CodeDeploy 앱 이름, CodeDeploy 배포 그룹 이름
 env:
   AWS_REGION: ap-northeast-2
   S3_BUCKET_NAME: my-github-actions-s3-bucket
@@ -754,11 +772,46 @@ AWS 에 접근하기 위해 인증하는 스텝입니다.
 
 <br>
 
-# CodeDeploy
+# 9. Github Actions 사용해서 배포하기
 
-code-agent 실행 로그 보기 `/opt/codedeploy-agent/deployment-root/deployment-logs/codedeploy-agent-deployments.log`
+이제 모든 세팅이 끝났으므로 배포를 진행해봅니다.
 
-CodeDeploy 로그 보기 `/var/log/aws/codedeploy-agent/codedeploy-agent.log`
+yaml 파일로 설정한 것처럼 main 브랜치에 push 되는 경우 Github Actions Workflow 가 수행됩니다.
+
+<br>
+
+## 9.1. Github Repo 에서 확인
+
+![](images/screen_2022_05_04_02_05_36.png)
+
+워크 플로우가 정상적으로 수행되면 이렇게 커밋에 체크 표시가 생깁니다.
+
+<br>
+
+![](images/screen_2022_05_04_02_06_51.png)
+
+"Details" 를 눌러보거나 "Actions" 탭으로 이동하면 수행한 스텝이 나옵니다.
+
+만약 실패한다면 어떤 스텝에서 실패했는지 확인할 수 있습니다.
+
+<br>
+
+## 9.2. CodeDeploy 에서 배포 내역 확인
+
+![](images/screen_2022_05_04_03_48_36.png)
+
+AWS CodeDeploy 메뉴로 이동하면 배포 내역을 확인인할 수 있습니다.
+
+<br>
+
+## 9.3. EC2 서버에서 애플리케이션 실행 확인
+
+![](images/screen_2022_05_04_05_52_38.png)
+
+EC2 서버에 접속해서 확인 해보면 Spring Boot 프로젝트 코드가 있으며 서버도 정상적으로 떠있는 것을 확인할 수 있습니다.
+
+- CodeDeploy 배포 로그 확인: `/var/log/aws/codedeploy-agent/codedeploy-agent.log`
+- CodeDeploy Hooks 로그 확인: `/opt/codedeploy-agent/deployment-root/deployment-logs/codedeploy-agent-deployments.log`
 
 <br>
 
