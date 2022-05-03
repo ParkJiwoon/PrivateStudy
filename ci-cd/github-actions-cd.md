@@ -14,6 +14,18 @@ Github Actions 에 대해서는 [지난 포스팅](https://bcp0109.tistory.com/3
 
 이번에는 Github Actions 를 사용해서 AWS EC2 에 자동으로 배포하는 과정을 알아봅니다.
 
+글은 다음과 같은 순서로 진행됩니다.
+
+1. Github Actions 에서 AWS 에 배포하는 방법
+2. AWS EC2 설정 추가
+3. AWS S3 버킷 생성
+4. AWS CodeDeploy 앱 생성 및 배포 설정
+5. Github Actions 에서 사용할 사용자 권한 추가
+6. AppSpec 파일 작성
+7. 배포 스크립트 작성
+8. Github Actions Workflow 작성
+9. Github 에서 push 로 배포하기
+
 <br>
 
 # 1. 배포 방법
