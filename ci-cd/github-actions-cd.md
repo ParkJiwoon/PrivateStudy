@@ -63,12 +63,20 @@ AWS ECS 는 미리 정의한 Task Definition 을 기반으로 클러스터에 �
 
 ## 1.2. 배포 과정
 
+<img src="https://raw.githubusercontent.com/ParkJiwoon/PrivateStudy/master/ci-cd/images/screen_2022_05_05_05_33_03.png">
+
 큰 흐름을 요약하면 다음과 같습니다.
 
 1. Github Actions 에서 코드 빌드 (테스트는 CI 에서 했다고 검증했다고 판단하여 생략)
 2. AWS 인증
 3. 코드 압축해서 AWS S3 에 업로드
 4. AWS CodeDeploy 실행하여 S3 에 있는 코드 EC2 에 배포
+
+결국 **Github 프로젝트 코드를 AWS S3 에 업로드 한 후 AWS EC2 에서 끌어다 쓰는 것이 가장 핵심**이며 AWS CodeDeploy 는 그걸 보조해주는 역할을 담당합니다.
+
+Github 에서 CodeDeploy, S3 에 접근하기 위한 권한이 필요하고 EC2 에서 S3 에 접근하기 위한 권한도 필요하기 때문에 설정이 조금 복잡하게 느껴질 수도 있습니다.
+
+차근차근 진행 해보겠습니다.
 
 <br>
 
