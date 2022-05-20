@@ -6,23 +6,21 @@ IntelliJ IDEA 를 처음 설치했을때 할만한 세팅과 유용한 플러그
 
 Ultimate 을 기준으로 합니다.
 
-- [IntelliJ 유용한 설정 및 플러그인](#intellij-유용한-설정-및-플러그인)
-- [1. Overview](#1-overview)
-- [2. Configuration](#2-configuration)
-  - [2.1. SDK 설정](#21-sdk-설정)
-  - [2.2. Auto Import 체크](#22-auto-import-체크)
-  - [2.3. 대소문자 구분 체크 해제](#23-대소문자-구분-체크-해제)
-  - [2.4. Build Memory 늘리기](#24-build-memory-늘리기)
-  - [2.5. Memory Indicator](#25-memory-indicator)
-  - [2.6. Always Select Opened File](#26-always-select-opened-file)
-  - [2.7. Gradle Build 를 IntelliJ IDEA 로 변경](#27-gradle-build-를-intellij-idea-로-변경)
-  - [2.8. Annotation Processor](#28-annotation-processor)
-- [3. Plugin](#3-plugin)
-  - [3.1. Key Promoter X](#31-key-promoter-x)
-  - [3.2. Rainbow Brackets](#32-rainbow-brackets)
-  - [3.3. CodeGlance](#33-codeglance)
-  - [3.4. GitToolBox](#34-gittoolbox)
-- [Reference](#reference)
+-   Configuration
+    -   SDK 설정
+    -   Auto Import 체크
+    -   대소문자 구분 체크 해제
+    -   Build Memory 늘리기
+    -   Memory Indicator
+    -   Always Select Opened File
+    -   Gradle Build 를 IntelliJ IDEA 로 변경
+    -   Annotation Processor
+    -   Inlay Hints
+-   Plugin
+    -   Key Promoter X
+    -   Rainbow Brackets
+    -   CodeGlance
+    -   GitToolBox
 
 <br>
 
@@ -106,6 +104,18 @@ Gradle 을 사용할 때만 Build 속도를 향상시킬 수 있습니다.
 ## 2.8. Annotation Processor
 
 <img src="https://user-images.githubusercontent.com/28972341/144175333-951e6d68-d829-4e24-9ee3-3a24dd2072b9.png" width=80%>
+
+<br><br>
+
+## 2.9. Inlay Hints
+
+Kotlin 을 사용하는 경우 `val`, `var` 를 사용하여 변수를 선언하는데, 타입을 명시하지 않는 경우도 있습니다.
+
+타입을 생략하는 경우 어떤 타입인지 한눈에 안들어올 수가 있는데 Inlay Hints 를 켜면 타입을 알려줍니다.
+
+언어별로 설정할 수도 있으며 저는 그냥 다 켜두는 편입니다.
+
+<img src="https://github.com/ParkJiwoon/PrivateStudy/blob/master/intellij/images/screen_2022_05_20_22_57_50.png?raw=true" width="80%">
 
 <br><br>
 
