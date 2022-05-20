@@ -4,7 +4,7 @@
 
 개인적으로 가장 선호하는 폰트입니다.
 
-https://sourcefoundry.org/hack/#download 에서 Mac OS Zip 을 다운받고 풀어서 설치하면 됩니다.
+https://sourcefoundry.org/hack/#download 에서 Mac OS Zip 을 다운받고 풀어서 ttl 파일들을 실행시면 서체를 다운받을 수 있습니다.
 
 <br>
 
@@ -97,7 +97,8 @@ $ source ~/.zshrc
 $ brew install zsh-syntax-highlighting
 
 # 적용 (.zshrc 맨 밑에 추가해야 터미널을 껐다 켜도 적용됨)
-$ source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+# 환경에 따라 zsh 파일 위치가 다를 수 있으므로 설치 후 터미널 가이드 참고
+$ source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 ```
 
 <br>
@@ -117,7 +118,8 @@ $ source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 $ brew install zsh-autosuggestions
 
 # 적용 (.zshrc 맨 밑에 추가해야 터미널을 껐다 켜도 적용됨)
-$ source /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+# 환경에 따라 zsh 파일 위치가 다를 수 있으므로 설치 후 터미널 가이드 참고
+source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 ```
 
 <br>
