@@ -6,21 +6,24 @@ IntelliJ IDEA 를 처음 설치했을때 할만한 세팅과 유용한 플러그
 
 Ultimate 을 기준으로 합니다.
 
--   Configuration
-    -   SDK 설정
-    -   Auto Import 체크
-    -   대소문자 구분 체크 해제
-    -   Build Memory 늘리기
-    -   Memory Indicator
-    -   Always Select Opened File
-    -   Gradle Build 를 IntelliJ IDEA 로 변경
-    -   Annotation Processor
-    -   Inlay Hints
--   Plugin
-    -   Key Promoter X
-    -   Rainbow Brackets
-    -   CodeGlance
-    -   GitToolBox
+- [IntelliJ 유용한 설정 및 플러그인](#intellij-유용한-설정-및-플러그인)
+- [1. Overview](#1-overview)
+- [2. Configuration](#2-configuration)
+  - [2.1. SDK 설정](#21-sdk-설정)
+  - [2.2. Auto Import 체크](#22-auto-import-체크)
+  - [2.3. 대소문자 구분 체크 해제](#23-대소문자-구분-체크-해제)
+  - [2.4. Build Memory 늘리기](#24-build-memory-늘리기)
+  - [2.5. Memory Indicator](#25-memory-indicator)
+  - [2.6. Always Select Opened File](#26-always-select-opened-file)
+  - [2.7. Gradle Build 를 IntelliJ IDEA 로 변경](#27-gradle-build-를-intellij-idea-로-변경)
+  - [2.8. Annotation Processor](#28-annotation-processor)
+  - [2.9. Inlay Hints](#29-inlay-hints)
+- [3. Plugin](#3-plugin)
+  - [3.1. Key Promoter X](#31-key-promoter-x)
+  - [3.2. Rainbow Brackets](#32-rainbow-brackets)
+  - [3.3. CodeGlance](#33-codeglance)
+  - [3.4. GitToolBox](#34-gittoolbox)
+- [Reference](#reference)
 
 <br>
 
