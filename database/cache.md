@@ -42,7 +42,7 @@ Redis 같은 별도의 캐시 저장소를 사용하는게 일반적이며, DB �
 
 ## 3.1. Cache Aside
 
-![](images/screen_2022_03_16_01_54_00.png)
+<img src="https://github.com/ParkJiwoon/PrivateStudy/raw/master/database/images/screen_2022_03_16_01_54_00.png">
 
 1. 캐시에 데이터가 있는지 확인
 2. 데이터가 존재하면 (Cache Hit) 해당 캐시 데이터를 반환
@@ -62,7 +62,7 @@ Cache Hit 의 경우 DB 를 확인하지 않기 때문에 **캐시가 최신 데
 
 ## 3.2. Read Through
 
-![](images/screen_2022_03_16_01_54_53.png)
+<img src="https://github.com/ParkJiwoon/PrivateStudy/raw/master/database/images/screen_2022_03_16_01_54_53.png">
 
 1. 캐시에 데이터 요청
 2. 캐시는 데이터가 있으면 (Cache Hit) 바로 반환
@@ -104,7 +104,7 @@ Cache Warm up 작업을 할 때 어떤 데이터를 넣느냐에 따라 마찬�
 
 ## 4.1. Write Around
 
-![](images/screen_2022_03_16_01_58_03.png)
+<img src="https://github.com/ParkJiwoon/PrivateStudy/raw/master/database/images/screen_2022_03_16_01_58_03.png">
 
 1. 데이터 추가/업데이트 요청이 들어오면 DB 에만 데이터를 반영
 2. 쓰기 작업에서 캐시는 건들지 않고 읽기 작업 시 Cache Miss 가 발생하면 업데이트 됨
@@ -121,7 +121,7 @@ Cache 가 갱신된지 얼마 안된 경우에는 **캐시 Expire 처리 되기 
 
 ## 4.2. Write Through
 
-![](images/screen_2022_03_16_01_54_53.png)
+<img src="https://github.com/ParkJiwoon/PrivateStudy/raw/master/database/images/screen_2022_03_16_01_54_53.png">
 
 1. 캐시에 데이터를 추가하거나 업데이트
 2. 캐시가 DB 에 동기식으로 데이터 갱신
@@ -139,7 +139,7 @@ Read Through 와 마찬가지로 DB 동기화 작업을 캐시에게 위임합�
 
 ## 4.3. Write Back (Write Behind)
 
-![](images/screen_2022_03_16_01_57_15.png)
+<img src="https://github.com/ParkJiwoon/PrivateStudy/raw/master/database/images/screen_2022_03_16_01_57_15.png">
 
 1. 캐시에 데이터를 추가하거나 업데이트
 2. 캐시 데이터 반환
