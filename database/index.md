@@ -36,7 +36,7 @@
 
 # 2. 인덱스 종류
 
-인덱스 종류는 어떤 자료구조를 사용하냐에 따라 나눌수도 있고, 데이터 저장 방식에 따라 클러스티드 (Clustered) 인덱스와 넌클러스티드 (Non Clustered) 인덱스로 나누기도 합니다.
+인덱스 종류는 어떤 자료구조를 사용하냐에 따라 나눌수도 있고, 데이터 저장 방식에 따라 클러스터드 (Clustered) 인덱스와 넌클러스티드 (Non Clustered) 인덱스로 나누기도 합니다.
 
 <br>
 
@@ -50,14 +50,24 @@
   - 항상 정렬된 상태를 유지하고 노드 내에서도 정렬되어 있음
   - Non Clustered 인덱스에 비해 조회 속도가 빠르지만 삽입/수정/삭제는 더 느림
 - **Non Clustered Index**
-  - 테이블당 약 240 개의 인덱스를 만들 수 있음
   - UNIQUE 로 설정된 컬럼에 자동으로 생성됨
   - 인덱스 페이지는 로그 파일에 저장됨
   - 레코드의 원본은 정렬되지 않고 인덱스 페이지만 정렬됨
 
 <br>
 
-## 2.2. 자료구조에 따른 분류
+## 2.2. Primary Index vs Secondary Index
+
+- **Primary Index**
+  - PK (기본키) 를 기반으로 만들어진 인덱스
+  - PK 는 하나만 존재할 수 있기 때문에 Primary Index 도 단 하나만 존재
+- **Secondary Index**
+  - 기본키는 아니지만 성능 향상을 위해 임의의 컬럼을 지정해서 만든 인덱스
+  - 여러 개의 Secondary Index 가 존재할 수 있음
+
+<br>
+
+## 2.3. 자료구조에 따른 분류
 
 - B-Tree 인덱스
   - 가장 많이 사용되는 구조
@@ -72,6 +82,8 @@
 <br>
 
 # 3. B-Tree 인덱스
+
+<img src="https://github.com/ParkJiwoon/PrivateStudy/raw/master/database/images/screen_2022_05_22_05_09_09.png">
 
 Balanced Tree 의 약자로서 데이터베이스 인덱싱 알고리즘 가운데 가장 일반적으로 사용되는 알고리즘 입니다.
 
