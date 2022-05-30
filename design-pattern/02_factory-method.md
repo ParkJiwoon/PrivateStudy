@@ -58,7 +58,7 @@ public class NaverUser implements User {
 
 <br>
 
-## 2.2. Creator (UserFactory) 정의
+## 2.2. Creator (UserFactory)
 
 ```java
 public abstract class UserFactory {
