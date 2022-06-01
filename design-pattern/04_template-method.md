@@ -1,14 +1,14 @@
 # Template Method (템플릿 메서드) 패턴
 
-# 1. Definition
+# 1. Overview
 
-![](images/screen_2022_01_31_23_16_21.png)
+<img src="https://github.com/ParkJiwoon/PrivateStudy/raw/master/design-pattern/images/screen_2022_01_31_23_16_21.png?raw=true">
 
 코드를 작성하다보면 로깅, 예외 처리 등등 반복되어 작성하는 코드가 발생합니다.
 
-이런 경우 코드의 중복을 없애기 위한 패턴 중 하나가 템플릿 메서드 패턴입니다.
+이런 경우 **코드의 중복을 없애기 위한** 패턴 중 하나가 템플릿 메서드 패턴입니다.
 
-AbstractClass (추상 클래스) 는 템플릿을 제공하고 이를 상속 받는 하위 클래스가 구체적인 로직을 작성합니다.
+AbstractClass (추상 클래스) 는 템플릿을 제공하고 이를 상속 받는 **하위 클래스가 구체적인 로직을 작성**합니다.
 
 추상 클래스가 전체적인 골격을 정의하고 일부 로직은 하위 상속 클래스에서 구현합니다.
 
@@ -72,9 +72,7 @@ public class BeforeTemplateMethodApp {
 
 <br>
 
-## 2.2. After
-
-### 2.2.1. AbstractClass
+## 2.2. Abstract Class
 
 ```java
 public abstract class AbstractTemplate {
@@ -103,7 +101,7 @@ public abstract class AbstractTemplate {
 
 <br>
 
-### 2.2.2. SubClass
+## 2.3. Sub Class
 
 ```java
 public class SubClassLogic1 extends AbstractTemplate {
@@ -131,7 +129,7 @@ public class SubClassLogic2 extends AbstractTemplate {
 
 <br>
 
-### 2.2.3. Application(Client)
+## 2.4. Application (Client)
 
 ```java
 public class AfterTemplateMethodApp {
@@ -150,8 +148,6 @@ public class AfterTemplateMethodApp {
 
 `execute()` 메서드를 호출하는 건 동일하지만 어떤 객체를 만드냐에 따라 로직이 달라집니다.
 
-전체적인 코드량이 오히려 많아진 것 같지만, 디자인 패턴의 진가는 기존 코드를 수정하거나 확장할 때 드러납니다.
-
 <br>
 
 # 3. 장단점
@@ -160,16 +156,17 @@ public class AfterTemplateMethodApp {
   - 중복된 코드를 없애고 SubClass 에서는 비즈니스 로직에만 집중할 수 있음 (SRP)
   - 나중에 새로운 비즈니스 로직이 추가되어도 기존 코드를 수정하지 않아도 됨 (OCP)
 - 단점
-  - SubClass 를 계속 만들어야 함
+  - 클래스 파일을 계속 만들어야 함
   - 자식 클래스는 실제로 부모 클래스를 사용하지 않는데 단순히 패턴 구현을 위한 상속 때문에 의존 관계를 갖고 있음
 
 <br>  
 
-템플릿 메서드 패턴과 비슷한 역할을 하면서 상속의 단점을 제거할 수 있는 디자인 패턴으로 Strategy (전략) 패턴이 있습니다.
+템플릿 메서드 패턴과 비슷한 역할을 하면서 상속의 단점을 제거할 수 있는 디자인 패턴으로 [Strategy (전략) 패턴](https://bcp0109.tistory.com/370)이 있습니다.
 
 <br>
 
 # Reference
 
+- [Wikipedia - Template Method Pattern](https://en.wikipedia.org/wiki/Template_method_pattern)
 - [스프링 핵심 원리 - 고급편](https://www.inflearn.com/course/%EC%8A%A4%ED%94%84%EB%A7%81-%ED%95%B5%EC%8B%AC-%EC%9B%90%EB%A6%AC-%EA%B3%A0%EA%B8%89%ED%8E%B8/dashboard)
 - [코딩으로 학습하는 GoF의 디자인 패턴](https://www.inflearn.com/course/%EB%94%94%EC%9E%90%EC%9D%B8-%ED%8C%A8%ED%84%B4/dashboard)

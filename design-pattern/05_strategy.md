@@ -1,8 +1,8 @@
 # Strategy (전략) 패턴 (feat. Template Callback 패턴)
 
-# 1. Definition
+# 1. Overview
 
-![](images/screen_2022_02_01_02_34_12.png)
+<img src="https://github.com/ParkJiwoon/PrivateStudy/raw/master/design-pattern/images/screen_2022_02_01_02_34_12.png?raw=true">
 
 전략 패턴은 여러 알고리즘 (로직) 을 캡슐화 하여 상호 교환 가능하게 하는 패턴입니다.
 
@@ -18,7 +18,7 @@
 
 <br>
 
-# 2. Example
+# 2. Strategy Example
 
 간단한 예시 코드를 작성해봅니다.
 
@@ -72,9 +72,7 @@ public class BeforeStrategyApp {
 
 <br>
 
-## 2.2. After
-
-### 2.2.1. Strategy
+## 2.2. Strategy (변경되는 부분)
 
 ```java
 public interface Strategy {
@@ -104,7 +102,7 @@ public class StrategyLogic2 implements Strategy {
 
 <br>
 
-### 2.2.2. Context
+## 2.3. Context (공통된 부분)
 
 ```java
 public class Context {
@@ -137,7 +135,7 @@ public class Context {
 
 <br>
 
-### 2.2.3. Application (Client)
+## 2.4. Application (Client)
 
 ```java
 public class AfterStrategyApp {
@@ -166,7 +164,7 @@ Spring 에서는 Bean 주입 설정만 바꾸면 쉽게 로직을 변경할 수 
   - 공통 로직이 부모 클래스에 있지 않고 `Context` 라는 별도의 클래스에 존재하기 때문에 구현체들에 대한 영향도가 적음
   - `Context` 가 `Strategy` 라는 인터페이스를 의존하고 있기 때문에 구현체를 갈아끼우기 쉬움
 - 단점
-  - 로직이 늘어날 때마다 구현체 Class 가 늘어남
+  - 로직이 늘어날 때마다 구현체 클래스가 늘어남
   - `Context` 와 `Strategy` 를 한번 조립하면 전략을 변경하기 힘듬
 
 <br>
@@ -183,13 +181,13 @@ Spring 에서는 Bean 주입 설정만 바꾸면 쉽게 로직을 변경할 수 
 
 <br>
 
-## 4.1. Example
+# 5. Template Callback Example
 
 위에서 사용했던 예제를 템플릿 패턴으로 다시 구현해봅니다.
 
 <br>
 
-### 4.1.1. Callback (Strategy)
+## 5.1. Callback (Strategy)
 
 ```java
 public interface Callback {
@@ -203,7 +201,7 @@ public interface Callback {
 
 <br>
 
-### 4.1.2. Template (Context)
+## 5.2. Template (Context)
 
 ```java
 public class TimeLogTemplate {
@@ -226,7 +224,7 @@ public class TimeLogTemplate {
 
 <br>
 
-### 4.1.3. Application (Client)
+## 5.3. Application (Client)
 
 ```java
 public class AfterTemplateCallbackApp {
@@ -249,5 +247,6 @@ Spring 에서 `JdbcTemplate`, `RestTemplate` 등 `xxxTemplate` 의 형태를 하
 
 # Reference
 
+- [Wikipedia - Strategy Pattern](https://en.wikipedia.org/wiki/Strategy_pattern)
 - [스프링 핵심 원리 - 고급편](https://www.inflearn.com/course/%EC%8A%A4%ED%94%84%EB%A7%81-%ED%95%B5%EC%8B%AC-%EC%9B%90%EB%A6%AC-%EA%B3%A0%EA%B8%89%ED%8E%B8/dashboard)
 - [코딩으로 학습하는 GoF의 디자인 패턴](https://www.inflearn.com/course/%EB%94%94%EC%9E%90%EC%9D%B8-%ED%8C%A8%ED%84%B4/dashboard)
