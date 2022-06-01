@@ -12,7 +12,7 @@ Factory 패턴 시리즈의 마지막인 추상 팩토리 패턴입니다.
 
 # 2. Abstract Method
 
-![](images/screen_2022_05_31_04_12_38.png)
+<img src="https://github.com/ParkJiwoon/PrivateStudy/blob/master/design-pattern/images/screen_2022_05_31_04_12_38.png?raw=true">
 
 추상 팩토리 패턴은 연관된 객체들의 생성을 하나의 팩토리에서 담당합니다.
 
@@ -127,7 +127,7 @@ public class AbstractFactoryApp {
 
 ## 3.5. 의존 관계 다이어그램
 
-![](images/screen_2022_06_02_01_56_33.png)
+<img src="https://github.com/ParkJiwoon/PrivateStudy/blob/master/design-pattern/images/screen_2022_06_02_01_56_33.png?raw=true">
 
 의존 관계 그림을 보면 맨 처음에 봤던 다이어그램과 동일한 것을 볼 수 있습니다.
 

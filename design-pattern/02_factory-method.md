@@ -14,7 +14,7 @@ Factory 패턴은 객체 생성과 관련된 디자인 패턴입니다.
 
 # 2. Factory Method
 
-![](images/screen_2022_05_27_00_20_31.png)
+<img src="https://github.com/ParkJiwoon/PrivateStudy/blob/master/design-pattern/images/screen_2022_05_27_00_20_31.png?raw=true">
 
 **Factory Method Pattern (팩토리 메소드 패턴)** 은 생성 패턴 중 하나로 **객체를 생성할 때 어떤 클래스의 인스턴스를 만들 지 서브 클래스에서 결정**하게 합니다.
 

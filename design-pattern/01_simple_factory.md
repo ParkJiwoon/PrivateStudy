@@ -60,7 +60,7 @@ Pet dog = new Dog();
 
 <br>
 
-![](images/screen_2022_05_29_05_02_35.png)
+<img src="https://github.com/ParkJiwoon/PrivateStudy/blob/master/design-pattern/images/screen_2022_05_29_05_02_35.png?raw=true">
 
 이렇게 구현 클래스를 직접 의존하고 있으면 해당 클래스의 생성자나 전처리 코드가 변경되었을 때 사용하는 모든 `Client` 코드를 변경해야 합니다.
 
@@ -113,7 +113,7 @@ Pet dog = petFactory.createPet(Pet.Type.DOG);
 
 <br>
 
-![](images/screen_2022_05_29_05_29_30.png)
+<img src="https://github.com/ParkJiwoon/PrivateStudy/blob/master/design-pattern/images/screen_2022_05_29_05_29_30.png?raw=true">
 
 의존 관계를 그림으로 표현하면 위와 같이 변경됩니다.
 
