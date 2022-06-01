@@ -4,7 +4,7 @@
 
 Factory 패턴 시리즈의 마지막인 추상 팩토리 패턴입니다.
 
-추상 팩토리는 얼핏 보면 팩토리 메서드 패턴과 비슷하다고 느낄 수도 있습니다.
+추상 팩토리는 얼핏 보면 [팩토리 메서드 패턴](https://bcp0109.tistory.com/367)과 비슷하다고 느낄 수도 있습니다.
 
 가장 큰 차이점은 팩토리 메서드 패턴은 어떤 객체를 생성 할지에 집중하고 추상 팩토리 패턴은 연관된 객체들을 모아둔다는 것에 집중합니다.
 
@@ -141,8 +141,8 @@ public class AbstractFactoryApp {
 - 단점
   - 팩토리 메서드 패턴과 마찬가지로 클래스 갯수가 늘어납니다.
 
-
 <br>
 
 # Reference
 
+- [Wikipedia - Abstract Factory Pattern](https://en.wikipedia.org/wiki/Abstract_factory_pattern)
