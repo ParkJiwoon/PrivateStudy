@@ -36,4 +36,4 @@ $ asdf exec rails s
 
 # 접속 성공한 모습
 
-![](images/screen_2022_06_15_22_56_29.png)
+<img src="https://github.com/ParkJiwoon/PrivateStudy/raw/master/ruby/images/screen_2022_06_15_22_56_29.png">
