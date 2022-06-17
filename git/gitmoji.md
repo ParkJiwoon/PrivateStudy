@@ -30,7 +30,7 @@ $ npm i -g gitmoji-cli
 
 # 2. Configuration
 
-![](images/screen_2022_06_18_04_36_16.png)
+<img src="https://github.com/ParkJiwoon/PrivateStudy/raw/master/git/images/screen_2022_06_18_04_36_16.png?raw=true" width="80%">
 
 gitmoji 를 사용하기 전에 미리 설정을 해두는게 좋습니다.
 
@@ -40,7 +40,7 @@ gitmoji 를 사용하기 전에 미리 설정을 해두는게 좋습니다.
 
 <br>
 
-![](images/screen_2022_06_18_04_38_39.png)
+<img src="https://github.com/ParkJiwoon/PrivateStudy/raw/master/git/images/screen_2022_06_18_04_38_39.png?raw=true" width="80%">
 
 Github 에서 볼 때는 별 문제 없으나 이렇게 이모지를 지원하지 않는 외부 툴에서는 Text 그대로 노출됩니다.
 
@@ -58,7 +58,7 @@ gitmoji 의 사용법은 크게 어렵지 않습니다.
 
 ## 3.1. Choose Gitmoji
 
-![](images/screen_2022_06_18_04_24_15.png)
+<img src="https://github.com/ParkJiwoon/PrivateStudy/raw/master/git/images/screen_2022_06_18_04_24_15.png?raw=true" width="80%">
 
 `gitmoji -c` 를 입력하면 위 그림처럼 이모지 선택이 나옵니다.
 
@@ -66,7 +66,7 @@ gitmoji 의 사용법은 크게 어렵지 않습니다.
 
 <br>
 
-![](images/screen_2022_06_18_04_25_57.png)
+<img src="https://github.com/ParkJiwoon/PrivateStudy/raw/master/git/images/screen_2022_06_18_04_25_57.png?raw=true" width="80%">
 
 위 그림처럼 refactor 를 검색하면 그에 맞는 이모지를 띄워줍니다.
 
@@ -74,7 +74,7 @@ gitmoji 의 사용법은 크게 어렵지 않습니다.
 
 ## 3.2. Input Commit Message
 
-![](images/screen_2022_06_18_04_28_04.png)
+<img src="https://github.com/ParkJiwoon/PrivateStudy/raw/master/git/images/screen_2022_06_18_04_28_04.png?raw=true" width="80%">
 
 원하는 이모지를 선택했다면 Commit Title, Message 를 입력합니다.
 
@@ -88,7 +88,7 @@ Message 는 생략해도 됩니다.
 
 ## 3.3. Repository 확인
 
-![](images/screen_2022_06_18_04_31_15.png)
+<img src="https://github.com/ParkJiwoon/PrivateStudy/raw/master/git/images/screen_2022_06_18_04_31_15.png?raw=true" width="80%">
 
 이제 커밋 로그를 확인하면 이렇게 이모지가 잘 들어간 것을 볼 수 있습니다.
 
