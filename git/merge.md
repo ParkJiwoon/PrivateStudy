@@ -20,7 +20,7 @@ CLI 또는 GUI 에서 사용하는 경우입니다.
 
 ## 1.1. Merge
 
-![](images/screen_2022_06_20_03_49_52.png)
+![](https://github.com/ParkJiwoon/PrivateStudy/raw/master/git/images/screen_2022_06_20_03_49_52.png)
 
 ```sh
 $ git switch main
@@ -37,7 +37,7 @@ $ git merge feature
 
 ## 1.2. Fast-Forward
 
-![](images/screen_2022_06_20_03_50_22.png)
+![](https://github.com/ParkJiwoon/PrivateStudy/raw/master/git/images/screen_2022_06_20_03_50_22.png)
 
 ```sh
 $ git switch main
@@ -56,7 +56,7 @@ Fast-Forward 를 그대로 직역하면 "빨리감기" 라는 뜻입니다.
 
 ## 1.3. No Fast-Forward (--no-ff)
 
-![](images/screen_2022_06_20_03_50_44.png)
+![](https://github.com/ParkJiwoon/PrivateStudy/raw/master/git/images/screen_2022_06_20_03_50_44.png)
 
 ```sh
 $ git switch main
@@ -71,7 +71,7 @@ $ git merge --no-ff feature # main 에 추가 작업 내역 없지만 머지 커
 
 ## 1.4. Squash (--squash)
 
-![](images/screen_2022_06_20_03_48_58.png)
+![](https://github.com/ParkJiwoon/PrivateStudy/raw/master/git/images/screen_2022_06_20_03_48_58.png)
 
 ```sh
 $ git switch main
@@ -89,7 +89,7 @@ Squash Merge 는 `feature` 의 모든 커밋을 하나의 커밋으로 만들어
 
 ## 1.5. Rebase
 
-![](images/screen_2022_06_20_03_51_43.png)
+![](https://github.com/ParkJiwoon/PrivateStudy/raw/master/git/images/screen_2022_06_20_03_51_43.png)
 
 ```sh
 $ git switch main
@@ -110,7 +110,7 @@ $ git rebase feature
 
 <br>
 
-![](images/screen_2022_06_20_03_53_41.png)
+![](https://github.com/ParkJiwoon/PrivateStudy/raw/master/git/images/screen_2022_06_20_03_53_41.png)
 
 위 사진과 같이 어디 브랜치에서 시작하냐에 따라 커밋의 순서가 바뀝니다.
 
@@ -188,7 +188,7 @@ $ git merge feature
 
 <br>
 
-![](images/screen_2022_06_20_03_59_53.png)
+![](https://github.com/ParkJiwoon/PrivateStudy/raw/master/git/images/screen_2022_06_20_03_59_53.png)
 
 저는 대부분의 머지를 PR 에서 하기 때문에 PR 을 최대한 작은 단위로 나눈 후 전부 Squash Merge 하는 걸 선호했습니다.
 
