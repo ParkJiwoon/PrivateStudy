@@ -18,6 +18,7 @@ Ultimate 을 기준으로 합니다.
   - [2.7. Gradle Build 를 IntelliJ IDEA 로 변경](#27-gradle-build-를-intellij-idea-로-변경)
   - [2.8. Annotation Processor](#28-annotation-processor)
   - [2.9. Inlay Hints](#29-inlay-hints)
+  - [2.10. 파일 끝에 개행 추가](#210-파일-끝에-개행-추가)
 - [3. Plugin](#3-plugin)
   - [3.1. Key Promoter X](#31-key-promoter-x)
   - [3.2. Rainbow Brackets](#32-rainbow-brackets)
@@ -119,6 +120,14 @@ Kotlin 을 사용하는 경우 `val`, `var` 를 사용하여 변수를 선언하
 언어별로 설정할 수도 있으며 저는 그냥 다 켜두는 편입니다.
 
 <img src="https://github.com/ParkJiwoon/PrivateStudy/blob/master/intellij/images/screen_2022_05_20_22_57_50.png?raw=true" width="80%">
+
+<br><br>
+
+## 2.10. 파일 끝에 개행 추가
+
+파일을 저장할때 자동으로 맨 밑에 개행을 추가해주는 기능입니다.
+
+<img src="https://github.com/ParkJiwoon/PrivateStudy/blob/master/intellij/images/screen_2022_07_04_02_41_53.png?raw=true" width="80%">
 
 <br><br>
 
