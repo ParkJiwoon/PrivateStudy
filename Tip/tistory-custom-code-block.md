@@ -6,7 +6,7 @@
 
 아래 플러그인이 사용중이 아니어야 합니다.
 
-<img src="./tistory.png" style="zoom:50%;" />
+![](https://github.com/ParkJiwoon/PrivateStudy/blob/master/Tip/images/tistory.png?raw=true)
 
 <br>
 
