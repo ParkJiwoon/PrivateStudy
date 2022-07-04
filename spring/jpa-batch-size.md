@@ -44,7 +44,7 @@ public class Child {
 }
 ```
 
-간단한 `Parent(N) <-> Child(1)` 관계의 도메인을 작성했습니다.
+간단한 `Parent(1) <-> Child(N)` 관계의 도메인을 작성했습니다.
 
 편의상 Getter/Setter 는 생략합니다.
 
