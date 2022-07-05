@@ -190,3 +190,86 @@ end
 ```
 
 그리고 `config/routes.rb` 파일을 수정하면 `V1::Mount` 내부에서 마운트되어 있는 `V1::Hello` 내용들도 전부 `/api` 에 매핑됩니다.
+
+<br>
+
+# 5. Grape Entity
+
+Grape Entity 는 Grape API 를 보조하는 라이브러리입니다.
+
+Grape Entity 는 API 의 Request, Response Model 을 쉽게 만들어 주는 일종의 DTO 입니다.
+
+가장 큰 특징은 특정 Model 에서 원하는 필드값만 노출할 수 있게 도와주는 기능입니다.
+
+마치 `@JsonIgnore` 처럼 노출하고 싶지 않은 필드값은 제외할 수 있습니다.
+
+자세한 내용은 [ruby-grape/grape-entity github](https://github.com/ruby-grape/grape-entity)에서 볼 수 있습니다.
+
+<br>
+
+## 5.1. Installation
+
+grape 와 별개로 grape-entity 라는 gem 을 추가해야 합니다.
+
+```sh
+bundle add grape-entity
+```
+
+<br>
+
+## 5.2. Exposure
+
+- `expose`: 노출할 필드값
+- `documentation`: swagger 와 같은 문서화 툴에 노출할 설명
+- `if`: 특정 조건이 True 일 때 노출
+- `as`: 설정된 필드명을 다른 값으로 노출하고 싶을 때 사용
+
+<br>
+
+## 5.3. Basic Usage
+
+간단한 예시를 통해 사용법을 알아봅니다.
+
+<br>
+
+### app/api/v1/entities/simple_response_entity.rb
+
+```rb
+module V1
+  module Entities
+    class SimpleResponseEntity < Grape::Entity
+      expose :code, documentation: { type: "Integer", desc: "Status code" }
+      expose :message, documentation: { type: "String", desc: "Response message" }
+    end
+  end
+end
+```
+
+`Grape::Entity` 를 상속하는 클래스를 선언해줍니다.
+
+Grape 관련된 파일들은 module 과 path 를 정확히 일치시켜줘야 합니다. ([Ruby Grape 사용 시 NameError (uninitialized constant {Class}) 가 발생하는 이유](https://bcp0109.tistory.com/375) 참고)
+
+API 응답으로 `code`, `message` 만 내려줍니다.
+
+<br>
+
+### app/api/v1/hello.rb
+
+```rb
+module V1
+  class Hello < Grape::API
+    desc 'Return Simple Response'
+    get '/simple' do
+      response = { code: 200, message: "OK", success: true }
+      present response, with: V1::Entities::SimpleResponseEntity
+    end
+  end
+end
+```
+
+사용법은 간단합니다.
+
+`return` 대신 `present` 키워드를 사용하여 우리가 내려줄 Model 을 지정하고, `with` 키워드로 Grape Entity 를 지정합니다.
+
+`response` 는 `code`, `message`, `success` 세 개의 필드값을 갖고 있지만 `SimpleResponseEntity` 에 의해 실제 응답은 `code`, `message` 만 내려갑니다.
+
