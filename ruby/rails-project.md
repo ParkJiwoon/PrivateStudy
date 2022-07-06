@@ -273,3 +273,105 @@ end
 
 `response` 는 `code`, `message`, `success` 세 개의 필드값을 갖고 있지만 `SimpleResponseEntity` 에 의해 실제 응답은 `code`, `message` 만 내려갑니다.
 
+<br>
+
+# 6. AASM
+
+AASM 은 `acts_as_state_machine` 의 약자로 Ruby Model 의 상태관리 기능을 제공합니다.
+
+AASM 을 사용한 ActiveRecord 는 자동으로 `aasm_state` 컬럼을 갖게 되고 이 컬럼은 해당 모델의 상태를 나타냅니다.
+
+그리고 `event` 를 이용해서 간단하게 상태를 변경하거나 전후 처리를 할 수 있습니다.
+
+더 자세한 내용은 [aasm/aasm github](https://github.com/aasm/aasm) 에서 볼 수 있습니다.
+
+<br>
+
+## 6.1. Installation
+
+아래 명령어로 gem 을 추가합니다.
+
+```sh
+bundle add aasm
+```
+
+<br>
+
+## 6.2. Generate sample model
+
+```sh
+rails generate model Member name:string age:integer
+```
+
+AASM 을 적용할 Model 을 하나 생성합니다.
+
+이제 해당 Model 에 어떤 상태를 줄 지 생각해봅니다.
+
+회원이니까 활성, 휴면, 탈퇴 세 개의 상태를 갖는 걸로 설정해봅니다.
+
+<br>
+
+## 6.3. AASM Model
+
+```rb
+class Member < ApplicationRecord
+  include AASM
+
+  aasm do
+    state :active, initial: true
+    state :dormant
+    state :withdrawn
+
+    event :dormantize do
+      transitions from: :active, to: :dormant
+    end
+
+    event :withdraw do
+      transitions from: [:active, :dormant], to: :withdrawn
+    end
+
+    event :recover do
+      transitions from: :dormant, to: :active
+    end
+  end
+end
+```
+
+AASM 을 사용하기 위해선 `include AASM` 으로 mix-in 해줍니다.
+
+코드를 보면 쉽게 알수 있듯이 Member 에는 `active`, `dormant`, `withdrawn` 이렇게 세가지의 상태가 존재하고 처음 생성하면 `active` 상태입니다.
+
+`event` 를 호출하면 from 상태에서 to 상태로 변경할 수 있습니다.
+
+변경하기 전에 변경 가능한 상태인지 확인하는 메서드도 자동으로 제공해줍니다.
+
+<br>
+
+## 6.4. Basic Usage
+
+```rb
+member = Member.new
+
+# 현재 상태 확인
+member.active?          # true
+member.dormant?         # false
+member.withdrawn?       # false
+
+# event 호출해서 상태 변경 가능한지 확인
+member.may_dormantize?  # true
+member.may_withdraw?    # true
+member.may_recover?     # false
+
+# 상태 변경
+member.dormantize       # true (active -> dormant)
+member.withdraw         # true (active -> withdraw)
+member.recover          # raise AASM::InvalidTransition
+```
+
+`aasm` 을 사용한 것만으로도 위 메서드들을 자동으로 생성해줍니다.
+
+현재 상태를 확인하고, 다른 상태로 변경 가능한지 그리고 실제로 변경했을 때 제대로 동작하는지도 다 확인해줍니다.
+
+상태 변경 메서드를 호출할 때 현재 상태에서 바꿀 수 없는 상태라면 `AASM::InvalidTransition` 예외가 발생합니다.
+
+만약 예외를 발생시키지 않고 싶다면 `whiny_transitions: false` 키워드를 추가하면 됩니다.
