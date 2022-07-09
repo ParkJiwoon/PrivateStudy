@@ -1,5 +1,13 @@
 # Ruby
 
+# Overview
+
+Ruby 언어에 관한 정보를 정리합니다.
+
+나중에 더 추가될 수도 있습니다.
+
+<br>
+
 # 1. Variables
 
 ```rb
