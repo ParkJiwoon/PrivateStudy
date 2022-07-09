@@ -63,7 +63,7 @@ Integer, Float, BigDecimal 등등이 존재합니다.
 
 ## 2.3. Symbols
 
-Symbol 은 문자열과 비슷하지만 조금 다릅ㄴ디ㅏ.
+Symbol 은 문자열과 비슷하지만 조금 다릅니다.
 
 앞에 콜론이 붙어있으면 Symbol 입니다. (`:something`)
 
@@ -207,7 +207,22 @@ end
 
 <br>
 
-## 4.1. 인스턴스 변수
+## 4.1. Ruby Class 의 인스턴스, 클래스란?
+
+Ruby 에서는 인스턴스 변수, 인스턴스 메서드, 클래스 변수, 클래스 메서드 등 인스턴스와 클래스라는 단어가 많이 나옵니다.
+
+Ruby 에서 말하는 인스턴스, 클래스는 다음과 같습니다.
+
+- 인스턴스
+  - 객체를 생성 (`new`) 해야 사용할 수 있는 변수, 메서드
+  - 인스턴스 변수는 객체끼리 독립된 값을 가짐
+- 클래스
+  - 객체 생성 없이 클래스 자체로 생성할 수 있는 변수, 메서드
+  - 클래스 변수는 같은 클래스로 생성된 여러 객체가 공유함
+
+<br>
+
+## 4.2. 인스턴스 변수
 
 ```rb
 class Person
@@ -228,7 +243,7 @@ p1.print_name   # My Name is woody
 
 <br>
 
-## 4.2. 클래스 변수
+## 4.3. 클래스 변수
 
 ```rb
 class Person
@@ -261,7 +276,7 @@ p2.name     # woody
 
 <br>
 
-## 4.3. 상수
+## 4.4. 상수
 
 ```rb
 class Person
@@ -277,8 +292,278 @@ Person::AGE # 24
 
 <br>
 
-## 4.4. 인스턴스 메서드
+## 4.5. 인스턴스 메서드, 클래스 메서드
 
+```rb
+class Sample
+  def print
+    puts "Instance Method"
+  end
+
+  def self.print
+    puts "Class Method"
+  end
+end
+
+Sample.new.print # Instance Method
+Sample.print     # Class Method
+```
+
+인스턴스 메서드는 객체를 생성한 뒤에 사용하는 메서드, 클래스 메서드는 그대로 사용하는 메서드입니다.
+
+인스턴스 메서드는 `def` 처럼 평범하게 정의하면 되지만 클래스 메서드는 `def self` 를 사용해서 정의해야 합니다.
+
+<br>
+
+## 4.6. 생성자
+
+```rb
+class Person
+  def initialize(name)
+    @name = name
+  end
+end
+
+Person.new("woody") # => #<Person:0x000000012cebfeb0 @name="woody">
+Person.new          # ArgumentError (wrong number of arguments (given 0, expected 1))
+```
+
+Ruby 에서는 `initialize` 메서드로 생성자를 선언할 수 있습니다.
+
+생성자를 선언하지 않으면 파라미터가 없는 기본 생성자를 사용할 수 있습니다.
+
+인스턴스 변수를 초기화할 때는 일반적으로 생성자를 사용합니다.
+
+<br>
+
+## 4.7. Accessor (Getter, Setter)
+
+```rb
+class Person
+  attr_accessor :name
+  attr_reader :age
+  attr_writer :address
+end
+
+p = Person.new
+
+# accessor (getter, setter)
+p.name # => nil
+p.name = "adsf"
+p.name # => "asdf"
+
+# reader (getter)
+p.age # => nil
+p.age # NoMethodError (undefined method `age=' for #<Person:0x000000012cb9ce90 @name="asdf">)
+
+# writer (setter)
+p.address # NoMethodError (undefined method `address' for #<Person:0x000000012cb9ce90 @name="asdf">)
+p.address = "Seoul"
+```
+
+`attr_accessor`, `attr_reader`, `attr_writer` 를 사용해서 Getter, Setter 를 생성해줄 수 있습니다.
+
+반대로 private 을 사용해서 Getter, Setter 를 숨길 수도 있습니다.
+
+Accessor 로 지정한 변수는 인스턴스 변수로 사용 가능합니다.
+
+<br>
+
+## 4.8. 상속
+
+```rb
+class Fruit
+  attr_accessor :name
+
+  def print
+    puts "This is Fruit"
+  end
+
+  def super_method
+    puts "This is super class method"
+  end
+end
+
+class Apple < Fruit
+  def print
+    puts "This is Apple"
+  end
+end
+
+```
+
+`<` 키워드를 사용해서 상속을 표현할 수 있습니다.
+
+상속받은 클래스에서는 상위 클래스의 메서드나 변수를 사용할 수 있으며 오버라이드도 가능합니다.
+
+<br>
+
+## 4.9. 클래스 확장
+
+클래스 확장이란 기존에 정의된 클래스에 새로운 메서드나 변수를 추가하는 것을 의미합니다.
+
+새로운 기능을 추가하는 방법은 총 세가지지만 기존에 정의된 메서드를 중복 정의하는 경우 새롭게 덮어 씌운다는 공통점이 있습니다.
+
+우선 `Game` 이라는 기본적인 클래스를 정의합니다.
+
+```rb
+class Game
+  def initialize
+    @name = "lol"
+  end
+end
+```
+
+<br>
+
+**1. `<<` 키워드 사용**
+
+```rb
+# 인스턴스
+game = Game.new
+
+class << game
+  attr_accessor :age
+  
+  def print_one
+    puts "print_one: #{@name}"
+  end
+end
+
+# 클래스
+class << Game
+  def print_class
+    puts "print_class"
+  end
+end
+```
+
+`<<` 키워드를 사용하면 동적으로 새로운 변수, 메서드를 추가할 수 있습니다.
+
+<br>
+
+**2. 확장 함수로 정의**
+
+```rb
+# 인스턴스
+def game.print_two
+  puts "print_two: #{@name}"
+end
+
+# 클래스
+def Game.print_class
+  puts "print_class"
+end
+```
+
+Kotlin 의 확장 함수와 비슷한 문법입니다.
+
+<br>
+
+**3. 클래스 분할 정의**
+
+```rb
+class Game
+  def print_three
+    puts "print_three: #{@name}"
+  end
+
+  def self.print_class
+    puts "print_class"
+  end
+end
+```
+
+Ruby 는 클래스를 여러 번 정의할 수 있습니다.
+
+분할 정의된 클래스의 내용은 기존 클래스에 그대로 추가됩니다.
+
+<br>
+
+# 5. Module
+
+모듈 (Module) 이란 여러 가지 기능을 모은 것을 의미합니다.
+
+모듈은 크게 두 가지 목적으로 사용합니다.
+
+- Namespace 구분
+  - 중복된 이름의 클래스를 사용할 때 충돌이 발생하지 않도록 합니다
+  - V1, V2 처럼 버전 구분을 할 때 유용
+- 중복된 기능 모으기
+  - 여러 곳에서 사용하는 중복된 기능을 분리해서 각각의 모듈에 담을 수 있습니다
+
+<br>
+
+## 5.1. Definition
+
+```rb
+module Sample
+end
+```
+
+모듈은 위와 같이 정의할 수 있습니다.
+
+<br>
+
+## 5.2. Namespace
+
+```rb
+module V1
+  class API
+    def self.call
+      puts "Call API v1"
+    end
+  end
+end
+
+module V2
+  class API
+    def self.call
+      puts "Call API v2"
+    end
+  end
+end
+
+V1::API.call # Call API v1
+V2::API.call # Call API v2
+```
+
+원래 동일한 이름의 클래스와 메서드를 선언하면 분할 정의로 취급하여 기존 메서드는 사라졌습니다.
+
+하지만 모듈을 사용해 분리했기 때문에 두 클래스는 같은 이름과 같은 메서드를 같지만 다른 클래스, 메서드처럼 동작합니다.
+
+<br>
+
+## 5.3. Module Function
+
+```rb
+module Person
+  ADDRESS = "Seoul"
+
+  def age
+    @age
+  end
+
+  def age=(age)
+    @age = age
+  end
+
+  def company
+    "company"
+  end
+
+  module_function :age, :age=
+end
+
+
+```
+
+모듈에도 변수나 메서드를 정의할 수 있습니다.
+
+인스턴스 변수 (`@name`) 를 사용할 수도 있지만 
+
+
+<br>
 
 # Reference
 
