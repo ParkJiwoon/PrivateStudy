@@ -555,13 +555,164 @@ module Person
   module_function :age, :age=
 end
 
+Person::ADDRESS # => "Seoul"
+Person.age      # => nil
+Person.age = 24
+Person.age      # => 24
+Person.company  # NoMethodError (undefined method `company' for Person:Module)
+```
+
+모듈에서 변수나 메서드를 정의할 수 있습니다.
+
+모듈은 객체처럼 생성이 불가능하기 때문에 사실상 모든 변수와 메서드는 클래스 변수, 메서드라고 볼 수 있습니다.
+
+정의된 메서드를 모듈에서 직접 사용하기 위해선 `module_function` 키워드를 사용해서 지정해줘야 합니다.
+
+<br>
+
+## 5.4. Mixin
+
+Module 을 Class 에서 참조하면 마치 클래스의 메서드인것처럼 사용할 수 있습니다.
+
+이걸 mix-in 이라고 부릅니다.
+
+모듈을 mixin 하는 방법에는 `include`, `prepend`, `extend` 총 세가지가 있습니다.
+
+<br>
+
+### 5.4.1. Include
+
+```rb
+module IncludeModule
+  def hello
+    puts "Hello, Include"
+  end
+end
+
+class Person
+  include IncludeModule
+
+  def hello
+    puts "Hello, Person"
+  end
+end
+
+person = Person.new
+person.hello    # Hello, Person
+```
+
+`include` 키워드를 사용해서 모듈을 참조하면 모듈의 메서드를 **인스턴스 메서드**로 사용할 수 있습니다.
+
+만약 동일한 이름의 메서드가 모듈과 클래스 양쪽에 정의되어 있다면 클래스의 메서드를 우선시합니다.
+
+<br>
+
+### 5.4.2. Prepend
+
+```rb
+module PrependModule
+  def hello
+    puts "Hello, Prepend"
+  end
+end
+
+class Person
+  prepend PrependModule
+
+  def hello
+    puts "Hello, Person"
+  end
+end
+
+person = Person.new
+person.hello    # Hello, Prepend
+```
+
+`prepend` 는 `include` 와 마찬가지로 모듈의 메서드를 **인스턴스 메서드**로 사용할 수 있습니다.
+
+하지만 `include` 와 다르게 동일한 이름의 메서드가 정의되어 있을 경우 모듈의 메서드를 우선시합니다.
+
+<br>
+
+### 5.4.3. Extend
+
+```rb
+module ExtendModule
+  def hello
+    puts "Hello, Extend"
+  end
+end
+
+class Person
+  extend ExtendModule
+end
+
+Person.hello    # Hello, Extend
+```
+
+`extend` 는 다른 mixin 과 다르게 **클래스 메서드**로 사용 가능합니다.
+
+중복 정의된 메서드는 `include` 와 마찬가지로 클래스에 있는 걸 우선시합니다.
+
+<br>
+
+### 5.4.4. Ancestors
+
+만약 여러 개의 모듈을 한번에 `include` 하면 어떻게 될까?
+
+`include`, `prepend` 가 여러개 섞여 있으면 어떻게 될까?
+
+Ruby 에서는 어떤 오브젝트가 젤 우선시 되는지 `ancestors` 메서드로 확인할 수 있습니다.
+
+<br>
+
+```rb
+module Include1
+end
+
+module Include2
+end
+
+module Prepend1
+end
+
+module Prepend2
+end
+
+class Human
+end
+
+class Person < Human
+  include Include1
+  include Include2
+  prepend Prepend1
+  prepend Prepend2
+end
 
 ```
 
-모듈에도 변수나 메서드를 정의할 수 있습니다.
+`Person` 클래스에서는 여러 모듈을 동시에 mixin 하고 있습니다.
 
-인스턴스 변수 (`@name`) 를 사용할 수도 있지만 
+`prepend` -> `Person` -> `include` 순서까지는 쉽게 짐작할 수 있지만 같은 키워드를 사용한 모듈들은 어떤게 우선시 되는지 알 수 없습니다.
 
+게다가 상위 클래스에도 중복된 메서드가 정의되어 있다면 더욱 더 헷갈립니다.
+
+이를 확인할 수 있는게 `ancestors` 메서드입니다.
+
+<br>
+
+```rb
+Person.ancestors
+=> [Prepend2, Prepend1, Person, Include2, Include1, Human, ActiveSupport::ToJsonWithActiveSupportEncoder, Object, PP::ObjectMixin, ActiveSupport::Dependencies::Loadable, ActiveSupport::Tryable, JSON::Ext::Generator::GeneratorMethods::Object, Kernel, BasicObject]
+```
+
+`Person.ancestors` 를 사용하면 해당 클래스가 참조하고 있는 모든 오브젝트가 나옵니다.
+
+그리고 중복 정의된 메서드가 있으면 앞 순서에 있는 오브젝트의 메서드가 우선시됩니다.
+
+그래서 `Person` 클래스에서 중복된 메서드가 있으면 `Prepend2` 모듈의 메서드가 사용 됩니다.
+
+모든 클래스는 오브젝트라서 `BasicObject` 가 최상단에 있는 걸 알 수 있습니다.
 
 <br>
 
