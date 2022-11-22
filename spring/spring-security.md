@@ -12,6 +12,14 @@ JWT 와 Spring Security 코드는 [인프런 Spring Boot JWT Tutorial (정은구
 
 <br>
 
+**(2022. 11. 22 추가)**
+
+- Spring Security 의 `WebSecurityConfigurerAdapter` 가 deprecated 되어 이에 맞게 `SecurityConfig` 파일의 수정이 있었습니다.
+  - 관련 내용은 [Spring Blog - Spring Security without the WebSecurityConfigurerAdapter](https://spring.io/blog/2022/02/21/spring-security-without-the-websecurityconfigureradapter) 을 참고했습니다.
+- Spring version up: 2.4.3 -> 2.7.5
+
+<br>
+
 # 1. JWT
 
 JWT 에 관련된 글은 따로 작성했기 때문에 [링크](https://github.com/ParkJiwoon/PrivateStudy/blob/master/web/jwt.md)로 대체합니다.
@@ -37,9 +45,9 @@ JWT 와 같이 소개되는 경우가 많은데 스프링 시큐리티는 원래
 ```java
 // build.gradle
 plugins {
-    id 'org.springframework.boot' version '2.4.3'
-    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-    id 'java'
+	id 'org.springframework.boot' version '2.7.5'
+	id 'io.spring.dependency-management' version '1.0.15.RELEASE'
+	id 'java'
 }
 
 group = 'com.tutorial'
@@ -161,30 +169,25 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 ```java
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class MemberService {
     private final MemberRepository memberRepository;
 
-    @Transactional(readOnly = true)
-    public MemberResponseDto getMemberInfo(String email) {
+    public MemberResponseDto findMemberInfoById(Long memberId) {
+        return memberRepository.findById(memberId)
+                .map(MemberResponseDto::of)
+                .orElseThrow(() -> new RuntimeException("로그인 유저 정보가 없습니다."));
+    }
+
+    public MemberResponseDto findMemberInfoByEmail(String email) {
         return memberRepository.findByEmail(email)
                 .map(MemberResponseDto::of)
                 .orElseThrow(() -> new RuntimeException("유저 정보가 없습니다."));
     }
-
-    // 현재 SecurityContext 에 있는 유저 정보 가져오기
-    @Transactional(readOnly = true)
-    public MemberResponseDto getMyInfo() {
-        return memberRepository.findById(SecurityUtil.getCurrentMemberId())
-                .map(MemberResponseDto::of)
-                .orElseThrow(() -> new RuntimeException("로그인 유저 정보가 없습니다."));
-    }
 }
 ```
 
-- 내 정보를 가져올 때는 `SecurityUtil.getCurrentMemberId()` 를 사용합니다.
-- API 요청이 들어오면 필터에서 Access Token 을 복호화 해서 유저 정보를 꺼내 `SecurityContext` 라는 곳에 저장합니다.
-- `SecurityContext` 에 저장된 유저 정보는 전역으로 어디서든 꺼낼 수 있습니다.
-- `SecurityUtil` 클래스에서는 유저 정보에서 Member ID 만 반환하는 메소드가 정의되어 있습니다.
+- `memberId` 와 `email` 로 회원 정보를 가져오는 Service 입니다.
 
 <br>
 
@@ -193,23 +196,27 @@ public class MemberService {
 ```java
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/member")
+@RequestMapping("/api/member")
 public class MemberController {
     private final MemberService memberService;
 
     @GetMapping("/me")
-    public ResponseEntity<MemberResponseDto> getMyMemberInfo() {
-        return ResponseEntity.ok(memberService.getMyInfo());
+    public ResponseEntity<MemberResponseDto> findMemberInfoById() {
+        return ResponseEntity.ok(memberService.findMemberInfoById(SecurityUtil.getCurrentMemberId()));
     }
 
     @GetMapping("/{email}")
-    public ResponseEntity<MemberResponseDto> getMemberInfo(@PathVariable String email) {
-        return ResponseEntity.ok(memberService.getMemberInfo(email));
+    public ResponseEntity<MemberResponseDto> findMemberInfoByEmail(@PathVariable String email) {
+        return ResponseEntity.ok(memberService.findMemberInfoByEmail(email));
     }
 }
 ```
 
-- Service 와 동일합니다.
+- 내 정보를 가져올 때는 `SecurityUtil.getCurrentMemberId()` 를 사용합니다.
+- API 요청이 들어오면 필터에서 Access Token 을 복호화 해서 유저 정보를 꺼내 `SecurityContext` 라는 곳에 저장합니다.
+- `SecurityContext` 에 저장된 유저 정보는 전역으로 어디서든 꺼낼 수 있습니다.
+- `SecurityUtil` 클래스에서는 유저 정보에서 Member ID 만 반환하는 메소드가 정의되어 있습니다.
+- `MemberService` 가 아닌 `MemberController` 에서 사용하는 이유는 `MemberService` 테스트가 `SecurityContext` 에 의존적이지 않게 하기 위해서입니다.
 
 <br>
 
@@ -275,7 +282,7 @@ jwt:
 public class TokenProvider {
 
     private static final String AUTHORITIES_KEY = "auth";
-    private static final String BEARER_TYPE = "bearer";
+    private static final String BEARER_TYPE = "Bearer";
     private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 30;            // 30분
     private static final long REFRESH_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24 * 7;  // 7일
 
@@ -495,9 +502,9 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
 ## 4.6. SecurityConfig
 
 ```java
-@EnableWebSecurity
+@Configuration
 @RequiredArgsConstructor
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+public class SecurityConfig {
     private final TokenProvider tokenProvider;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
@@ -508,14 +515,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     // h2 database 테스트가 원활하도록 관련 API 들은 전부 무시
-    @Override
-    public void configure(WebSecurity web) {
-        web.ignoring()
-            .antMatchers("/h2-console/**", "/favicon.ico");
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return (web) -> web.ignoring()
+                .antMatchers("/h2-console/**", "/favicon.ico");
     }
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
             // CSRF 설정 Disable
         http.csrf().disable()
 
@@ -524,7 +531,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .authenticationEntryPoint(jwtAuthenticationEntryPoint)
             .accessDeniedHandler(jwtAccessDeniedHandler)
 
-            // h2-console 을 위한 설정을 추가
             .and()
             .headers()
             .frameOptions()
@@ -545,14 +551,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             // JwtFilter 를 addFilterBefore 로 등록했던 JwtSecurityConfig 클래스를 적용
             .and()
             .apply(new JwtSecurityConfig(tokenProvider));
+
+        return http.build();
     }
 }
 ```
 
-- `WebSecurityConfigurerAdapter` 인터페이스의 구현체입니다.
 - Spring Security 의 가장 기본적인 설정이며 JWT 를 사용하지 않더라도 이 설정은 기본으로 들어갑니다.
-- 오버라이드한 `configure` 내부에서 각종 설정들을 추가해줍니다.
 - 각 설정에 대한 설명은 주석을 확인하면 됩니다.
+- **(2022. 11. 23 추가)** Spring Security 의 `WebSecurityConfigurerAdapter` 가 deprecated 되어 이에 맞게 `SecurityConfig` 파일의 수정이 있었습니다.
+  - 관련 내용은 [Spring Blog - Spring Security without the WebSecurityConfigurerAdapter](https://spring.io/blog/2022/02/21/spring-security-without-the-websecurityconfigureradapter) 을 참고했습니다.
 
 <br>
 
