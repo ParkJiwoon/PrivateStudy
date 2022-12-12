@@ -974,7 +974,7 @@ Content-Type: application/json
 
 ```sh
 # Request
-GET http://localhost:8080/member/me
+GET http://localhost:8080/api/member/me
 Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIyIiwiYXV0aCI6IlJPTEVfVVNFUiIsImV4cCI6MTYxNTExNDI4MH0.43LvabP41Awhicy6YYAYHtDPnxNYpEygtE-DjLaDjNpAxZf01Nx4xE_dGk0V4jBpjwCgKVGKZIMyEeIppwzARQ
 
 # Response
