@@ -808,7 +808,7 @@ public class AuthController {
 
 # 9. Class Diagram
 
-![](images/screen_2023_03_12_20_09_40.png)
+<img src="https://github.com/ParkJiwoon/PrivateStudy/blob/master/spring/images/screen_2023_03_12_20_09_40.png?raw=true">
 
 위에서 작성한 코드를 간단하게 표현하면 이렇게 나옵니다.
 
@@ -845,7 +845,7 @@ Postman, Curl, IntelliJ IDE 등 자신만의 API 호출 방법을 사용해서 �
 
 ### 10.2.1. Kakao 로그인 호출
 
-![](images/screen_2023_03_12_20_01_09.png)
+<img src="https://github.com/ParkJiwoon/PrivateStudy/blob/master/spring/images/screen_2023_03_12_20_01_09.png?raw=true">
 
 카카오는 `authorizationCode` 파라미터만 추가해서 호출합니다.
 
@@ -853,7 +853,7 @@ Postman, Curl, IntelliJ IDE 등 자신만의 API 호출 방법을 사용해서 �
 
 ### 10.2.2. Naver 로그인 호출
 
-![](images/screen_2023_03_12_20_03_19.png)
+<img src="https://github.com/ParkJiwoon/PrivateStudy/blob/master/spring/images/screen_2023_03_12_20_03_19.png?raw=true">
 
 네이버는 `authorizationCode` 뿐만 아니라 `state` 값도 함께 받아서 전달합니다.
 
@@ -861,7 +861,7 @@ Postman, Curl, IntelliJ IDE 등 자신만의 API 호출 방법을 사용해서 �
 
 ## 10.3. Member 정보 호출
 
-![](images/screen_2023_03_12_20_05_38.png)
+<img src="https://github.com/ParkJiwoon/PrivateStudy/blob/master/spring/images/screen_2023_03_12_20_05_38.png?raw=true">
 
 간단한 Member API 를 만들어서 원하는 데이터가 잘 들어갔는지 확인합니다.
 

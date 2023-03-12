@@ -26,7 +26,7 @@ OAuth 2.0 을 간단하게 설명하면 어떤 서비스를 만들 때 **사용�
 
 ## 2.1. OAuth 2.0 Sequence Diagram
 
-![](images/screen_2023_03_11_06_07_24.png)
+<img src="https://github.com/ParkJiwoon/PrivateStudy/blob/master/spring/images/screen_2023_03_11_06_07_24.png?raw=true">
 
 OAuth 2.0 은 일반적으로 위와 같은 플로우를 많이 사용합니다.
 
@@ -42,7 +42,7 @@ OAuth 2.0 은 일반적으로 위와 같은 플로우를 많이 사용합니다.
 
 ## 3.1. 앱 등록
 
-![](images/screen_2023_03_06_06_30_42.png)
+<img src="https://github.com/ParkJiwoon/PrivateStudy/blob/master/spring/images/screen_2023_03_06_06_30_42.png?raw=true" width="85%">
 
 `https://developers.kakao.com/console/app` 에 접속해서 앱을 추가합니다.
 
@@ -50,7 +50,7 @@ OAuth 2.0 은 일반적으로 위와 같은 플로우를 많이 사용합니다.
 
 ## 3.2. 플랫폼 등록
 
-![](images/screen_2023_03_12_20_17_14.png)
+<img src="https://github.com/ParkJiwoon/PrivateStudy/blob/master/spring/images/screen_2023_03_12_20_17_14.png?raw=true" width="85%">
 
 여기서는 테스트용으로 localhost 만 사용하기 때문에 따로 등록은 안했지만 도메인을 등록해야 사용 가능한 API 들도 존재합니다.
 
@@ -60,7 +60,7 @@ OAuth 2.0 은 일반적으로 위와 같은 플로우를 많이 사용합니다.
 
 ## 3.3. 로그인 API 활성화
 
-![](images/screen_2023_03_06_23_53_30.png)
+<img src="https://github.com/ParkJiwoon/PrivateStudy/blob/master/spring/images/screen_2023_03_06_23_53_30.png?raw=true" width="85%">
 
 로그인 API 를 활성화 하고 Redirect URI 를 등록합니다.
 
@@ -74,7 +74,7 @@ Redirect URI 로 code 를 받는 부분은 클라이언트의 영역이므로 �
 
 ## 3.4. 동의항목 활성화
 
-![](images/screen_2023_03_06_23_55_16.png)
+<img src="https://github.com/ParkJiwoon/PrivateStudy/blob/master/spring/images/screen_2023_03_06_23_55_16.png?raw=true" width="85%">
 
 이제 동의항목으로 이동해서 필요한 데이터의 동의 항목을 활성화 합니다.
 
@@ -86,7 +86,7 @@ Redirect URI 로 code 를 받는 부분은 클라이언트의 영역이므로 �
 
 ## 3.5. 인가 코드 받기 테스트
 
-![](images/screen_2023_03_07_00_00_03.png)
+<img src="https://github.com/ParkJiwoon/PrivateStudy/blob/master/spring/images/screen_2023_03_07_00_00_03.png?raw=true" width="85%">
 
 이제 앱 화면에서 REST API 키 (Client ID) 값을 확인합니다.
 
@@ -107,7 +107,7 @@ https://kauth.kakao.com/oauth/authorize
 
 <br>
 
-![](images/screen_2023_03_06_23_59_08.png)
+<img src="https://github.com/ParkJiwoon/PrivateStudy/blob/master/spring/images/screen_2023_03_06_23_59_08.png?raw=true" width="40%" height="60%">
 
 전체 동의 후 계속하기를 누르면 우리가 등록한 Redirct URI 로 페이지가 이동합니다.
 
@@ -130,7 +130,7 @@ http://localhost:8080/kakao/callback
 
 ## 4.1. 앱 등록
 
-![](images/screen_2023_03_11_21_32_20.png)
+<img src="https://github.com/ParkJiwoon/PrivateStudy/blob/master/spring/images/screen_2023_03_11_21_32_20.png?raw=true" height="90%">
 
 카카오 앱 등록과 마찬가지로 애플리케이션 이름, 사용할 API 를 선택 후 동의 항목은 이메일과 별명을 설정합니다.
 
@@ -142,7 +142,7 @@ Callback URL 은 네이버 로그인 후 이동할 URL 이며 Authorization Code
 
 ## 4.2. 코드 받기 테스트
 
-![](images/screen_2023_03_11_21_53_26.png)
+<img src="https://github.com/ParkJiwoon/PrivateStudy/blob/master/spring/images/screen_2023_03_11_21_53_26.png?raw=true" width="85%">
 
 앱을 등록하고 나면 이렇게 정보를 얻을 수 있습니다.
 
@@ -162,7 +162,7 @@ https://nid.naver.com/oauth2.0/authorize
 
 <br>
 
-![](images/screen_2023_03_11_22_21_02.png)
+<img src="https://github.com/ParkJiwoon/PrivateStudy/blob/master/spring/images/screen_2023_03_11_22_21_02.png?raw=true" width="50%" height="50%">
 
 로그인을 완료하면 우리가 등록해둔 Callback URL 로 이동합니다.
 
