@@ -251,3 +251,385 @@ GraphQL 요청 툴에 쿼리 변수용 창이 따로 있으면 JSON 객체 형�
 
 ### 인트로스펙션 (Introspection)
 
+GraphQL 에서 제공하는 강력한 기능으로 현재 API 스키마의 세부 사항에 관한 쿼리를 작성할 수 있습니다.
+
+<br>
+
+# Ch 4. 스키마 설계하기
+
+GraphQL API 를 만들기 전에는 스키마를 설계해야 합니다.
+
+GraphQL 은 스키마 정의를 위해 SDL (Schema Definition Language) 를 지원합니다.
+
+## 4.1.1. 타입
+
+타입 (Type) 은 커스텀 객체이며 이를 보고 애플리케이션의 핵심 기능을 알 수 있습니다.
+
+예를 들어 소셜 미디어 애플리케이션은 `Users`, `Posts` 로 구성되고 블로그는 `Categories`, `Articles` 로 구성됩니다.
+
+타입에는 필드 (field) 가 들어갑니다.
+
+필드는 각 객체의 데이터와 관련이 있습니다.
+
+스키마에는 타입 정의를 모아 둡니다.
+
+<br>
+
+```graphql
+type Photo {
+    id: ID!
+    name: String!
+    url: String!
+    description: String
+}
+```
+
+마지막에 붙은 느낌표는 non-nullable 을 의미합니다.
+
+설명은 필수값이 아닙니다.
+
+ID 스칼라 타입은 고유 식별자 값이 반환되어야 하는 곳에 씁니다.
+
+ID 스칼라 타입은 문자열 타입이지만 고유한 값인지 유효성 검사를 받습니다.
+
+<br>
+
+## 4.1.2. 스칼라 타입
+
+GraphQL 내장 스칼라 타입 (Int, Float, String, Boolean, ID) 대신 직접 스칼라 타입을 만들 수 있습니다.
+
+스칼라 타입은 객체 타입이 아니기 때문에 필드를 가지지는 않지만 유효성 검사 방식을 지정할 수 있습니다.
+
+<br>
+
+## 4.1.3. 열거 타입 (Enumeration)
+
+열거 타입은 스칼라 타입에 속합니다.
+
+```graphql
+enum PhotoCategory {
+    SELFIE
+    PORTRAIT
+    ACTION
+    LANDSCAPE
+    GRAPHIC
+}
+```
+
+열거 타입을 만들면 다른 객체 타입에 필드로 추가할 수 있습니다.
+
+```graphql
+type Photo {
+    id: ID!
+    category: PhotoCategory!
+}
+```
+
+<br>
+
+## 4.2. 연결과 리스트
+
+리스트는 GraphQL 타입을 대괄호로 감싸서 만듭니다. `[String]`, `[PhotoCategory]` 등등
+
+리스트의 null 적용 규칙만 헷갈리지 않게 사용합니다.
+
+- `[Int]`: 리스트와 정수 전부 null 이 될 수 없음
+- `[Int!]`: 리스트는 null 이 될 수 없지만 정수는 null 이 될 수 있음
+- `[Int]!`: 리스트는 null 이 될 수 있고 정수는 null 이 될 수 없음
+- `[Int!]!`: 리스트와 정수 전부 null 이 될 수 없음
+
+근데 대부분은 `[Int]` 처럼 둘다 null 이 될 수 없는 타입을 많이 사용합니다.
+
+<br>
+
+### 4.2.1. 일대일 연결
+
+```graphql
+type User {
+    name: String
+}
+
+type Photo {
+    id: ID!
+    name: String!
+    url: String
+    postedBy: User!
+}
+```
+
+사용자는 사진을 게시할 수 있기 때문에 타입끼리 연결 관계를 만들 수 있습니다.
+
+<br>
+
+### 4.2.2. 일대다 연결
+
+```graphql
+type User {
+    name: String
+    postedPhotos: [Photo!]!
+}
+```
+
+만약 유저 쿼리를 요청할 때 사진들을 받고 싶다면 다음과 같이 리스트로 넣어주면 됩니다.
+
+
+<br>
+
+### 4.2.3. 다대다 연결
+
+사진에 다른 사람을 태그할 수 있는 기능이 생긴다면 다대다 관계가 형성됩니다.
+
+사진 속에는 다른 사람을 태그할 수 있고 사용자는 여러 사진에 태그당할 수 있습니다.
+
+다대다 연결 관계를 만드려면 `User` 와 `Photo` 타입 양쪽 모두에 리스트 타입 필드를 추가하면 됩니다.
+
+```graphql
+type User {
+    ...
+    inPhotos: [Photo!]!
+}
+
+type Photo {
+    ...
+    taggedUsers: [User!]!
+}
+```
+
+<br>
+
+다대다 연결을 만들 경우 관계에 대한 정보를 담는 **통과 타입 (Through Type)** 이라는 걸 만들 수도 있습니다.
+
+(DB 로 따지면 Relation Table 같은 느낌)
+
+사용자와 사용자의 관계를 표현하기 위해 서로 연결해야 한다고 가정합니다.
+
+사람들은 한사람이 여러 사람과 관계를 맺을 수 있으므로 다대다로 연결됩니다.
+
+```graphql
+type User {
+    friends: [User!]!
+}
+```
+
+<br>
+
+그런데 만약 사람 사이에 관계 자체에도 만난 시간, 장소 등을 표현하고 싶다면 별도의 타입을 만들 수도 있습니다.
+
+```graphql
+type User {
+    friends: [Friendship!]!
+}
+
+type Friendship {
+    friend_a: User!
+    friend_b: User!
+    howLong: Int!
+    whereWeMet: Location
+}
+```
+
+<br>
+
+### 4.2.4. 여러 타입을 담는 리스트
+
+Union 타입이나 Interface 타입을 사용해서 만들 수 있습니다.
+
+일정 앱을 예시로 사용합니다.
+
+- 일정에는 여러 종류의 이벤트가 있음
+- 이벤트는 스터디 그룹 모임 이벤트와 운동 이벤트가 존재하고 둘의 필드는 완전히 다를 수 있음
+- 일정 앱에는 다른 이벤트 타입을 모두 추구할 수 있음
+- 하루의 일정은 여러 활동 타입을 모아둔 리스트
+
+<br>
+
+**유니언 타입 (Union)**
+
+유니언 타입을 사용하면 여러 타입 가운데 하나를 반환합니다.
+
+```graphql
+union Event = StudyGroup | Workout
+
+type StudyGroup {
+    name: String!
+    subject: String
+    students: [User!]!
+}
+
+type Workout {
+    name: String!
+    reps: Int!
+}
+```
+
+<br>
+
+**인터페이스 (Interface)**
+
+한 필드 안에 여러 타입을 넣을 때 사용할 수 있습니다.
+
+추상 타입이며 특정 필드가 무조건 특정 타입에 포함되도록 만들 수 있습니다.
+
+```graphql
+interface Event {
+    name: String!
+    start: DateTime!
+    end: DateTime!
+}
+
+type StudyGroup implements Event {
+    name: String!
+    start: DateTime!
+    end: DateTime!
+    subject: String
+    students: [User!]!
+}
+
+type Workout implements Event {
+    name: String!
+    start: DateTime!
+    end: DateTime!
+    reps: Int!
+}
+```
+
+<br>
+
+## 4.3. 인자
+
+쿼리 요청 시 인자값을 넘겨줄 수 있습니다.
+
+<br>
+
+
+### 4.3.1. 데이터 필터링
+
+특정 파라미터를 넘겨주면 해당하는 객체들만 필터링 해서 제공합니다.
+
+```graphql
+query {
+    User(name: "Gildong") {
+        name
+        avatar
+    }
+}
+```
+
+<br>
+
+### 4.3.2. 데이터 페이징
+
+응답 리스트의 양을 조절하기 위해 **데이터 페이징**을 할 수도 있습니다.
+
+```graphql
+type Query {
+    ...
+    allUsers(first: Int=50 start: Int=0): [User!]!
+    allPhotos(first: Int=25 start: Int=0): [Photo!]!
+}
+```
+
+`allUsers` 는 0 부터 시작해서 50 명을 뽑고 `allPhotos` 는 0 부터 시작해서 25 장만 뽑습니다.
+
+<br>
+
+### 4.3.3. 데이터 정렬
+
+인자값을 사용하면 데이터 **정렬**도 가능합니다.
+
+정렬 방향을 넣지 않으면 기본적으로 내림차순으로 정렬됩니다.
+
+```graphql
+enum SortDirection {
+    ASCENDING
+    DESCENDING
+}
+
+enum SortablePhotoField {
+    name
+    description
+    category
+    created
+}
+
+Query {
+    allPhotos(
+        sort: SortDirection = DESCENDING
+        sortBy: SortablePhotoField = created
+    ): [Photo!]!
+}
+```
+
+<br>
+
+## 4.4. 뮤테이션
+
+뮤테이션은 데이터 생성, 수정, 삭제에 관련된 명령어입니다.
+
+아래 명령어는 사진을 게시하는 명령어 스키마입니다.
+
+```graphql
+type Mutation {
+    postPhoto(
+        name: String!
+        description: String
+        category: PhotoCategory
+    ): Photo!
+}
+
+schema {
+    query: Query
+    mutation: Mutation
+}
+```
+
+<br>
+
+## 4.5. 인풋 타입
+
+쿼리와 뮤테이션의 파라미터 길이가 꽤 길어졌으면 Input 타입을 사용해서 짧게 만들 수 있습니다.
+
+```graphql
+input PostPhotoInput {
+    name: String!
+    description: String
+    category: PhotoCategory = PORTRAIT
+}
+
+type Mutation {
+    postPhoto(input: PostPhotoInput!): Photo!
+}
+```
+
+`PostPhotoInput` 타입은 객체 타입과 비슷하게 생겼지만 전달하는 인자에만 사용합니다.
+
+<br>
+
+## 4.6. 리턴 타입
+
+파라미터 타입처럼 리턴 타입도 따로 정의해서 받을 수 있습니다.
+
+```graphql
+type AuthPayload {
+    user: User!
+    token: String!
+}
+
+type Mutation {
+    ...
+    githubAuth(code: String!): AuthPayload!
+}
+```
+
+<br>
+
+## 4.7. Subscription
+
+패스
+
+<br>
+
+# Ch 5 ~ Ch 7
+
+특정 프레임워크 의존적이라서 PASS
+
