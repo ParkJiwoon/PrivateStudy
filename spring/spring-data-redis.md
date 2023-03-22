@@ -4,7 +4,7 @@
 
 Spring Boot 에서 `spring-data-redis` 라이브러리를 활용해서 Redis 를 사용하는 방법을 알아봅니다.
 
-Redis 에 대한 개념과 로컬 설치 방법은 [Redis 설치 및 명령어](https://github.com/ParkJiwoon/PrivateStudy/blob/master/database/redis.md) 글을 확인해주세요.
+Redis 에 대한 개념과 로컬 설치 방법은 [Redis 설치 및 명령어](https://bcp0109.tistory.com/327) 글을 확인해주세요.
 
 <br>
 
