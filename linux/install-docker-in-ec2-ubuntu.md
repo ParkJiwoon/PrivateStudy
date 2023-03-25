@@ -1,4 +1,4 @@
-# EC2 Ubuntu 에 Redis 설치
+# EC2 Ubuntu 에 Docker 설치
 
 # Overview
 
