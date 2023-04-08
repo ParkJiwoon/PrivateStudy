@@ -435,4 +435,5 @@ Spring Boot 에서는 Cache 를 사용하기 쉽게 AOP 로 제공하고 있으�
 
 # Reference
 
-- [Baeldung - Spring Boot Cache with Redis](https://www.baeldung.com/spring-boot-redis-cache)
+- [Spring Boot Docs - Caching](https://docs.spring.io/spring-boot/docs/3.0.5/reference/html/io.html#io.caching)
+- [Baeldung - A Guide To Caching in Spring](https://www.baeldung.com/spring-cache-tutorial)
