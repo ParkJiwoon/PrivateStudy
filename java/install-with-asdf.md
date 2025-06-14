@@ -1,4 +1,12 @@
-# MacOS Java (OpenJDK) 설치 (with. asdf)
+# MacOS Java (Corretto) 설치 (with. asdf)
+
+# History
+
+- 2022.11.26
+  - 첫 작성
+- 2025.06.15
+  - asdf 버전업으로 인한 명령어 변경 반영
+  - Java 버전 corretto 21 로 변경
 
 # Overview
 
@@ -18,20 +26,15 @@ jenv 라는 Java 버전 관리 툴이 존재하지만 jenv 는 Java 를 직접 �
 
 # 1. asdf 설치
 
-[mysetting - asdf](https://mysetting.io/apps/asdf) 을 참고하면 설치 및 사용방법 등을 알 수 있습니다.
-
 ```sh
-# install dependencies (필요시)
-$ brew install coreutils curl git
-
 # install asdf
 $ brew install asdf
 
 # add to shell
-$ echo -e "\n. $(brew --prefix asdf)/asdf.sh" >> ~/.zshrc
+$ echo . /opt/homebrew/opt/asdf/libexec/asdf.sh >> ~/.zshrc
 ```
 
-우선 asdf 를 설치합니다.
+homebrew 를 사용해서 asdf 를 설치합니다.
 
 마지막의 add to shell 은 사용자마다 다릅니다.
 
@@ -50,27 +53,26 @@ $ asdf plugin update java
 
 <br>
 
-# 3. Java 버전 리스트 확인
+# 3. 설치 가능한 Java 버전 리스트 확인
 
 ```sh
-$ asdf list-all java
-adoptopenjdk-11.0.15+10
-adoptopenjdk-11.0.16+8
-adoptopenjdk-11.0.16+101
-adoptopenjdk-11.0.17+8
-adoptopenjdk-17.0.0+35
-...
-..
-.
-zulu-jre-javafx-19.30.11
+$ asdf list all java | grep corretto-21
+corretto-21.0.0.34.1
+corretto-21.0.0.35.1
+corretto-21.0.1.12.1
+corretto-21.0.2.13.1
+corretto-21.0.3.9.1
+corretto-21.0.4.7.1
+corretto-21.0.5.11.1
+corretto-21.0.6.7.1
+corretto-21.0.7.6.1
 ```
 
 설치할 수 있는 Java 버전을 확인합니다.
 
-저는 원래 AdoptOpenJDK 를 사용하였으나 deprecated 되었기 때문에 Adoptimu 에서 권장하는 Temurin 버전을 사용합니다.
+여러가지 버전이 있으나 AWS 에서 사용되는 corretto 버전을 사용하겠습니다.
 
-([AdoptOpenJDK Blog - Good-bye AdoptOpenJDK. Hello Adoptium!](https://blog.adoptopenjdk.net/2021/08/goodbye-adoptopenjdk-hello-adoptium/) 참고)
-
+JVM 버전은 21 을 사용했습니다.
 
 <br>
 
@@ -78,14 +80,12 @@ zulu-jre-javafx-19.30.11
 
 ```sh
 # 설치
-$ asdf install java temurin-11.0.17+8
+$ asdf install java corretto-21.0.7.6.1
 
 # 설치된 확인
 $ asdf list java
-  temurin-11.0.17+8
+ *corretto-21.0.7.6.1
 ```
-
-Temurin 의 Java 11 버전 중 가장 최신 버전을 설치합니다.
 
 설치 후에는 `asdf list <언어>` 명령어로 설치된 버전을 확인할 수 있으며 `asdf list` 만 입력하면 설치된 모든 오픈 소스의 모든 버전을 볼 수 있습니다.
 
@@ -94,14 +94,12 @@ Temurin 의 Java 11 버전 중 가장 최신 버전을 설치합니다.
 # 5. 사용할 버전 지정
 
 ```sh
-# global
-$ asdf global java temurin-11.0.17+8
-
-# local
-$ asdf local java temurin-11.0.17+8
+$ asdf set java corretto-21.0.7.6.1
 ```
 
-프로젝트 별로 설정하고 싶다면 local, 전역으로 설정하고 싶다면 global 을 사용해 지정합니다.
+설치되었다고 끝난게 아니라 사용할 Java 버전을 지정해야 합니다.
+
+프로젝트 별로 Java 버전을 다르게 사용한다면 맞춰서 설정할 수 있습니다.
 
 <br>
 
@@ -113,15 +111,17 @@ $ . ~/.asdf/plugins/java/set-java-home.zsh
 
 [halcyon/asdf-java - JAVA_HOME](https://github.com/halcyon/asdf-java#java_home) 를 참고해서 본인이 쓰는 shell 에 맞게 입력합니다.
 
+저는 ~/.zshrc 에 추가했습니다.
+
 <br>
 
 # 7. Java 설치 완료
 
 ```sh
 $ java -version
-openjdk version "11.0.17" 2022-10-18
-OpenJDK Runtime Environment Temurin-11.0.17+8 (build 11.0.17+8)
-OpenJDK 64-Bit Server VM Temurin-11.0.17+8 (build 11.0.17+8, mixed mode)
+openjdk version "21.0.7" 2025-04-15 LTS
+OpenJDK Runtime Environment Corretto-21.0.7.6.1 (build 21.0.7+6-LTS)
+OpenJDK 64-Bit Server VM Corretto-21.0.7.6.1 (build 21.0.7+6-LTS, mixed mode, sharing)
 ```
 
 터미널에서 자바 버전을 확인해서 제대로 나온다면 설치 완료입니다.
@@ -131,4 +131,3 @@ OpenJDK 64-Bit Server VM Temurin-11.0.17+8 (build 11.0.17+8, mixed mode)
 # Reference
 
 - [asdf](https://asdf-vm.com/)
-- [AdoptOpenJDK Blog - Good-bye AdoptOpenJDK. Hello Adoptium!](https://blog.adoptopenjdk.net/2021/08/goodbye-adoptopenjdk-hello-adoptium/)
